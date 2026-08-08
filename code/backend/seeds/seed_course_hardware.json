@@ -558,6 +558,20 @@
               }
             },
             {
+              "type": "simulation",
+              "content": {
+                "widgetType": "bloch_sphere",
+                "params": {
+                  "mode": "gate_application",
+                  "startState": "0",
+                  "availableGates": [
+                    "X",
+                    "H"
+                  ]
+                }
+              }
+            },
+            {
               "order_index": 2,
               "type": "question",
               "content": {},
@@ -754,6 +768,60 @@
               "type": "explanation",
               "content": {
                 "text": "A two-qubit gate — like CNOT — requires the two qubits involved to physically interact, typically via a direct electrical coupling between neighboring qubits on the chip. Unlike software, where any variable can reference any other regardless of memory location, two qubits on a real chip can only directly interact if they're physically connected by design."
+              }
+            },
+            {
+              "type": "simulation",
+              "content": {
+                "widgetType": "topology_diagram",
+                "params": {
+                  "caption": "A simple 5-qubit chain -- each qubit connects only to its immediate neighbors. Click two adjacent qubits, then click two that are farther apart, to feel the difference for yourself.",
+                  "qubits": [
+                    {
+                      "id": 0,
+                      "x": 0,
+                      "y": 0
+                    },
+                    {
+                      "id": 1,
+                      "x": 1,
+                      "y": 0
+                    },
+                    {
+                      "id": 2,
+                      "x": 2,
+                      "y": 0
+                    },
+                    {
+                      "id": 3,
+                      "x": 3,
+                      "y": 0
+                    },
+                    {
+                      "id": 4,
+                      "x": 4,
+                      "y": 0
+                    }
+                  ],
+                  "edges": [
+                    [
+                      0,
+                      1
+                    ],
+                    [
+                      1,
+                      2
+                    ],
+                    [
+                      2,
+                      3
+                    ],
+                    [
+                      3,
+                      4
+                    ]
+                  ]
+                }
               }
             },
             {
@@ -969,6 +1037,69 @@
               "type": "explanation",
               "content": {
                 "text": "If a circuit needs a two-qubit gate between two qubits that aren't directly connected on the chip, the gate can't be applied as-is. The standard solution is routing: inserting extra gates — commonly SWAP gates, which exchange the states of two adjacent qubits — to move one of the two qubits' information step by step across the chip until it sits next to the other, close enough to apply the originally intended gate."
+              }
+            },
+            {
+              "type": "simulation",
+              "content": {
+                "widgetType": "topology_diagram",
+                "params": {
+                  "caption": "On this 6-qubit chain, a two-qubit gate between qubit 0 and qubit 5 needs their information routed through every qubit in between via SWAPs -- click qubit 0 and qubit 5 to confirm they aren't directly connected.",
+                  "qubits": [
+                    {
+                      "id": 0,
+                      "x": 0,
+                      "y": 0
+                    },
+                    {
+                      "id": 1,
+                      "x": 1,
+                      "y": 0
+                    },
+                    {
+                      "id": 2,
+                      "x": 2,
+                      "y": 0
+                    },
+                    {
+                      "id": 3,
+                      "x": 3,
+                      "y": 0
+                    },
+                    {
+                      "id": 4,
+                      "x": 4,
+                      "y": 0
+                    },
+                    {
+                      "id": 5,
+                      "x": 5,
+                      "y": 0
+                    }
+                  ],
+                  "edges": [
+                    [
+                      0,
+                      1
+                    ],
+                    [
+                      1,
+                      2
+                    ],
+                    [
+                      2,
+                      3
+                    ],
+                    [
+                      3,
+                      4
+                    ],
+                    [
+                      4,
+                      5
+                    ]
+                  ]
+                }
               }
             },
             {
@@ -1542,6 +1673,47 @@
               "type": "explanation",
               "content": {
                 "text": "Concrete comparison to make the scale of the problem tangible: today's best superconducting qubits typically have coherence times in the range of tens to a few hundred microseconds — millionths of a second. Trapped-ion qubits, by contrast, can sustain coherence for seconds or longer — many orders of magnitude better on this specific metric. This is exactly the tradeoff named back in Chapter 1's platform comparison."
+              }
+            },
+            {
+              "type": "simulation",
+              "content": {
+                "widgetType": "quadrant_selector",
+                "params": {
+                  "caption": "The same platform choice looks different depending on which number you care about.",
+                  "xAxisLabel": "Platform",
+                  "yAxisLabel": "Metric",
+                  "xAxisValues": [
+                    "Superconducting",
+                    "Trapped ion"
+                  ],
+                  "yAxisValues": [
+                    "Gate speed",
+                    "Coherence time"
+                  ],
+                  "quadrants": [
+                    {
+                      "label": "Superconducting, gate speed",
+                      "description": "Roughly 10-50 nanoseconds per gate -- very fast.",
+                      "highlighted": false
+                    },
+                    {
+                      "label": "Trapped ion, gate speed",
+                      "description": "Roughly microseconds per gate -- much slower than superconducting.",
+                      "highlighted": false
+                    },
+                    {
+                      "label": "Superconducting, coherence time",
+                      "description": "Microseconds to a few hundred microseconds -- comparatively short.",
+                      "highlighted": false
+                    },
+                    {
+                      "label": "Trapped ion, coherence time",
+                      "description": "Seconds or longer -- orders of magnitude better than superconducting.",
+                      "highlighted": false
+                    }
+                  ]
+                }
               }
             },
             {

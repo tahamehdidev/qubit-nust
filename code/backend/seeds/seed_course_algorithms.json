@@ -916,6 +916,36 @@
               }
             },
             {
+              "type": "simulation",
+              "content": {
+                "widgetType": "amplitude_bar_chart",
+                "params": {
+                  "caption": "The oracle flips the marked state's sign -- notice every bar is still the same height, just one points negative. Measurement probability depends only on height, not sign, so this change alone is invisible to a direct measurement.",
+                  "labels": [
+                    "000",
+                    "001",
+                    "010",
+                    "011",
+                    "100",
+                    "101",
+                    "110",
+                    "111"
+                  ],
+                  "amplitudes": [
+                    0.354,
+                    0.354,
+                    0.354,
+                    -0.354,
+                    0.354,
+                    0.354,
+                    0.354,
+                    0.354
+                  ],
+                  "highlightedIndex": 3
+                }
+              }
+            },
+            {
               "order_index": 3,
               "type": "question",
               "content": {},
@@ -1029,6 +1059,36 @@
               "type": "explanation",
               "content": {
                 "text": "The marked amplitude's growth across repeated Grover iterations follows a smooth, wave-like pattern — it rises toward a peak, but if you keep iterating past that peak, it actually starts falling back down again. The optimal number of iterations is approximately (π/4)√N — close to this number, the probability of measuring the correct answer approaches certainty. Well past it, the probability degrades."
+              }
+            },
+            {
+              "type": "simulation",
+              "content": {
+                "widgetType": "amplitude_bar_chart",
+                "params": {
+                  "caption": "After running the optimal number of Grover iterations, the marked state's amplitude has grown large while the rest have shrunk -- the peak of the wave-like growth pattern described above. Run even more iterations past this point and the amplitude would start shrinking again.",
+                  "labels": [
+                    "000",
+                    "001",
+                    "010",
+                    "011",
+                    "100",
+                    "101",
+                    "110",
+                    "111"
+                  ],
+                  "amplitudes": [
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.94,
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.1
+                  ],
+                  "highlightedIndex": 3
+                }
               }
             },
             {

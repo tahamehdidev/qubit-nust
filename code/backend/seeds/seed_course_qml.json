@@ -1860,6 +1860,23 @@
               }
             },
             {
+              "type": "simulation",
+              "content": {
+                "widgetType": "amplitude_bar_chart",
+                "params": {
+                  "caption": "The swap test's helper qubit is measured at the end. High overlap between the two states being compared shows up as a strong bias toward |0⟩ -- here, about 90% -- rather than an even 50/50 split.",
+                  "labels": [
+                    "|0⟩",
+                    "|1⟩"
+                  ],
+                  "amplitudes": [
+                    0.949,
+                    0.316
+                  ]
+                }
+              }
+            },
+            {
               "order_index": 6,
               "type": "question",
               "content": {},
