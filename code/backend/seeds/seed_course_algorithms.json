@@ -1780,6 +1780,36 @@
               }
             },
             {
+              "type": "simulation",
+              "content": {
+                "widgetType": "amplitude_bar_chart",
+                "params": {
+                  "caption": "After the QFT, amplitude concentrates on evenly-spaced outputs (here: 0, 2, 4, 6) instead of spreading randomly across every possible value -- this is exactly the pattern measurement needs to reveal the period.",
+                  "amplitudes": [
+                    0.5,
+                    0.02,
+                    0.5,
+                    0.02,
+                    0.5,
+                    0.02,
+                    0.5,
+                    0.02
+                  ],
+                  "labels": [
+                    "0",
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                    "7"
+                  ],
+                  "highlightedIndex": 2
+                }
+              }
+            },
+            {
               "order_index": 3,
               "type": "question",
               "content": {},
@@ -1835,6 +1865,47 @@
               "type": "explanation",
               "content": {
                 "text": "Two specific situations make this final step fail, requiring the whole procedure to restart with a freshly chosen random a. First: if the period r turns out to be an odd number, the expression a^(r/2) isn't even a valid integer, and the method can't proceed. Second: even if r is even, if a^(r/2) ≡ −1 (mod N), the GCD calculation produces a trivial, useless result — either 1 or N itself, neither of which is an actual factor. Both cases are detected immediately, so a restart costs only a fresh attempt. But it does mean the algorithm is correctly described as succeeding \"with high probability per attempt,\" not as a guaranteed one-shot success."
+              }
+            },
+            {
+              "type": "simulation",
+              "content": {
+                "widgetType": "quadrant_selector",
+                "params": {
+                  "caption": "Two things about the found period r determine whether this run succeeds or needs a restart with a new a.",
+                  "xAxisLabel": "Period r",
+                  "yAxisLabel": "a^(r/2) mod N",
+                  "xAxisValues": [
+                    "Even",
+                    "Odd"
+                  ],
+                  "yAxisValues": [
+                    "Not −1",
+                    "≡ −1"
+                  ],
+                  "quadrants": [
+                    {
+                      "label": "Even period, a^(r/2) not ≡ −1",
+                      "description": "The GCD step succeeds -- a real factor of N is recovered.",
+                      "highlighted": true
+                    },
+                    {
+                      "label": "Odd period, a^(r/2) not ≡ −1",
+                      "description": "Odd r alone forces a restart with a new a -- the GCD math needs r/2 to make sense.",
+                      "highlighted": false
+                    },
+                    {
+                      "label": "Even period, a^(r/2) ≡ −1",
+                      "description": "Even though r is even, this specific case also forces a restart -- the GCD step degenerates to a trivial factor.",
+                      "highlighted": false
+                    },
+                    {
+                      "label": "Odd period, a^(r/2) ≡ −1",
+                      "description": "Both conditions present at once -- still just a restart with a new a, same as either alone.",
+                      "highlighted": false
+                    }
+                  ]
+                }
               }
             },
             {
