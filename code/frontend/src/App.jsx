@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { PublicLayout } from "./components/layouts/PublicLayout.jsx";
 import { AuthenticatedLayout } from "./components/layouts/AuthenticatedLayout.jsx";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute.jsx";
+import { RoleGate } from "./components/auth/RoleGate.jsx";
 import { SmoothScroll } from "./components/layouts/SmoothScroll.jsx";
 import { LandingPage } from "./pages/LandingPage.jsx";
 import { LoginPage } from "./pages/LoginPage.jsx";
@@ -49,7 +50,11 @@ export function App() {
             <Route path="/practice-sets/:practiceSetId" element={<PracticeSetPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/join/:joinCode" element={<JoinCohortPage />} />
-            <Route path="/admin/users" element={<AdminUsersPage />} />
+            {/* Phase 8A: role check moved out of the page itself into a shared RoleGate, now
+                that there's more than one role-restricted destination to justify it. */}
+            <Route element={<RoleGate allow={["admin"]} />}>
+              <Route path="/admin/users" element={<AdminUsersPage />} />
+            </Route>
           </Route>
         </Route>
         {/* Nav-flow audit: no catch-all existed at all -- an unmatched URL rendered blank. Outside

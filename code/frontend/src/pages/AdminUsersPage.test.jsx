@@ -2,13 +2,9 @@ import { test, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
-import { useAuth } from "../context/AuthContext.jsx";
 import { adminService } from "../services/admin.service.js";
 import { AdminUsersPage } from "./AdminUsersPage.jsx";
 
-vi.mock("../context/AuthContext.jsx", () => ({
-  useAuth: vi.fn(),
-}));
 vi.mock("../services/admin.service.js", () => ({
   adminService: { listUsers: vi.fn(), createInstructor: vi.fn(), deactivateUser: vi.fn() },
 }));
@@ -28,15 +24,7 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-test("redirects a non-admin caller to /dashboard instead of rendering", async () => {
-  useAuth.mockReturnValue({ user: { id: "u1", role: "instructor" } });
-  renderPage();
-  expect(await screen.findByText("Dashboard page")).toBeInTheDocument();
-  expect(adminService.listUsers).not.toHaveBeenCalled();
-});
-
 test("an admin sees the account list", async () => {
-  useAuth.mockReturnValue({ user: { id: "a1", role: "admin" } });
   adminService.listUsers.mockResolvedValue({
     users: [
       { id: "u1", name: "Ada Lovelace", email: "ada@example.com", role: "learner", deactivatedAt: null },
@@ -60,7 +48,6 @@ test("an admin sees the account list", async () => {
 
 test("typing in the search box re-fetches with the search param", async () => {
   const user = userEvent.setup();
-  useAuth.mockReturnValue({ user: { id: "a1", role: "admin" } });
   adminService.listUsers.mockResolvedValue({
     users: [],
     pagination: { page: 1, limit: 20, total: 0 },
@@ -82,7 +69,6 @@ test("typing in the search box re-fetches with the search param", async () => {
 
 test("creating an instructor shows the generated password once and clears the form", async () => {
   const user = userEvent.setup();
-  useAuth.mockReturnValue({ user: { id: "a1", role: "admin" } });
   adminService.listUsers.mockResolvedValue({
     users: [],
     pagination: { page: 1, limit: 20, total: 0 },
@@ -105,7 +91,6 @@ test("creating an instructor shows the generated password once and clears the fo
 
 test("shows an error banner when instructor creation fails, without clearing the form", async () => {
   const user = userEvent.setup();
-  useAuth.mockReturnValue({ user: { id: "a1", role: "admin" } });
   adminService.listUsers.mockResolvedValue({
     users: [],
     pagination: { page: 1, limit: 20, total: 0 },
@@ -128,7 +113,6 @@ test("shows an error banner when instructor creation fails, without clearing the
 
 test("deactivating a user requires confirmation, then updates that row", async () => {
   const user = userEvent.setup();
-  useAuth.mockReturnValue({ user: { id: "a1", role: "admin" } });
   adminService.listUsers.mockResolvedValue({
     users: [
       { id: "u1", name: "Ada Lovelace", email: "ada@example.com", role: "learner", deactivatedAt: null },

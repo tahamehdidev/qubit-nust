@@ -61,6 +61,30 @@ test("authenticated: renders persistent Courses and Dashboard links, plus Log ou
   expect(screen.getByRole("button", { name: "Log out" })).toBeInTheDocument();
 });
 
+// Phase 8A: /admin/users previously had no persistent nav entry at all -- reachable only via a
+// card link on the admin's own dashboard.
+test("admin: renders an Admin nav link pointing at /admin/users", () => {
+  useAuth.mockReturnValue({
+    user: { id: "a1", role: "admin" },
+    logout: vi.fn(),
+    isAuthenticated: true,
+    isLoading: false,
+  });
+  renderAt("/courses");
+  expect(screen.getByRole("link", { name: "Admin" })).toHaveAttribute("href", "/admin/users");
+});
+
+test("non-admin: renders no Admin nav link", () => {
+  useAuth.mockReturnValue({
+    user: { id: "i1", role: "instructor" },
+    logout: vi.fn(),
+    isAuthenticated: true,
+    isLoading: false,
+  });
+  renderAt("/courses");
+  expect(screen.queryByRole("link", { name: "Admin" })).not.toBeInTheDocument();
+});
+
 // Critique fix: nav previously gave zero indication of current location -- color only changed
 // on :hover and reverted the instant the mouse left, nothing for a screen reader.
 test("marks the current route's nav link as active, both visually and via aria-current", () => {

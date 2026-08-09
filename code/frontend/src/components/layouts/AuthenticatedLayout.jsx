@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, NavLink, Link } from "react-router-dom";
-import { BookOpen, LayoutDashboard } from "lucide-react";
+import { BookOpen, LayoutDashboard, ShieldCheck } from "lucide-react";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { RouteTransition } from "./RouteTransition.jsx";
 // Reuses Button.css's classes for the anonymous-nav Sign up CTA without mounting a <Button>
@@ -23,7 +23,7 @@ import "./AuthenticatedLayout.css";
 export function AuthenticatedLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout, isAuthenticated, isLoading } = useAuth();
+  const { user, logout, isAuthenticated, isLoading } = useAuth();
   // SignupPage passes this via navigate()'s state on a successful signup -- otherwise signing up
   // is a visual non-event (form disappears, catalog appears, nothing marks the transition). Lives
   // here rather than on CourseCatalogPage itself since "acknowledge how we got here" is a
@@ -67,6 +67,15 @@ export function AuthenticatedLayout() {
               <LayoutDashboard size={16} aria-hidden="true" />
               Dashboard
             </NavLink>
+            {/* Phase 8A: admin's one dedicated destination (/admin/users) previously had no
+                persistent nav entry -- reachable only via a card link on the admin's own
+                dashboard, an orphaned-page problem the role-completeness audit flagged. */}
+            {user?.role === "admin" ? (
+              <NavLink to="/admin/users" className={navLinkClassName}>
+                <ShieldCheck size={16} aria-hidden="true" />
+                Admin
+              </NavLink>
+            ) : null}
             <button type="button" className="authenticated-layout__logout" onClick={handleLogout}>
               Log out
             </button>

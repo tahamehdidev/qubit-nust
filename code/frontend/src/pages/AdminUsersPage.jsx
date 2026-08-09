@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
 import { UserPlus, Users } from "lucide-react";
-import { useAuth } from "../context/AuthContext.jsx";
 import { adminService } from "../services/admin.service.js";
 import { parseApiError } from "../utils/parseApiError.js";
 import { Card } from "../components/ui/Card.jsx";
@@ -12,20 +10,10 @@ import "./AdminUsersPage.css";
 
 const PAGE_SIZE = 20;
 
-// Phase 7C.1. There's no generic role-gate wrapper in this codebase anymore (RoleGate.jsx was
-// removed as dead code once every route it could have guarded turned out not to need it -- see
-// the nav-flow audit) -- this is the first route that actually needs one, so the check lives
-// inline here, same pattern DashboardPage.jsx's own top-level role branch already uses, rather
-// than reintroducing a wrapper component for a single use.
+// Phase 8A: the admin-only check moved to RoleGate, wrapping this route in App.jsx, now that
+// there's a second role-gated destination to justify a shared component (Phase 7C.1's inline
+// check here was a deliberate one-off at the time, per its own comment).
 export function AdminUsersPage() {
-  const { user } = useAuth();
-  if (user.role !== "admin") {
-    return <Navigate to="/dashboard" replace />;
-  }
-  return <AdminUsersPageContent />;
-}
-
-function AdminUsersPageContent() {
   const [createName, setCreateName] = useState("");
   const [createEmail, setCreateEmail] = useState("");
   const [isCreating, setIsCreating] = useState(false);
