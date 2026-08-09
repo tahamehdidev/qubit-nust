@@ -24,6 +24,7 @@ export function LoginPage() {
   // real dashboard waiting for them (nav-flow audit) -- other roles fall back to the catalog.
   const redirectFrom = location.state?.from?.pathname;
   const justSignedUp = location.state?.justSignedUp ?? false;
+  const justResetPassword = location.state?.justResetPassword ?? false;
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -54,6 +55,11 @@ export function LoginPage() {
               Account created. Log in to continue.
             </p>
           ) : null}
+          {justResetPassword ? (
+            <p className="auth-page__banner auth-page__banner--success">
+              Password reset. Log in with your new password.
+            </p>
+          ) : null}
           {error ? (
             <p className="auth-page__banner auth-page__banner--error" role="alert">
               {error}
@@ -78,6 +84,9 @@ export function LoginPage() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
             />
+            <Link to="/forgot-password" className="auth-page__forgot-link">
+              Forgot password?
+            </Link>
             <Button type="submit" isLoading={isSubmitting} className="auth-page__submit">
               Log in
             </Button>

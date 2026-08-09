@@ -1,11 +1,18 @@
 import { Router } from "express";
 import { validateBody } from "../middleware/validateBody.middleware.js";
-import { SignupSchema, LoginSchema } from "../validators/auth.validator.js";
+import {
+  SignupSchema,
+  LoginSchema,
+  PasswordResetRequestSchema,
+  PasswordResetConfirmSchema,
+} from "../validators/auth.validator.js";
 import {
   signupIpLimiter,
   loginIpLimiter,
   loginAccountLimiter,
   logoutAccountLimiter,
+  passwordResetRequestLimiter,
+  passwordResetConfirmLimiter,
 } from "../middleware/rateLimit.middleware.js";
 import {
   signupController,
@@ -13,6 +20,8 @@ import {
   refreshController,
   logoutController,
   logoutAllController,
+  passwordResetRequestController,
+  passwordResetConfirmController,
 } from "../controllers/auth.controller.js";
 
 const router = Router();
@@ -30,5 +39,19 @@ router.post(
 router.post("/refresh", refreshController);
 router.post("/logout", logoutAccountLimiter, logoutController);
 router.post("/logout-all", logoutAccountLimiter, logoutAllController);
+// Both public (auth.middleware.js's PUBLIC_ROUTES) -- a logged-out user is exactly who needs
+// these, same as signup/login.
+router.post(
+  "/password-reset/request",
+  passwordResetRequestLimiter,
+  validateBody(PasswordResetRequestSchema),
+  passwordResetRequestController
+);
+router.post(
+  "/password-reset/confirm",
+  passwordResetConfirmLimiter,
+  validateBody(PasswordResetConfirmSchema),
+  passwordResetConfirmController
+);
 
 export default router;

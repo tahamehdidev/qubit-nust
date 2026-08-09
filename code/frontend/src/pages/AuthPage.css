@@ -85,6 +85,18 @@
   color: var(--color-success);
 }
 
+/* Login-only: sits between the password field and the submit button, right-aligned so it reads
+   as a secondary escape hatch rather than competing with the primary "Log in" action below it. */
+.auth-page__forgot-link {
+  align-self: flex-end;
+  margin-top: calc(var(--space-4) * -1);
+  font-size: var(--text-sm);
+  color: var(--color-muted-foreground);
+}
+.auth-page__forgot-link:hover {
+  color: var(--color-foreground);
+}
+
 .auth-page__submit {
   margin-top: var(--space-2);
 }

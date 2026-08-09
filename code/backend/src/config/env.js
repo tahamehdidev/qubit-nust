@@ -24,4 +24,8 @@ export const env = {
   // Optional (Phase 5 Polish) -- unset in dev/test/CI, so Sentry stays a genuine no-op until a
   // real project's DSN is supplied. Not `required()`: this must never block the app from starting.
   SENTRY_DSN: process.env.SENTRY_DSN ?? null,
+  // Optional (Phase 7B.1) -- same reasoning as SENTRY_DSN. Unset in dev/test/CI: utils/email.js
+  // logs the reset link instead of sending a real email until a real Resend API key is supplied.
+  RESEND_API_KEY: process.env.RESEND_API_KEY ?? null,
+  RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL ?? "Qubit — NUST <onboarding@resend.dev>",
 };

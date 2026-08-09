@@ -13,3 +13,12 @@ export const LoginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
 });
+
+export const PasswordResetRequestSchema = z.object({
+  email: z.string().email(),
+});
+
+export const PasswordResetConfirmSchema = z.object({
+  token: z.string().min(1),
+  newPassword: z.string().min(8),
+});

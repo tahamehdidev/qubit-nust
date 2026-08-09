@@ -134,6 +134,26 @@ test("shows a success banner after being redirected here from a completed signup
   expect(screen.getByText("Account created. Log in to continue.")).toBeInTheDocument();
 });
 
+test("shows a success banner after being redirected here from a completed password reset", () => {
+  render(
+    <MemoryRouter initialEntries={[{ pathname: "/login", state: { justResetPassword: true } }]}>
+      <AuthProvider>
+        <LoginPage />
+      </AuthProvider>
+    </MemoryRouter>
+  );
+
+  expect(screen.getByText("Password reset. Log in with your new password.")).toBeInTheDocument();
+});
+
+test("links to /forgot-password", () => {
+  renderLoginPage();
+  expect(screen.getByRole("link", { name: "Forgot password?" })).toHaveAttribute(
+    "href",
+    "/forgot-password"
+  );
+});
+
 test("disables the form and shows a loading submit button while the request is in flight", async () => {
   const user = userEvent.setup();
   let resolveLogin;

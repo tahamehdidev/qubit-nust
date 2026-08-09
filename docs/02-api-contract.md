@@ -72,6 +72,7 @@ Every error case throughout this contract (Sections 2–7) returns the same resp
 | `DUPLICATE_RESOURCE` | 409 | Question already attached (Section 4.5), student already actively enrolled (Section 6.4) |
 | `REORDER_SET_MISMATCH` | 400 | Reorder request's ID set doesn't match actual siblings (Section 3.4) |
 | `RATE_LIMITED` | 429 | Any rate-limited endpoint, once its limit is exceeded — see `03-security-architecture.md` for the full per-endpoint limit table |
+| `INVALID_OR_EXPIRED_TOKEN` | 400 | Password reset confirm with an unknown, already-used, or expired token (Section 2.10) |
 
 Every "Errors:" line throughout Sections 2–7 should be read as returning this shape with the corresponding code from this table.
 
@@ -148,6 +149,8 @@ A third, separate concern: even once a request is authorized to access an endpoi
 | `POST` | `/auth/refresh` | Issue new access token from valid refresh cookie | Valid refresh cookie |
 | `POST` | `/auth/logout` | Revoke this device's refresh token | Logged in |
 | `POST` | `/auth/logout-all` | Revoke all of this user's refresh tokens | Logged in |
+| `POST` | `/auth/password-reset/request` | Email a password reset link (Phase 7B.1) | Public |
+| `POST` | `/auth/password-reset/confirm` | Set a new password using a reset token (Phase 7B.1) | Public |
 | `GET` | `/users/me` | Get my own profile | Logged in |
 | `PATCH` | `/users/me` | Update my own profile | Logged in |
 
@@ -218,6 +221,36 @@ No request body. Sets `revoked_at = now()` on every `RefreshToken` row for this 
 ### 2.8 `GET /users/me` / `PATCH /users/me`
 
 Standard profile read/update for the logged-in user. `role` is never editable through this endpoint — role changes, if ever needed, are a separate, more privileged action not included in this MVP contract.
+
+### 2.9 `POST /auth/password-reset/request` (Phase 7B.1)
+
+**Request:**
+```json
+{ "email": "student@nust.edu.pk" }
+```
+
+**Response — `200 OK`, always, regardless of whether the email is registered:**
+```json
+{ "message": "If an account exists for that email, a password reset link has been sent." }
+```
+Same enumeration-safety discipline as login's identical-message-for-both-cases rule (Section 2.1): a nonexistent email is a silent no-op — no `PasswordResetToken` row created, no email sent, and the response is byte-for-byte identical to the real-account case. Rate-limited per-IP, not per-account, since the caller isn't authenticated and a per-account key could be trivially bypassed by rotating the submitted email — see `03-security-architecture.md`.
+
+When the email is registered: creates a `PasswordResetToken` row (hash stored, 30-minute expiry — same single-use/hashed/expiring shape as `RefreshToken`) and emails a link of the form `{FRONTEND_URL}/reset-password?token=...` via Resend (free tier). In dev/test, with no Resend API key configured, the link is logged to the server console instead of actually sent.
+
+**Errors:** `400` missing/invalid email · `429` rate limited
+
+### 2.10 `POST /auth/password-reset/confirm` (Phase 7B.1)
+
+**Request:**
+```json
+{ "token": "raw token from the emailed link", "newPassword": "at least 8 characters" }
+```
+
+**Response:** `200 OK`, empty body.
+
+Atomically marks the token used (single-use, same pattern as refresh-token rotation), updates `User.password_hash`, and revokes every `RefreshToken` for that user — a password reset logs the account out everywhere, same as `POST /auth/logout-all`.
+
+**Errors:** `400` token missing/unknown/already-used/expired (`INVALID_OR_EXPIRED_TOKEN`) or new password too short (`VALIDATION_ERROR`) · `429` rate limited
 
 ---
 

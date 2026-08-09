@@ -6,6 +6,8 @@ import { SmoothScroll } from "./components/layouts/SmoothScroll.jsx";
 import { LandingPage } from "./pages/LandingPage.jsx";
 import { LoginPage } from "./pages/LoginPage.jsx";
 import { SignupPage } from "./pages/SignupPage.jsx";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage.jsx";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage.jsx";
 import { CourseCatalogPage } from "./pages/CourseCatalogPage.jsx";
 import { CourseDetailPage } from "./pages/CourseDetailPage.jsx";
 import { LessonPlayerPage } from "./pages/LessonPlayerPage.jsx";
@@ -25,6 +27,8 @@ export function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
         {/* Phase 5.5: /courses and /courses/:courseId are deliberately OUTSIDE ProtectedRoute --
             course browsing (syllabus, chapter/lesson titles) is public, so a visitor can preview

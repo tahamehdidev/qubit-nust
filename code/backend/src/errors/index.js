@@ -69,4 +69,10 @@ export class RateLimitedError extends AppError {
   }
 }
 
+export class InvalidOrExpiredTokenError extends AppError {
+  constructor(message = "This link is invalid or has expired. Please request a new one.") {
+    super("INVALID_OR_EXPIRED_TOKEN", message, 400);
+  }
+}
+
 export { AppError };

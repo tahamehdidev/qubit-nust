@@ -18,6 +18,8 @@ const PUBLIC_ROUTES = [
   { method: "POST", path: "/auth/signup" },
   { method: "POST", path: "/auth/login" },
   { method: "POST", path: "/auth/refresh" },
+  { method: "POST", path: "/auth/password-reset/request" },
+  { method: "POST", path: "/auth/password-reset/confirm" },
   { method: "GET", path: "/health" },
   { method: "GET", path: "/courses" },
   { method: "GET", path: "/courses/:courseId" },

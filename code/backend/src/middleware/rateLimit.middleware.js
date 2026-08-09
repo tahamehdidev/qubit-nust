@@ -21,6 +21,8 @@ export const RATE_LIMITS = {
   studentDataPerAccount: { windowMs: 60 * 1000, limit: 30 },
   cohortEnrollPerAccount: { windowMs: 60 * 1000, limit: 20 },
   cohortAdminReassignPerAdmin: { windowMs: 60 * 1000, limit: 10 },
+  passwordResetRequestPerIp: { windowMs: 60 * 60 * 1000, limit: 5 },
+  passwordResetConfirmPerIp: { windowMs: 15 * 60 * 1000, limit: 10 },
 };
 
 // Disabled only when BOTH NODE_ENV=test AND RATE_LIMIT_TEST_MODE=1 are set (tests/preload.js) --
@@ -130,5 +132,28 @@ export const cohortAdminReassignLimiter = rateLimit({
   legacyHeaders: false,
   keyGenerator: (req) => req.user?.id ?? req.ip,
   skip: (req) => !(req.user?.role === "admin" && req.body?.instructorId),
+  handler: rateLimitHandler,
+});
+
+// Per-IP (there's no account to key on -- the request is unauthenticated by definition, and
+// keying on the submitted email would let an attacker fan requests out across many emails to
+// dodge a per-account limit entirely). Keeps someone from using this endpoint to mass-spam
+// arbitrary inboxes with reset links.
+export const passwordResetRequestLimiter = rateLimit({
+  windowMs: RATE_LIMITS.passwordResetRequestPerIp.windowMs,
+  limit: effectiveLimit(RATE_LIMITS.passwordResetRequestPerIp.limit),
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: rateLimitHandler,
+});
+
+// Also per-IP, same reasoning -- bounds worst-case scripted guessing against the token's
+// high-entropy random value (32 bytes, same generator as refresh tokens), which is already the
+// primary defense; this is just a backstop.
+export const passwordResetConfirmLimiter = rateLimit({
+  windowMs: RATE_LIMITS.passwordResetConfirmPerIp.windowMs,
+  limit: effectiveLimit(RATE_LIMITS.passwordResetConfirmPerIp.limit),
+  standardHeaders: true,
+  legacyHeaders: false,
   handler: rateLimitHandler,
 });

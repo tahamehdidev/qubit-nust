@@ -26,4 +26,12 @@ async function updateName(id, name) {
   return result.rows[0] ?? null;
 }
 
-export const userRepository = { findByEmail, findById, create, updateName };
+async function updatePasswordHash(id, passwordHash) {
+  const result = await pool.query(
+    'UPDATE "user" SET password_hash = $1 WHERE id = $2 RETURNING *',
+    [passwordHash, id]
+  );
+  return result.rows[0] ?? null;
+}
+
+export const userRepository = { findByEmail, findById, create, updateName, updatePasswordHash };

@@ -1,5 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { authService } from "../services/auth.service.js";
+import { passwordResetService } from "../services/passwordReset.service.js";
 import { env } from "../config/env.js";
 
 // httpOnly/SameSite=Strict always (02-api-contract.md §2.1, 03-security-architecture.md §2.3).
@@ -49,5 +50,21 @@ export const logoutController = asyncHandler(async (req, res) => {
 export const logoutAllController = asyncHandler(async (req, res) => {
   await authService.logoutAll(req.user.id);
   res.clearCookie("refreshToken", REFRESH_COOKIE_OPTIONS);
+  res.status(200).end();
+});
+
+// Identical response regardless of whether the email belongs to a real account -- the enumeration
+// safety lives in passwordResetService.requestReset() itself; this controller has nothing left to
+// branch on even if it wanted to.
+const PASSWORD_RESET_REQUESTED_MESSAGE =
+  "If an account exists for that email, a password reset link has been sent.";
+
+export const passwordResetRequestController = asyncHandler(async (req, res) => {
+  await passwordResetService.requestReset(req.validatedBody.email);
+  res.status(200).json({ message: PASSWORD_RESET_REQUESTED_MESSAGE });
+});
+
+export const passwordResetConfirmController = asyncHandler(async (req, res) => {
+  await passwordResetService.confirmReset(req.validatedBody);
   res.status(200).end();
 });
