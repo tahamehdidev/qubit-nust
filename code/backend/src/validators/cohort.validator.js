@@ -7,4 +7,10 @@ export const CreateCohortSchema = z.object({
   instructorId: z.string().uuid().optional(),
 });
 
-export const UpdateCohortSchema = CreateCohortSchema.partial();
+// regenerateJoinCode (Phase 7B.2) is a one-shot action flag, not a persisted field -- true
+// replaces the cohort's join_code with a fresh one (revokes the old code); omitted/false leaves
+// it untouched. Deliberately not settable to a caller-supplied value: a join code is always
+// server-generated, never chosen.
+export const UpdateCohortSchema = CreateCohortSchema.partial().extend({
+  regenerateJoinCode: z.boolean().optional(),
+});

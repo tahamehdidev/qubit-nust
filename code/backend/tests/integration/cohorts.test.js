@@ -486,6 +486,163 @@ test("GET /cohorts/:id/dashboard/lesson-pacing averages the gap between a user's
   assert.match(pacing.note, /Approximate/);
 });
 
+test("POST /cohorts creates a cohort with a join_code; two cohorts never collide", async () => {
+  const { accessToken } = await createUserWithToken({ role: "instructor" });
+
+  const resA = await request(app)
+    .post("/cohorts")
+    .set("Authorization", `Bearer ${accessToken}`)
+    .send({ name: "Cohort A" });
+  const resB = await request(app)
+    .post("/cohorts")
+    .set("Authorization", `Bearer ${accessToken}`)
+    .send({ name: "Cohort B" });
+
+  assert.equal(resA.body.cohort.join_code.length, 8);
+  assert.notEqual(resA.body.cohort.join_code, resB.body.cohort.join_code);
+});
+
+test("POST /cohorts/join enrolls the calling learner in the cohort matching the code (case-insensitive)", async () => {
+  const { accessToken: instructorToken } = await createUserWithToken({ role: "instructor" });
+  const { accessToken: learnerToken, user: learner } = await createUserWithToken({
+    role: "learner",
+  });
+
+  const createRes = await request(app)
+    .post("/cohorts")
+    .set("Authorization", `Bearer ${instructorToken}`)
+    .send({ name: "Cohort" });
+  const { id: cohortId, join_code: joinCode } = createRes.body.cohort;
+
+  const joinRes = await request(app)
+    .post("/cohorts/join")
+    .set("Authorization", `Bearer ${learnerToken}`)
+    .send({ joinCode: joinCode.toLowerCase() });
+
+  assert.equal(joinRes.status, 201);
+  assert.equal(joinRes.body.enrollment.cohort_id, cohortId);
+  assert.equal(joinRes.body.enrollment.user_id, learner.id);
+  assert.equal(joinRes.body.cohort.id, cohortId);
+});
+
+test("POST /cohorts/join with an unknown code -> 404; a non-learner caller -> 403", async () => {
+  const { accessToken: learnerToken } = await createUserWithToken({ role: "learner" });
+  const { accessToken: instructorToken } = await createUserWithToken({ role: "instructor" });
+
+  const unknownRes = await request(app)
+    .post("/cohorts/join")
+    .set("Authorization", `Bearer ${learnerToken}`)
+    .send({ joinCode: "NOTREAL1" });
+  assert.equal(unknownRes.status, 404);
+
+  const wrongRoleRes = await request(app)
+    .post("/cohorts/join")
+    .set("Authorization", `Bearer ${instructorToken}`)
+    .send({ joinCode: "WHATEVER" });
+  assert.equal(wrongRoleRes.status, 403);
+});
+
+test("PATCH /cohorts/:id with regenerateJoinCode:true issues a new code; the old code stops working", async () => {
+  const { accessToken: instructorToken } = await createUserWithToken({ role: "instructor" });
+  const { accessToken: learnerToken } = await createUserWithToken({ role: "learner" });
+
+  const createRes = await request(app)
+    .post("/cohorts")
+    .set("Authorization", `Bearer ${instructorToken}`)
+    .send({ name: "Cohort" });
+  const { id: cohortId, join_code: originalCode } = createRes.body.cohort;
+
+  const regenRes = await request(app)
+    .patch(`/cohorts/${cohortId}`)
+    .set("Authorization", `Bearer ${instructorToken}`)
+    .send({ regenerateJoinCode: true });
+  assert.equal(regenRes.status, 200);
+  assert.notEqual(regenRes.body.cohort.join_code, originalCode);
+
+  const oldCodeRes = await request(app)
+    .post("/cohorts/join")
+    .set("Authorization", `Bearer ${learnerToken}`)
+    .send({ joinCode: originalCode });
+  assert.equal(oldCodeRes.status, 404);
+
+  const newCodeRes = await request(app)
+    .post("/cohorts/join")
+    .set("Authorization", `Bearer ${learnerToken}`)
+    .send({ joinCode: regenRes.body.cohort.join_code });
+  assert.equal(newCodeRes.status, 201);
+});
+
+test("POST /cohorts/:id/students/bulk enrolls valid learner emails and reports per-row failures", async () => {
+  const { accessToken: instructorToken } = await createUserWithToken({ role: "instructor" });
+  const { user: learnerA } = await createUserWithToken({
+    role: "learner",
+    email: "bulk-a@example.com",
+  });
+  const { user: learnerB } = await createUserWithToken({
+    role: "learner",
+    email: "bulk-b@example.com",
+  });
+  const { user: nonLearner } = await createUserWithToken({
+    role: "instructor",
+    email: "bulk-instructor@example.com",
+  });
+
+  const createRes = await request(app)
+    .post("/cohorts")
+    .set("Authorization", `Bearer ${instructorToken}`)
+    .send({ name: "Cohort" });
+  const cohortId = createRes.body.cohort.id;
+
+  // Already-enrolled beforehand, to prove the bulk endpoint reports it as a per-row failure
+  // rather than aborting the whole batch.
+  await request(app)
+    .post(`/cohorts/${cohortId}/students`)
+    .set("Authorization", `Bearer ${instructorToken}`)
+    .send({ userId: learnerA.id });
+
+  const bulkRes = await request(app)
+    .post(`/cohorts/${cohortId}/students/bulk`)
+    .set("Authorization", `Bearer ${instructorToken}`)
+    .send({
+      emails: [
+        "bulk-a@example.com", // already enrolled -> failed
+        "bulk-b@example.com", // valid -> enrolled
+        nonLearner.email, // wrong role -> failed
+        "nobody-registered@example.com", // no account -> failed
+      ],
+    });
+
+  assert.equal(bulkRes.status, 200);
+  const byEmail = Object.fromEntries(bulkRes.body.results.map((r) => [r.email, r]));
+  assert.equal(byEmail["bulk-a@example.com"].status, "failed");
+  assert.equal(byEmail["bulk-b@example.com"].status, "enrolled");
+  assert.equal(byEmail[nonLearner.email].status, "failed");
+  assert.equal(byEmail["nobody-registered@example.com"].status, "failed");
+
+  const rosterRes = await request(app)
+    .get(`/cohorts/${cohortId}/students`)
+    .set("Authorization", `Bearer ${instructorToken}`);
+  assert.equal(rosterRes.body.students.length, 2);
+  assert.ok(rosterRes.body.students.some((s) => s.user_id === learnerB.id));
+});
+
+test("cross-instructor access to POST /cohorts/:id/students/bulk -> 403", async () => {
+  const { accessToken: ownerToken } = await createUserWithToken({ role: "instructor" });
+  const { accessToken: strangerToken } = await createUserWithToken({ role: "instructor" });
+
+  const createRes = await request(app)
+    .post("/cohorts")
+    .set("Authorization", `Bearer ${ownerToken}`)
+    .send({ name: "Cohort" });
+  const cohortId = createRes.body.cohort.id;
+
+  const res = await request(app)
+    .post(`/cohorts/${cohortId}/students/bulk`)
+    .set("Authorization", `Bearer ${strangerToken}`)
+    .send({ emails: ["someone@example.com"] });
+  assert.equal(res.status, 403);
+});
+
 test("cross-instructor access to the dashboard endpoints -> 403; admin bypasses", async () => {
   const { accessToken: ownerToken } = await createUserWithToken({ role: "instructor" });
   const { accessToken: strangerToken } = await createUserWithToken({ role: "instructor" });

@@ -482,6 +482,7 @@ Note there is no `userId` field — it is **always derived from the authenticate
 - Removing a student from a cohort is `PATCH`, not `DELETE` — the underlying `CohortEnrollment` row is never deleted, only marked `status = 'removed'` (per the data model). A `DELETE` route name would misdescribe what actually happens to the data.
 - Enrollment requests are rejected with `400` if the target user doesn't have `role = 'learner'` — this keeps `CohortEnrollment`'s meaning reliable for every downstream consumer (including the ownership check in Section 1.2), which otherwise would have to re-verify the target's role itself.
 - `POST /cohorts/:id/students` is rate-limited (20/min per account) — partly abuse prevention, partly because its response (role-mismatch vs. duplicate-enrollment vs. success) could otherwise be used to enumerate which UUIDs belong to real `learner` accounts. `POST /cohorts` with an admin-supplied `instructorId` has its own tighter limit (10/min per admin) — see `03-security-architecture.md`.
+- **Phase 7B.2**: every `Cohort` also carries a server-generated `joinCode` — an 8-character, human-typeable code a `learner` can self-enroll with, instead of an instructor adding students one by one by UUID. It's always server-generated (never caller-chosen) and can be revoked/replaced via `PATCH /cohorts/:id { regenerateJoinCode: true }`. Bulk CSV import (`POST /cohorts/:id/students/bulk`) is a secondary import path for instructors working from an official roster; self-enrollment via join code is the primary onboarding path.
 
 ### 6.2 Endpoints
 
@@ -490,11 +491,13 @@ Note there is no `userId` field — it is **always derived from the authenticate
 | `GET` | `/cohorts/:id` | Get cohort details | `instructor` (ownership check), `admin` |
 | `GET` | `/cohorts?instructorId=me` | List my own cohorts | `instructor` |
 | `POST` | `/cohorts` | Create a cohort | `instructor`, `admin` |
-| `PATCH` | `/cohorts/:id` | Update a cohort | `instructor` (ownership check), `admin` |
+| `PATCH` | `/cohorts/:id` | Update a cohort, or regenerate its join code | `instructor` (ownership check), `admin` |
 | `DELETE` | `/cohorts/:id` | Delete a cohort | `instructor` (ownership check), `admin` |
 | `GET` | `/cohorts/:id/students` | List enrolled students | `instructor` (ownership check), `admin` |
 | `POST` | `/cohorts/:id/students` | Enroll a student | `instructor` (ownership check), `admin` |
+| `POST` | `/cohorts/:id/students/bulk` | Enroll students by email, per-row results (Phase 7B.2) | `instructor` (ownership check), `admin` |
 | `PATCH` | `/cohorts/:id/students/:userId` | Remove a student (`status = 'removed'`) | `instructor` (ownership check), `admin` |
+| `POST` | `/cohorts/join` | Self-enroll via join code (Phase 7B.2) | `learner` |
 
 ### 6.3 `POST /cohorts`
 
@@ -530,6 +533,34 @@ if caller.role == 'admin':
 4. No existing **active** enrollment for this pair (enforced at the DB level by the partial unique index from `01-data-model.md`; the controller catches the violation and returns a clean error rather than letting a raw DB error surface).
 
 **Errors:** `400` `userId` doesn't exist or isn't a `learner` · `403` instructor doesn't own this cohort · `409` student already has an active enrollment in this cohort
+
+### 6.5 `POST /cohorts/join` (Phase 7B.2)
+
+**Request:** `{ "joinCode": "ABC123DE" }` (case-insensitive; matched against the cohort's stored code after trimming/uppercasing)
+
+Resolves the cohort by its `joinCode`, then enrolls the calling `learner` — never a `userId` in the body, since a learner can only ever join themselves this way. Reuses the exact same enrollment logic as `POST /cohorts/:id/students` (same duplicate-enrollment handling, same `CohortEnrollment` row shape), just entered via a code instead of an instructor picking a UUID.
+
+**Response — `201 Created`:** `{ "enrollment": { ... }, "cohort": { "id": 7, "name": "..." } }`
+
+**Errors:** `403` caller isn't a `learner` · `404` no cohort matches this code (also returned for a code that was valid but has since been regenerated) · `409` already actively enrolled in this cohort · `429` rate limited (10/15min per account — a backstop against guessing the code, on top of its own entropy; see `03-security-architecture.md`)
+
+### 6.6 `POST /cohorts/:id/students/bulk` (Phase 7B.2)
+
+**Request:** `{ "emails": ["a@nust.edu.pk", "b@nust.edu.pk", ...] }` (max 500 per request)
+
+Resolves each email to a user and enrolls it, independently — one bad row (no account, wrong role, already enrolled) never aborts the rest of the batch. Sequential, not parallel (bulk CSV import isn't a hot path).
+
+**Response — `200 OK`:**
+```json
+{
+  "results": [
+    { "email": "a@nust.edu.pk", "status": "enrolled" },
+    { "email": "b@nust.edu.pk", "status": "failed", "reason": "No account found for this email." }
+  ]
+}
+```
+
+**Errors:** `403` instructor doesn't own this cohort · `400` malformed/empty `emails` array
 
 ---
 

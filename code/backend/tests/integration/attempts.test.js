@@ -282,8 +282,8 @@ test("instructor with a teaching relationship AND the student's Progress in that
   // Cohort/CohortEnrollment CRUD doesn't exist until Milestone 5 -- inserted directly, same
   // precedent as tests/helpers/testUsers.js bypassing HTTP for instructor/admin identities.
   const cohortRes = await pool.query(
-    "INSERT INTO cohort (name, instructor_id) VALUES ($1, $2) RETURNING id",
-    ["Test Cohort", instructor.id]
+    "INSERT INTO cohort (name, instructor_id, join_code) VALUES ($1, $2, $3) RETURNING id",
+    ["Test Cohort", instructor.id, "TESTCODE"]
   );
   await pool.query("INSERT INTO cohort_enrollment (cohort_id, user_id) VALUES ($1, $2)", [
     cohortRes.rows[0].id,

@@ -23,6 +23,7 @@ export const RATE_LIMITS = {
   cohortAdminReassignPerAdmin: { windowMs: 60 * 1000, limit: 10 },
   passwordResetRequestPerIp: { windowMs: 60 * 60 * 1000, limit: 5 },
   passwordResetConfirmPerIp: { windowMs: 15 * 60 * 1000, limit: 10 },
+  cohortJoinPerAccount: { windowMs: 15 * 60 * 1000, limit: 10 },
 };
 
 // Disabled only when BOTH NODE_ENV=test AND RATE_LIMIT_TEST_MODE=1 are set (tests/preload.js) --
@@ -155,5 +156,16 @@ export const passwordResetConfirmLimiter = rateLimit({
   limit: effectiveLimit(RATE_LIMITS.passwordResetConfirmPerIp.limit),
   standardHeaders: true,
   legacyHeaders: false,
+  handler: rateLimitHandler,
+});
+
+// Per-account (the caller is authenticated, unlike password reset) -- a backstop against
+// scripted guessing of the 8-character join code, on top of the code's own entropy.
+export const cohortJoinLimiter = rateLimit({
+  windowMs: RATE_LIMITS.cohortJoinPerAccount.windowMs,
+  limit: effectiveLimit(RATE_LIMITS.cohortJoinPerAccount.limit),
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.user?.id ?? req.ip,
   handler: rateLimitHandler,
 });

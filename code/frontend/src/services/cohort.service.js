@@ -44,6 +44,23 @@ async function removeStudent(cohortId, userId) {
   return data.enrollment;
 }
 
+// Phase 7B.2's primary self-enrollment path -- the caller is always the logged-in learner
+// themselves, so there's no userId parameter here (unlike enrollStudent, which is instructor-driven).
+async function join(joinCode) {
+  const { data } = await apiClient.post("/cohorts/join", { joinCode });
+  return data; // { enrollment, cohort: { id, name } }
+}
+
+async function regenerateJoinCode(cohortId) {
+  const { data } = await apiClient.patch(`/cohorts/${cohortId}`, { regenerateJoinCode: true });
+  return data.cohort;
+}
+
+async function bulkEnrollStudents(cohortId, emails) {
+  const { data } = await apiClient.post(`/cohorts/${cohortId}/students/bulk`, { emails });
+  return data.results;
+}
+
 export const cohortService = {
   list,
   getById,
@@ -53,4 +70,7 @@ export const cohortService = {
   listStudents,
   enrollStudent,
   removeStudent,
+  join,
+  regenerateJoinCode,
+  bulkEnrollStudents,
 };

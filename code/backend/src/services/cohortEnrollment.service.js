@@ -1,6 +1,8 @@
 import { cohortEnrollmentRepository } from "../repositories/cohortEnrollment.repository.js";
 import { progressRepository } from "../repositories/progress.repository.js";
 import { userRepository } from "../repositories/user.repository.js";
+import { normalizeEmail } from "../utils/normalizeEmail.js";
+import { AppError } from "../errors/AppError.js";
 import {
   InvalidRoleForActionError,
   DuplicateResourceError,
@@ -59,4 +61,35 @@ async function remove(cohortId, userId) {
   return enrollment;
 }
 
-export const cohortEnrollmentService = { checkStudentOwnership, enroll, listForCohort, remove };
+// Phase 7B.2's secondary import path (self-enrollment via join code is primary). Reuses enroll()
+// for each row rather than duplicating its validation -- a per-row failure never aborts the rest
+// of the batch, which is the whole point of a bulk import over a script that stops at the first
+// bad email in a hand-typed roster. Sequential, not parallel: CSV imports aren't a hot path, and
+// sequential execution keeps each row's outcome simple to reason about.
+async function bulkEnroll(cohortId, emails) {
+  const results = [];
+  for (const rawEmail of emails) {
+    const email = normalizeEmail(rawEmail);
+    const user = await userRepository.findByEmail(email);
+    if (!user) {
+      results.push({ email, status: "failed", reason: "No account found for this email." });
+      continue;
+    }
+    try {
+      await enroll(cohortId, user.id);
+      results.push({ email, status: "enrolled" });
+    } catch (err) {
+      if (!(err instanceof AppError)) throw err;
+      results.push({ email, status: "failed", reason: err.message });
+    }
+  }
+  return results;
+}
+
+export const cohortEnrollmentService = {
+  checkStudentOwnership,
+  enroll,
+  listForCohort,
+  remove,
+  bulkEnroll,
+};

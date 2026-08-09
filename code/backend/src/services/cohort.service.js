@@ -2,11 +2,24 @@ import { cohortRepository } from "../repositories/cohort.repository.js";
 import { cohortEnrollmentRepository } from "../repositories/cohortEnrollment.repository.js";
 import { userRepository } from "../repositories/user.repository.js";
 import { auditLogService } from "./auditLog.service.js";
+import { generateJoinCode, normalizeJoinCode } from "../utils/joinCode.js";
 import { NotFoundError, ForbiddenError, InvalidRoleForActionError } from "../errors/index.js";
+
+// 32^8 combinations makes an actual collision vanishingly unlikely -- this bounds the retry loop
+// only as a defensive backstop, not because collisions are expected in practice.
+const MAX_JOIN_CODE_ATTEMPTS = 5;
 
 async function getById(id) {
   const cohort = await cohortRepository.findById(id);
   if (!cohort) throw new NotFoundError("Cohort not found.");
+  return cohort;
+}
+
+// Public error message deliberately doesn't distinguish "no cohort has this code" from "this code
+// was already regenerated" -- both are just "this code doesn't work anymore" to whoever typed it.
+async function getByJoinCode(rawJoinCode) {
+  const cohort = await cohortRepository.findByJoinCode(normalizeJoinCode(rawJoinCode));
+  if (!cohort) throw new NotFoundError("Invalid join code.");
   return cohort;
 }
 
@@ -31,25 +44,48 @@ async function resolveInstructorId(instructorId, caller) {
   return instructorId;
 }
 
+// Retries with a freshly generated code on the (extremely unlikely) chance the random code
+// collides with an existing one -- cohortRepository.create()/updateJoinCode() both signal a
+// collision by returning null rather than throwing, same convention as
+// cohortEnrollmentRepository.create()'s unique-violation handling.
+async function insertWithFreshJoinCode(insert) {
+  for (let attempt = 0; attempt < MAX_JOIN_CODE_ATTEMPTS; attempt++) {
+    const result = await insert(generateJoinCode());
+    if (result) return result;
+  }
+  throw new Error("Could not generate a unique cohort join code after several attempts.");
+}
+
 async function create({ name, instructorId }, caller) {
   const resolvedInstructorId = await resolveInstructorId(instructorId, caller);
-  return cohortRepository.create({ name, instructorId: resolvedInstructorId });
+  return insertWithFreshJoinCode((joinCode) =>
+    cohortRepository.create({ name, instructorId: resolvedInstructorId, joinCode })
+  );
 }
 
 // Reassignment (instructorId actually changing) is the one branch that gets audited
 // (03-security-architecture.md §8.4's cohort.instructor_reassigned) -- a plain name-only update
 // isn't a reassignment and doesn't log anything.
-async function update(id, { name, instructorId }, caller) {
+async function update(id, { name, instructorId, regenerateJoinCode }, caller) {
   const cohort = await getById(id);
   const resolvedInstructorId =
     instructorId !== undefined ? await resolveInstructorId(instructorId, caller) : undefined;
   const isReassignment =
     resolvedInstructorId !== undefined && resolvedInstructorId !== cohort.instructor_id;
 
-  const updated = await cohortRepository.update(id, {
+  let updated = await cohortRepository.update(id, {
     name,
     instructorId: isReassignment ? resolvedInstructorId : undefined,
   });
+
+  // A leaked/misused join code (Phase 7B.2) is revoked by replacing it, not by a separate
+  // enable/disable flag -- the old code simply stops matching anything, same "the value itself is
+  // the control" pattern as refresh_token/password_reset_token rotation.
+  if (regenerateJoinCode) {
+    updated = await insertWithFreshJoinCode((joinCode) =>
+      cohortRepository.updateJoinCode(id, joinCode)
+    );
+  }
 
   if (isReassignment) {
     await auditLogService.record({
@@ -86,4 +122,12 @@ async function checkOwnership(userId, cohortId) {
   return cohort;
 }
 
-export const cohortService = { getById, listForInstructor, create, update, remove, checkOwnership };
+export const cohortService = {
+  getById,
+  getByJoinCode,
+  listForInstructor,
+  create,
+  update,
+  remove,
+  checkOwnership,
+};

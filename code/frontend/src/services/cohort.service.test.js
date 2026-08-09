@@ -68,3 +68,28 @@ test("removeStudent patches /cohorts/:id/students/:userId with no body and retur
   expect(apiClient.patch).toHaveBeenCalledWith("/cohorts/2/students/u1");
   expect(result).toEqual({ id: 9, status: "removed" });
 });
+
+test("join posts to /cohorts/join and returns { enrollment, cohort }", async () => {
+  const body = { enrollment: { id: 9 }, cohort: { id: 2, name: "Cohort" } };
+  apiClient.post.mockResolvedValue({ data: body });
+  const result = await cohortService.join("ABC123DE");
+  expect(apiClient.post).toHaveBeenCalledWith("/cohorts/join", { joinCode: "ABC123DE" });
+  expect(result).toEqual(body);
+});
+
+test("regenerateJoinCode patches /cohorts/:id with regenerateJoinCode:true and returns the cohort", async () => {
+  apiClient.patch.mockResolvedValue({ data: { cohort: { id: 2, join_code: "NEW12345" } } });
+  const result = await cohortService.regenerateJoinCode(2);
+  expect(apiClient.patch).toHaveBeenCalledWith("/cohorts/2", { regenerateJoinCode: true });
+  expect(result).toEqual({ id: 2, join_code: "NEW12345" });
+});
+
+test("bulkEnrollStudents posts to /cohorts/:id/students/bulk and returns the per-row results", async () => {
+  const results = [{ email: "a@example.com", status: "enrolled" }];
+  apiClient.post.mockResolvedValue({ data: { results } });
+  const result = await cohortService.bulkEnrollStudents(2, ["a@example.com"]);
+  expect(apiClient.post).toHaveBeenCalledWith("/cohorts/2/students/bulk", {
+    emails: ["a@example.com"],
+  });
+  expect(result).toEqual(results);
+});
