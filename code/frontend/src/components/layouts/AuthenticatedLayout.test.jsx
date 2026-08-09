@@ -99,6 +99,15 @@ test("anonymous: renders Log in / Sign up instead of Courses/Dashboard/Log out",
   expect(screen.queryByRole("button", { name: "Log out" })).not.toBeInTheDocument();
 });
 
+// Phase 7D: previously the only place Privacy/Terms were reachable from was the landing page's
+// own footer -- every screen this shell wraps had no way to reach them.
+test("renders a footer with Privacy Policy and Terms of Service links, regardless of auth state", () => {
+  useAuth.mockReturnValue({ logout: vi.fn(), isAuthenticated: false, isLoading: false });
+  renderAt("/courses");
+  expect(screen.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", "/privacy");
+  expect(screen.getByRole("link", { name: "Terms of Service" })).toHaveAttribute("href", "/terms");
+});
+
 // The silent-refresh-on-mount check runs on every page load -- showing the anonymous nav to an
 // about-to-be-recognized returning user, even for one frame, is exactly the kind of flash this
 // project has had real flicker trouble with before (see RouteTransition.jsx's own history).

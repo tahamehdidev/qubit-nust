@@ -423,6 +423,11 @@ export function LandingPage() {
               <Link to="/login">Log in</Link>
               <Link to="/signup">Sign up</Link>
             </nav>
+            <nav className="landing-page__footer-column" aria-label="Legal">
+              <h3>Legal</h3>
+              <Link to="/privacy">Privacy Policy</Link>
+              <Link to="/terms">Terms of Service</Link>
+            </nav>
           </div>
           <div className="landing-page__footer-bottom">
             <span>© {new Date().getFullYear()} Qubit — NUST</span>

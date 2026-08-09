@@ -128,6 +128,11 @@ export function SignupPage() {
               Create account
             </Button>
           </form>
+          <p className="auth-page__consent">
+            By creating an account, you agree to our{" "}
+            <Link to="/terms">Terms of Service</Link> and{" "}
+            <Link to="/privacy">Privacy Policy</Link>.
+          </p>
           <AuthSocialButtons />
           <p className="auth-page__switch">
             Already have an account? <Link to="/login">Log in</Link>

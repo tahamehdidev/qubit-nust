@@ -92,6 +92,16 @@ export function AuthenticatedLayout() {
         </p>
       ) : null}
       <RouteTransition />
+      {/* Phase 7D: the only place Privacy/Terms were reachable from was the landing page's own
+          footer -- every screen this shell wraps (courses, lessons, dashboard, and the public
+          course-preview routes) had no way to reach them at all. Deliberately minimal, unlike
+          the landing page's full footer -- this shell wraps focused task screens (the lesson
+          player included), not a marketing page. */}
+      <footer className="authenticated-layout__footer">
+        <span>© {new Date().getFullYear()} Qubit — NUST</span>
+        <Link to="/privacy">Privacy Policy</Link>
+        <Link to="/terms">Terms of Service</Link>
+      </footer>
     </div>
   );
 }

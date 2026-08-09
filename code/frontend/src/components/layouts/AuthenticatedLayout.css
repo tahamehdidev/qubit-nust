@@ -108,3 +108,23 @@
     transform: translate(-50%, 0);
   }
 }
+
+/* Phase 7D: deliberately quiet -- utility chrome at the very bottom of every screen this shell
+   wraps, not a second nav bar. No sticky/elevation treatment, unlike the top nav. */
+.authenticated-layout__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+}
+
+.authenticated-layout__footer a {
+  color: inherit;
+}
+
+.authenticated-layout__footer a:hover {
+  color: var(--color-foreground);
+}

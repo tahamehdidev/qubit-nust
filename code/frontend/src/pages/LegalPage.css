@@ -1,0 +1,50 @@
+/* Shared shell for Privacy Policy / Terms of Service -- plain long-form reading, no card
+   chrome. Global.css's own `p { max-width: 65ch }` already caps line length; this just adds page
+   padding, heading rhythm, and the placeholder-review banner. */
+.legal-page {
+  padding: var(--space-8) var(--space-4);
+}
+
+.legal-page__container {
+  max-width: 65ch;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.legal-page__banner {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in oklch, var(--color-accent) 30%, var(--color-border));
+  background-color: color-mix(in oklch, var(--color-accent) 6%, var(--color-card));
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.legal-page__container h1 {
+  margin-top: var(--space-2);
+  font-size: var(--text-3xl);
+}
+
+.legal-page__updated {
+  margin-top: calc(var(--space-2) * -1);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.legal-page__container h2 {
+  margin-top: var(--space-2);
+  font-size: var(--text-xl);
+}
+
+.legal-page__container ul {
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.legal-page__container li {
+  max-width: 65ch;
+}

@@ -72,6 +72,12 @@ test("shows a reassurance line about what happens after signup", () => {
   ).toBeInTheDocument();
 });
 
+test("links to the Terms of Service and Privacy Policy (Phase 7D)", () => {
+  renderSignupPage();
+  expect(screen.getByRole("link", { name: "Terms of Service" })).toHaveAttribute("href", "/terms");
+  expect(screen.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", "/privacy");
+});
+
 test("a successful signup logs the new learner in and redirects to /courses", async () => {
   const user = userEvent.setup();
   authService.signup.mockResolvedValue({ id: "u1", email: "ada@example.com", name: "Ada Lovelace", role: "learner" });
