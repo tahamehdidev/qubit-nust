@@ -16,6 +16,7 @@ import { CourseDetailPage } from "./pages/CourseDetailPage.jsx";
 import { LessonPlayerPage } from "./pages/LessonPlayerPage.jsx";
 import { PracticeSetPage } from "./pages/PracticeSetPage.jsx";
 import { DashboardPage } from "./pages/DashboardPage.jsx";
+import { SettingsPage } from "./pages/SettingsPage.jsx";
 import { JoinCohortPage } from "./pages/JoinCohortPage.jsx";
 import { AdminUsersPage } from "./pages/AdminUsersPage.jsx";
 import { NotFoundPage } from "./pages/NotFoundPage.jsx";
@@ -49,6 +50,7 @@ export function App() {
             <Route path="/lessons/:lessonId" element={<LessonPlayerPage />} />
             <Route path="/practice-sets/:practiceSetId" element={<PracticeSetPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="/join/:joinCode" element={<JoinCohortPage />} />
             {/* Phase 8A: role check moved out of the page itself into a shared RoleGate, now
                 that there's more than one role-restricted destination to justify it. */}

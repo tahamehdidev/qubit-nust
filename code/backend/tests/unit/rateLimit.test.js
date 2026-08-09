@@ -18,6 +18,7 @@ test("configured limits match the documented table", () => {
   assert.deepEqual(RATE_LIMITS.passwordResetRequestPerIp, { windowMs: 60 * 60 * 1000, limit: 5 });
   assert.deepEqual(RATE_LIMITS.passwordResetConfirmPerIp, { windowMs: 15 * 60 * 1000, limit: 10 });
   assert.deepEqual(RATE_LIMITS.cohortJoinPerAccount, { windowMs: 15 * 60 * 1000, limit: 10 });
+  assert.deepEqual(RATE_LIMITS.changePasswordPerAccount, { windowMs: 15 * 60 * 1000, limit: 5 });
 });
 
 // A real 429-triggering test, but against a throwaway limiter instance built directly from the

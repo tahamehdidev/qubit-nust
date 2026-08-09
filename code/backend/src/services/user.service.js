@@ -2,9 +2,13 @@ import crypto from "node:crypto";
 import { userRepository } from "../repositories/user.repository.js";
 import { refreshTokenService } from "./refreshToken.service.js";
 import { auditLogService } from "./auditLog.service.js";
-import { hashPassword } from "../utils/hash.js";
+import { hashPassword, verifyPassword } from "../utils/hash.js";
 import { normalizeEmail } from "../utils/normalizeEmail.js";
-import { NotFoundError, EmailAlreadyRegisteredError } from "../errors/index.js";
+import {
+  NotFoundError,
+  EmailAlreadyRegisteredError,
+  InvalidCredentialsError,
+} from "../errors/index.js";
 
 // password_hash is never returned in any response, from any endpoint (02-api-contract.md §2.3) --
 // this is the one shape every caller (including auth.service.js) converts a raw User row through
@@ -30,6 +34,26 @@ async function updateProfile(id, { name }) {
   const user = await userRepository.updateName(id, name);
   if (!user) throw new NotFoundError("User not found.");
   return toPublicUser(user);
+}
+
+// PATCH /users/me/password (Phase 8D). InvalidCredentialsError (not a dedicated code) reuses the
+// same generic 401 the login path already returns for a wrong password -- this isn't the
+// enumeration-safety scenario that shape was originally built for (the caller is already
+// authenticated, so there's no email to enumerate), but it's still the right error for "the
+// password you supplied is wrong," so reusing it beats inventing a parallel code for the same
+// meaning. Revokes every session afterward, same "treat every existing session as suspect"
+// behavior passwordReset.service.js's confirmReset() already applies -- a password change while
+// logged in is an equally reasonable trigger, not a lesser one.
+async function changePassword(id, { currentPassword, newPassword }) {
+  const user = await userRepository.findById(id);
+  if (!user) throw new NotFoundError("User not found.");
+
+  const isValid = await verifyPassword(user.password_hash, currentPassword);
+  if (!isValid) throw new InvalidCredentialsError();
+
+  const passwordHash = await hashPassword(newPassword);
+  await userRepository.updatePasswordHash(id, passwordHash);
+  await refreshTokenService.revokeAllForUser(id);
 }
 
 // GET /admin/users (Phase 7C.1).
@@ -93,4 +117,11 @@ async function createInstructor({ email, name }, createdByAdminId) {
 
 // toPublicUser is deliberately not included here -- every caller (auth.service.js) imports the
 // named export directly, so exposing it a second way via this object would just be dead surface.
-export const userService = { getById, updateProfile, list, deactivateUser, createInstructor };
+export const userService = {
+  getById,
+  updateProfile,
+  changePassword,
+  list,
+  deactivateUser,
+  createInstructor,
+};

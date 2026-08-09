@@ -35,6 +35,8 @@ function AuthConsumer() {
       <button onClick={() => auth.login({ email: "a@example.com", password: "pw" })}>login</button>
       <button onClick={() => auth.logout()}>logout</button>
       <button onClick={() => auth.logoutAll()}>logout-all</button>
+      <button onClick={() => auth.updateUser({ name: "Updated Name" })}>update-user</button>
+      <button onClick={() => auth.clearSession()}>clear-session</button>
     </div>
   );
 }
@@ -147,6 +149,41 @@ test("logoutAll() clears user/accessToken", async () => {
 
   screen.getByText("logout-all").click();
   await waitFor(() => expect(screen.getByTestId("isAuthenticated").textContent).toBe("false"));
+});
+
+test("updateUser() merges a patch into the current user without a backend call", async () => {
+  authService.refresh.mockResolvedValue("fresh-token");
+  userService.getMe.mockResolvedValue({ id: "u1", name: "Ada" });
+
+  render(
+    <AuthProvider>
+      <AuthConsumer />
+    </AuthProvider>
+  );
+  await waitFor(() => expect(screen.getByTestId("userName").textContent).toBe("Ada"));
+
+  screen.getByText("update-user").click();
+  await waitFor(() => expect(screen.getByTestId("userName").textContent).toBe("Updated Name"));
+});
+
+// Phase 8D: a password change already revokes every session server-side -- SettingsPage uses
+// clearSession() to drop local state without a redundant logout() call against a session that's
+// already gone.
+test("clearSession() clears user/isAuthenticated without calling any backend endpoint", async () => {
+  authService.refresh.mockResolvedValue("fresh-token");
+  userService.getMe.mockResolvedValue({ id: "u1", name: "Ada" });
+
+  render(
+    <AuthProvider>
+      <AuthConsumer />
+    </AuthProvider>
+  );
+  await waitFor(() => expect(screen.getByTestId("isAuthenticated").textContent).toBe("true"));
+
+  screen.getByText("clear-session").click();
+  await waitFor(() => expect(screen.getByTestId("isAuthenticated").textContent).toBe("false"));
+  expect(authService.logout).not.toHaveBeenCalled();
+  expect(authService.logoutAll).not.toHaveBeenCalled();
 });
 
 test("registers configureAuth once on mount with functions apiClient can call", async () => {

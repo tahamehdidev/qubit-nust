@@ -24,6 +24,7 @@ export const RATE_LIMITS = {
   passwordResetRequestPerIp: { windowMs: 60 * 60 * 1000, limit: 5 },
   passwordResetConfirmPerIp: { windowMs: 15 * 60 * 1000, limit: 10 },
   cohortJoinPerAccount: { windowMs: 15 * 60 * 1000, limit: 10 },
+  changePasswordPerAccount: { windowMs: 15 * 60 * 1000, limit: 5 },
 };
 
 // Disabled only when BOTH NODE_ENV=test AND RATE_LIMIT_TEST_MODE=1 are set (tests/preload.js) --
@@ -164,6 +165,18 @@ export const passwordResetConfirmLimiter = rateLimit({
 export const cohortJoinLimiter = rateLimit({
   windowMs: RATE_LIMITS.cohortJoinPerAccount.windowMs,
   limit: effectiveLimit(RATE_LIMITS.cohortJoinPerAccount.limit),
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.user?.id ?? req.ip,
+  handler: rateLimitHandler,
+});
+
+// Same tier as loginAccountLimiter -- currentPassword is checked the same way a login password
+// is, so it deserves the same brute-force backstop even though the caller is already
+// authenticated (Phase 8D).
+export const changePasswordLimiter = rateLimit({
+  windowMs: RATE_LIMITS.changePasswordPerAccount.windowMs,
+  limit: effectiveLimit(RATE_LIMITS.changePasswordPerAccount.limit),
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => req.user?.id ?? req.ip,

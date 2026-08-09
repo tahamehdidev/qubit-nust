@@ -5,3 +5,11 @@ import { z } from "zod";
 export const UpdateProfileSchema = z.object({
   name: z.string().min(1).max(100),
 });
+
+// Phase 8D: self-service password change while logged in. currentPassword has no length floor of
+// its own (min(1) only) -- the account's actual complexity requirement was already enforced once,
+// at signup; this schema just needs a non-empty value to compare, not a fresh rule.
+export const ChangePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8),
+});

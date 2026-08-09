@@ -25,6 +25,7 @@ export function LoginPage() {
   const redirectFrom = location.state?.from?.pathname;
   const justSignedUp = location.state?.justSignedUp ?? false;
   const justResetPassword = location.state?.justResetPassword ?? false;
+  const justChangedPassword = location.state?.justChangedPassword ?? false;
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -58,6 +59,12 @@ export function LoginPage() {
           {justResetPassword ? (
             <p className="auth-page__banner auth-page__banner--success">
               Password reset. Log in with your new password.
+            </p>
+          ) : null}
+          {justChangedPassword ? (
+            <p className="auth-page__banner auth-page__banner--success">
+              Password changed. You&rsquo;ve been logged out everywhere &mdash; log in with your
+              new password.
             </p>
           ) : null}
           {error ? (

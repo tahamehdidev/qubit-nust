@@ -18,7 +18,10 @@ import { env } from "../config/env.js";
 // cookies are exactly what Chrome/Safari increasingly block by default regardless of SameSite,
 // which broke real sessions for real visitors. The proxy fixes the root cause instead of relaxing
 // the cookie policy around it.
-const REFRESH_COOKIE_OPTIONS = {
+// Exported so user.controller.js's changePasswordController can clear the same cookie with
+// identical attributes -- a password change revokes every session exactly like logout does, and
+// needs the browser to actually drop its stale cookie the same way.
+export const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: env.NODE_ENV === "production",
   sameSite: "strict",

@@ -142,6 +142,58 @@ test("PATCH /users/me updates the name but not the role", async () => {
   assert.equal(res.body.user.role, "learner");
 });
 
+test("PATCH /users/me/password requires authentication", async () => {
+  const res = await request(app)
+    .patch("/users/me/password")
+    .send({ currentPassword: SIGNUP_BODY.password, newPassword: "brand-new-password123" });
+  assert.equal(res.status, 401);
+});
+
+test("PATCH /users/me/password changes the password and revokes the current session", async () => {
+  const loginRes = await signupAndLogin();
+  const res = await request(app)
+    .patch("/users/me/password")
+    .set("Authorization", `Bearer ${loginRes.body.accessToken}`)
+    .send({ currentPassword: SIGNUP_BODY.password, newPassword: "brand-new-password123" });
+  assert.equal(res.status, 200);
+
+  // The old password no longer works...
+  const oldPasswordLoginRes = await request(app)
+    .post("/auth/login")
+    .send({ email: SIGNUP_BODY.email, password: SIGNUP_BODY.password });
+  assert.equal(oldPasswordLoginRes.status, 401);
+
+  // ...but the new one does.
+  const newPasswordLoginRes = await request(app)
+    .post("/auth/login")
+    .send({ email: SIGNUP_BODY.email, password: "brand-new-password123" });
+  assert.equal(newPasswordLoginRes.status, 200);
+
+  // The session active when the password changed is revoked, same as passwordReset's confirm.
+  const refreshRes = await request(app).post("/auth/refresh").set("Cookie", loginRes.headers["set-cookie"]);
+  assert.equal(refreshRes.status, 401);
+});
+
+test("PATCH /users/me/password rejects a wrong current password with 401 INVALID_CREDENTIALS", async () => {
+  const loginRes = await signupAndLogin();
+  const res = await request(app)
+    .patch("/users/me/password")
+    .set("Authorization", `Bearer ${loginRes.body.accessToken}`)
+    .send({ currentPassword: "totally-wrong", newPassword: "brand-new-password123" });
+  assert.equal(res.status, 401);
+  assert.equal(res.body.error.code, "INVALID_CREDENTIALS");
+});
+
+test("PATCH /users/me/password rejects a too-short new password with 400 VALIDATION_ERROR", async () => {
+  const loginRes = await signupAndLogin();
+  const res = await request(app)
+    .patch("/users/me/password")
+    .set("Authorization", `Bearer ${loginRes.body.accessToken}`)
+    .send({ currentPassword: SIGNUP_BODY.password, newPassword: "short" });
+  assert.equal(res.status, 400);
+  assert.equal(res.body.error.code, "VALIDATION_ERROR");
+});
+
 test("POST /auth/refresh rotates the token and issues a new access token", async () => {
   const loginRes = await signupAndLogin();
   const cookie = loginRes.headers["set-cookie"];

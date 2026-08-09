@@ -124,6 +124,13 @@ export function AuthProvider({ children }) {
     }
   }, [clearSession]);
 
+  // Phase 8D: SettingsPage calls this after a successful PATCH /users/me so the nav/dashboard
+  // reflect a new name immediately, without a full reload -- merges rather than replaces, so a
+  // caller only needs to pass the fields that actually changed.
+  const updateUser = useCallback((patch) => {
+    setUser((current) => (current ? { ...current, ...patch } : current));
+  }, []);
+
   const value = {
     user,
     isLoading,
@@ -132,6 +139,11 @@ export function AuthProvider({ children }) {
     logout,
     logoutAll,
     refreshAccessToken,
+    updateUser,
+    // Phase 8D: a password change revokes every session server-side, including this one --
+    // SettingsPage uses this to drop local session state without a redundant logout() API call
+    // that would just fail against an already-revoked session.
+    clearSession,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

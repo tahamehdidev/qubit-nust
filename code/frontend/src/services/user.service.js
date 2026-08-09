@@ -10,4 +10,8 @@ async function updateMe({ name }) {
   return data.user;
 }
 
-export const userService = { getMe, updateMe };
+async function changePassword({ currentPassword, newPassword }) {
+  await apiClient.patch("/users/me/password", { currentPassword, newPassword });
+}
+
+export const userService = { getMe, updateMe, changePassword };

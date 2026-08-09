@@ -19,3 +19,12 @@ test("updateMe patches /users/me with the new name and returns the updated user"
   expect(apiClient.patch).toHaveBeenCalledWith("/users/me", { name: "B" });
   expect(result).toEqual({ id: "u1", name: "B" });
 });
+
+test("changePassword patches /users/me/password with the current and new password", async () => {
+  apiClient.patch.mockResolvedValue({ data: {} });
+  await userService.changePassword({ currentPassword: "old-pw", newPassword: "new-pw" });
+  expect(apiClient.patch).toHaveBeenCalledWith("/users/me/password", {
+    currentPassword: "old-pw",
+    newPassword: "new-pw",
+  });
+});

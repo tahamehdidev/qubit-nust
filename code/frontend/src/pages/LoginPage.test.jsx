@@ -146,6 +146,22 @@ test("shows a success banner after being redirected here from a completed passwo
   expect(screen.getByText("Password reset. Log in with your new password.")).toBeInTheDocument();
 });
 
+test("shows a success banner after being redirected here from a self-service password change", () => {
+  render(
+    <MemoryRouter initialEntries={[{ pathname: "/login", state: { justChangedPassword: true } }]}>
+      <AuthProvider>
+        <LoginPage />
+      </AuthProvider>
+    </MemoryRouter>
+  );
+
+  expect(
+    screen.getByText(
+      "Password changed. You’ve been logged out everywhere — log in with your new password."
+    )
+  ).toBeInTheDocument();
+});
+
 test("links to /forgot-password", () => {
   renderLoginPage();
   expect(screen.getByRole("link", { name: "Forgot password?" })).toHaveAttribute(

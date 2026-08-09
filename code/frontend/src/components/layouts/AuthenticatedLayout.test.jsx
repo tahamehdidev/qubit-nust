@@ -85,6 +85,18 @@ test("non-admin: renders no Admin nav link", () => {
   expect(screen.queryByRole("link", { name: "Admin" })).not.toBeInTheDocument();
 });
 
+// Phase 8D: previously no role had any persistent way to reach account settings.
+test("renders a Settings nav link for every authenticated role", () => {
+  useAuth.mockReturnValue({
+    user: { id: "l1", role: "learner" },
+    logout: vi.fn(),
+    isAuthenticated: true,
+    isLoading: false,
+  });
+  renderAt("/courses");
+  expect(screen.getByRole("link", { name: "Settings" })).toHaveAttribute("href", "/settings");
+});
+
 // Critique fix: nav previously gave zero indication of current location -- color only changed
 // on :hover and reverted the instant the mouse left, nothing for a screen reader.
 test("marks the current route's nav link as active, both visually and via aria-current", () => {

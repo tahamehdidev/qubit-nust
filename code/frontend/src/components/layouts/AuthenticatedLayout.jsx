@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, NavLink, Link } from "react-router-dom";
-import { BookOpen, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { BookOpen, LayoutDashboard, Settings, ShieldCheck } from "lucide-react";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { RouteTransition } from "./RouteTransition.jsx";
 // Reuses Button.css's classes for the anonymous-nav Sign up CTA without mounting a <Button>
@@ -76,6 +76,12 @@ export function AuthenticatedLayout() {
                 Admin
               </NavLink>
             ) : null}
+            {/* Phase 8D: every role was previously missing any way to update their own name or
+                change their password while logged in. */}
+            <NavLink to="/settings" className={navLinkClassName}>
+              <Settings size={16} aria-hidden="true" />
+              Settings
+            </NavLink>
             <button type="button" className="authenticated-layout__logout" onClick={handleLogout}>
               Log out
             </button>
