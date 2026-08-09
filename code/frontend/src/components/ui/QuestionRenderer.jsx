@@ -6,6 +6,7 @@ import { TopologyDiagram } from "../widgets/TopologyDiagram.jsx";
 import { BlochSphere } from "../widgets/BlochSphere.jsx";
 import { QuadrantSelector } from "../widgets/QuadrantSelector.jsx";
 import { BasisEncoder } from "../widgets/BasisEncoder.jsx";
+import { GateCircuitDiagram } from "../widgets/GateCircuitDiagram.jsx";
 import "./QuestionRenderer.css";
 
 // Dispatcher only (Frontend Milestone 2) -- routes to a widget by Question.type or
@@ -22,6 +23,7 @@ const WIDGET_REGISTRY = {
   topology_diagram: TopologyDiagram,
   quadrant_selector: QuadrantSelector,
   basis_encoder: BasisEncoder,
+  gate_circuit_diagram: GateCircuitDiagram,
 };
 
 export function QuestionRenderer({ type, ...props }) {

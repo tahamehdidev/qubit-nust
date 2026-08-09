@@ -1,0 +1,128 @@
+.gate-circuit-diagram {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  max-width: 100%;
+}
+
+.gate-circuit-diagram__caption {
+  font-size: var(--text-sm);
+  color: var(--color-muted-foreground);
+}
+
+.gate-circuit-diagram__canvas {
+  position: relative;
+  max-width: 100%;
+  overflow-x: auto;
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) 0;
+}
+
+.gate-circuit-diagram__lines {
+  position: absolute;
+  inset: 0;
+}
+
+.gate-circuit-diagram__wire {
+  stroke: var(--color-border-strong);
+  stroke-width: 2;
+}
+
+.gate-circuit-diagram__qubit-label {
+  position: absolute;
+  left: var(--space-2);
+  width: 40px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  color: var(--color-muted-foreground);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.gate-circuit-diagram__connector {
+  stroke: var(--color-border-strong);
+  stroke-width: 2;
+}
+
+.gate-circuit-diagram__control-dot {
+  fill: var(--color-foreground);
+}
+
+.gate-circuit-diagram__target-ring {
+  fill: var(--color-card);
+  stroke: var(--color-foreground);
+  stroke-width: 2;
+}
+
+.gate-circuit-diagram__target-cross {
+  stroke: var(--color-foreground);
+  stroke-width: 2;
+}
+
+.gate-circuit-diagram__cnot--selected .gate-circuit-diagram__connector,
+.gate-circuit-diagram__cnot--selected .gate-circuit-diagram__target-cross {
+  stroke: var(--color-accent);
+}
+
+.gate-circuit-diagram__cnot--selected .gate-circuit-diagram__control-dot {
+  fill: var(--color-accent);
+}
+
+.gate-circuit-diagram__cnot--selected .gate-circuit-diagram__target-ring {
+  stroke: var(--color-accent);
+}
+
+.gate-circuit-diagram__gate-button {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-muted);
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-foreground);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: border-color var(--duration-base) var(--ease-out);
+}
+
+.gate-circuit-diagram__gate-button:hover {
+  border-color: var(--color-accent);
+}
+
+.gate-circuit-diagram__gate-button:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+.gate-circuit-diagram__gate-button--selected {
+  border-color: var(--color-accent);
+  background-color: color-mix(in oklch, var(--color-accent), transparent 80%);
+}
+
+/* Transparent hit-target only -- the CNOT's visible dot/ring/connector are drawn in the SVG
+   layer beneath; this button exists purely for a real, accessible, clickable/focusable target
+   spanning both qubits it touches. */
+.gate-circuit-diagram__gate-button--cnot {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.gate-circuit-diagram__gate-button--cnot.gate-circuit-diagram__gate-button--selected {
+  background-color: color-mix(in oklch, var(--color-accent), transparent 92%);
+}
+
+.gate-circuit-diagram__result {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-muted-foreground);
+}

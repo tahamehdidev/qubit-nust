@@ -9,6 +9,7 @@ import { gridTopologyParams } from "../widgets/TopologyDiagram.fixtures.js";
 import { freePlacementParams } from "../widgets/BlochSphere.fixtures.js";
 import { dataProcessingQuadrantParams } from "../widgets/QuadrantSelector.fixtures.js";
 import { basisEncoderParams } from "../widgets/BasisEncoder.fixtures.js";
+import { bellStateCircuitParams } from "../widgets/GateCircuitDiagram.fixtures.js";
 
 // BlochSphere's actual WebGL rendering lives in its own module specifically so it can be mocked
 // like this (see BlochSphere.test.jsx for the jsdom ResizeObserver/WebGL gap this works around).
@@ -54,6 +55,11 @@ test('dispatches type "topology_diagram" to the real TopologyDiagram widget', ()
 test('dispatches type "bloch_sphere" to the real BlochSphere widget', () => {
   render(<QuestionRenderer type="bloch_sphere" params={freePlacementParams} />);
   expect(screen.getByTestId("bloch-sphere-scene")).toBeInTheDocument();
+});
+
+test('dispatches type "gate_circuit_diagram" to the real GateCircuitDiagram widget', () => {
+  render(<QuestionRenderer type="gate_circuit_diagram" params={bellStateCircuitParams} />);
+  expect(screen.getByText(bellStateCircuitParams.caption)).toBeInTheDocument();
 });
 
 test("renders the placeholder for an unrecognized type too, rather than throwing", () => {

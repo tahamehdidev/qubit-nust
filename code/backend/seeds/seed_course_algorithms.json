@@ -161,6 +161,40 @@
               }
             },
             {
+              "type": "simulation",
+              "content": {
+                "widgetType": "gate_circuit_diagram",
+                "params": {
+                  "caption": "Reading this circuit: qubit 0's line passes through H then acts as CNOT's control; qubit 1's line only touches the CNOT, as its target. Click any gate to see what it does.",
+                  "qubitCount": 2,
+                  "gates": [
+                    {
+                      "type": "H",
+                      "step": 0,
+                      "qubits": [
+                        0
+                      ]
+                    },
+                    {
+                      "type": "CNOT",
+                      "step": 1,
+                      "qubits": [
+                        0,
+                        1
+                      ]
+                    },
+                    {
+                      "type": "Z",
+                      "step": 2,
+                      "qubits": [
+                        0
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
               "order_index": 2,
               "type": "explanation",
               "content": {

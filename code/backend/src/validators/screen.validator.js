@@ -40,12 +40,32 @@ const BlochSphereParamsSchema = z.discriminatedUnion("mode", [
   }),
 ]);
 
+// Phase 7E.2 -- built with a real params schema from day one, unlike bloch_sphere's own params
+// shape, which briefly stayed an unvalidated placeholder before Frontend Milestone 4 closed that
+// gap. One flat `gates` array rather than per-gate-type structural validation (e.g. requiring
+// CNOT's `qubits` to have exactly 2 entries, single-qubit gates exactly 1): matches
+// topology_diagram's own established "explicit author-supplied positions, not a layout/structure
+// engine" philosophy -- this widget renders whatever's authored, it doesn't police gate arity.
+const GateCircuitDiagramParamsSchema = z.object({
+  qubitCount: z.number().int().positive(),
+  qubitLabels: z.array(z.string()).optional(),
+  gates: z.array(
+    z.object({
+      type: z.enum(["H", "X", "Y", "Z", "CNOT", "M"]),
+      step: z.number().int().nonnegative(),
+      qubits: z.array(z.number().int().nonnegative()).min(1).max(2),
+    })
+  ),
+  caption: z.string().optional(),
+});
+
 // Keyed by widgetType, same convention as CONTENT_SCHEMAS_BY_TYPE below -- widget types not listed
 // here (amplitude_bar_chart, topology_diagram, quadrant_selector, basis_encoder) still fall back
 // to the generic params-is-an-object placeholder, tightened the same way once their own shapes are
 // pinned down.
 const SIMULATION_PARAMS_SCHEMAS_BY_WIDGET_TYPE = {
   bloch_sphere: BlochSphereParamsSchema,
+  gate_circuit_diagram: GateCircuitDiagramParamsSchema,
 };
 
 const SimulationContentSchema = z
@@ -56,6 +76,7 @@ const SimulationContentSchema = z
       "topology_diagram",
       "quadrant_selector",
       "basis_encoder",
+      "gate_circuit_diagram",
     ]),
     params: z.record(z.unknown()),
   })

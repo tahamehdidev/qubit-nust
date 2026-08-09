@@ -573,6 +573,101 @@ test("Screen.content rejects a bloch_sphere t2_dephasing payload with a negative
   assert.equal(res.body.error.code, "VALIDATION_ERROR");
 });
 
+// Phase 7E.2 -- gate_circuit_diagram, unlike bloch_sphere, had a real params schema from the
+// start, so there's no "before/after" pair of tests the way bloch_sphere's own history has.
+test("Screen.content accepts a valid gate_circuit_diagram payload", async () => {
+  const { accessToken } = await createUserWithToken({ role: "instructor" });
+  const courseRes = await request(app)
+    .post("/courses")
+    .set("Authorization", `Bearer ${accessToken}`)
+    .send({ title: "Course" });
+  const chapterRes = await request(app)
+    .post(`/courses/${courseRes.body.course.id}/chapters`)
+    .set("Authorization", `Bearer ${accessToken}`)
+    .send({ title: "Chapter" });
+  const lessonRes = await request(app)
+    .post(`/chapters/${chapterRes.body.chapter.id}/lessons`)
+    .set("Authorization", `Bearer ${accessToken}`)
+    .send({ title: "Lesson" });
+
+  const res = await request(app)
+    .post(`/lessons/${lessonRes.body.lesson.id}/screens`)
+    .set("Authorization", `Bearer ${accessToken}`)
+    .send({
+      type: "simulation",
+      content: {
+        widgetType: "gate_circuit_diagram",
+        params: {
+          qubitCount: 2,
+          gates: [
+            { type: "H", step: 0, qubits: [0] },
+            { type: "CNOT", step: 1, qubits: [0, 1] },
+            { type: "M", step: 2, qubits: [0] },
+            { type: "M", step: 2, qubits: [1] },
+          ],
+        },
+      },
+    });
+  assert.equal(res.status, 201);
+  assert.equal(res.body.screen.content.widgetType, "gate_circuit_diagram");
+  assert.equal(res.body.screen.content.params.gates.length, 4);
+});
+
+test("Screen.content rejects a gate_circuit_diagram payload missing qubitCount", async () => {
+  const { accessToken } = await createUserWithToken({ role: "instructor" });
+  const courseRes = await request(app)
+    .post("/courses")
+    .set("Authorization", `Bearer ${accessToken}`)
+    .send({ title: "Course" });
+  const chapterRes = await request(app)
+    .post(`/courses/${courseRes.body.course.id}/chapters`)
+    .set("Authorization", `Bearer ${accessToken}`)
+    .send({ title: "Chapter" });
+  const lessonRes = await request(app)
+    .post(`/chapters/${chapterRes.body.chapter.id}/lessons`)
+    .set("Authorization", `Bearer ${accessToken}`)
+    .send({ title: "Lesson" });
+
+  const res = await request(app)
+    .post(`/lessons/${lessonRes.body.lesson.id}/screens`)
+    .set("Authorization", `Bearer ${accessToken}`)
+    .send({
+      type: "simulation",
+      content: { widgetType: "gate_circuit_diagram", params: { gates: [] } },
+    });
+  assert.equal(res.status, 400);
+  assert.equal(res.body.error.code, "VALIDATION_ERROR");
+});
+
+test("Screen.content rejects a gate_circuit_diagram gate with an unrecognized type", async () => {
+  const { accessToken } = await createUserWithToken({ role: "instructor" });
+  const courseRes = await request(app)
+    .post("/courses")
+    .set("Authorization", `Bearer ${accessToken}`)
+    .send({ title: "Course" });
+  const chapterRes = await request(app)
+    .post(`/courses/${courseRes.body.course.id}/chapters`)
+    .set("Authorization", `Bearer ${accessToken}`)
+    .send({ title: "Chapter" });
+  const lessonRes = await request(app)
+    .post(`/chapters/${chapterRes.body.chapter.id}/lessons`)
+    .set("Authorization", `Bearer ${accessToken}`)
+    .send({ title: "Lesson" });
+
+  const res = await request(app)
+    .post(`/lessons/${lessonRes.body.lesson.id}/screens`)
+    .set("Authorization", `Bearer ${accessToken}`)
+    .send({
+      type: "simulation",
+      content: {
+        widgetType: "gate_circuit_diagram",
+        params: { qubitCount: 1, gates: [{ type: "NOT_A_REAL_GATE", step: 0, qubits: [0] }] },
+      },
+    });
+  assert.equal(res.status, 400);
+  assert.equal(res.body.error.code, "VALIDATION_ERROR");
+});
+
 // amplitude_bar_chart/topology_diagram/quadrant_selector/basis_encoder have no per-mode schema yet
 // -- confirms they still fall back to the generic "params is an object" placeholder rather than
 // bloch_sphere's tightened validation leaking onto widget types that don't have it.

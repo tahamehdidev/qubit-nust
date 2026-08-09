@@ -1318,6 +1318,30 @@
               }
             },
             {
+              "type": "simulation",
+              "content": {
+                "widgetType": "gate_circuit_diagram",
+                "params": {
+                  "caption": "A CNOT between two adjacent qubits -- the physical coupling this lesson describes is exactly what makes this one gate possible. Click the gate to see what it does.",
+                  "qubitCount": 2,
+                  "qubitLabels": [
+                    "Control qubit",
+                    "Target qubit"
+                  ],
+                  "gates": [
+                    {
+                      "type": "CNOT",
+                      "step": 0,
+                      "qubits": [
+                        0,
+                        1
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
               "order_index": 2,
               "type": "question",
               "content": {},
