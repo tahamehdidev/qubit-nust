@@ -61,6 +61,21 @@ async function markRemoved(cohortId, userId) {
   return result.rows[0] ?? null;
 }
 
+// GET /cohorts/mine (Phase 8D) -- the read side of the join relationship a learner otherwise
+// only ever writes to (POST /cohorts/join) and never sees again. Same active-only scoping as
+// findAllForCohort, for the same reason: "which cohort(s) am I in" means right now, not ever.
+async function findAllForUser(userId) {
+  const result = await pool.query(
+    `SELECT ce.id, ce.cohort_id, ce.enrolled_at, c.name AS cohort_name
+     FROM cohort_enrollment ce
+     JOIN cohort c ON c.id = ce.cohort_id
+     WHERE ce.user_id = $1 AND ce.status = 'active'
+     ORDER BY ce.enrolled_at`,
+    [userId]
+  );
+  return result.rows;
+}
+
 // Cohort has no ON DELETE CASCADE from cohort_enrollment (01-data-model.md) -- unlike Course's
 // hierarchy, enrollment history is deliberately preserved as long as the Cohort itself exists.
 // Deleting the Cohort is the one action consequential enough to also remove its enrollment rows;
@@ -74,6 +89,7 @@ export const cohortEnrollmentRepository = {
   existsForInstructor,
   create,
   findAllForCohort,
+  findAllForUser,
   markRemoved,
   deleteAllForCohort,
 };

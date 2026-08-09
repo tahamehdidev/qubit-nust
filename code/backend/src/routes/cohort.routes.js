@@ -27,6 +27,8 @@ import {
   removeStudentController,
   joinCohortController,
   bulkEnrollController,
+  listMyCohortsController,
+  leaveCohortController,
 } from "../controllers/cohortEnrollment.controller.js";
 import {
   getCompletionController,
@@ -51,6 +53,10 @@ router.post(
   validateBody(JoinCohortSchema),
   joinCohortController
 );
+
+// Phase 8D. Registered before "/:cohortId" so "mine" is never captured as a cohortId value --
+// same reasoning as "/join" above.
+router.get("/mine", requireRole("learner"), listMyCohortsController);
 
 router.get(
   "/:cohortId",
@@ -104,6 +110,17 @@ router.post(
   cohortEnrollLimiter,
   validateBody(EnrollStudentSchema),
   enrollStudentController
+);
+
+// Phase 8D. Registered before "/:cohortId/students/:userId" so "me" is never captured by
+// validateUuidParam("userId") and rejected as a malformed UUID -- same "register the literal
+// segment first" pattern as "/mine" above. No requireCohortOwnership: a learner leaving their own
+// enrollment needs no ownership check, unlike an instructor/admin removing someone else's.
+router.patch(
+  "/:cohortId/students/me",
+  validateIntParam("cohortId"),
+  requireRole("learner"),
+  leaveCohortController
 );
 
 router.patch(

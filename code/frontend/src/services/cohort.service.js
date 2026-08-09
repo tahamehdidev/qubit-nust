@@ -61,6 +61,19 @@ async function bulkEnrollStudents(cohortId, emails) {
   return data.results;
 }
 
+// Phase 8D: the read side of join() a learner otherwise never sees again.
+async function listMine() {
+  const { data } = await apiClient.get("/cohorts/mine");
+  return data.cohorts;
+}
+
+// Self-service leave -- distinct from removeStudent, which is instructor/admin-driven and takes
+// a target userId; this always acts on the caller.
+async function leave(cohortId) {
+  const { data } = await apiClient.patch(`/cohorts/${cohortId}/students/me`);
+  return data.enrollment;
+}
+
 export const cohortService = {
   list,
   getById,
@@ -73,4 +86,6 @@ export const cohortService = {
   join,
   regenerateJoinCode,
   bulkEnrollStudents,
+  listMine,
+  leave,
 };

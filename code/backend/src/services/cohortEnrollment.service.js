@@ -53,6 +53,16 @@ async function listForCohort(cohortId) {
   return cohortEnrollmentRepository.findAllForCohort(cohortId);
 }
 
+// GET /cohorts/mine (Phase 8D).
+async function listForUser(userId) {
+  return cohortEnrollmentRepository.findAllForUser(userId);
+}
+
+// Shared by two callers with different authorization stories, not two different operations:
+// removeStudentController (instructor/admin, cohort-ownership-gated, any target userId) and
+// leaveCohortController (Phase 8D -- a learner removing themselves, no ownership check needed
+// since acting on your own userId needs no separate permission). Both just mean "this
+// user's active enrollment in this cohort ends now."
 async function remove(cohortId, userId) {
   const enrollment = await cohortEnrollmentRepository.markRemoved(cohortId, userId);
   if (!enrollment) {
@@ -90,6 +100,7 @@ export const cohortEnrollmentService = {
   checkStudentOwnership,
   enroll,
   listForCohort,
+  listForUser,
   remove,
   bulkEnroll,
 };

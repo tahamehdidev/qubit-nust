@@ -22,6 +22,51 @@
   line-height: var(--leading-relaxed);
 }
 
+/* Phase 8D: a learner's cohort membership, previously write-only (join) with no read/leave path
+   at all. Follows AdminUsersPage's own row-list pattern rather than inventing a new one. */
+.dashboard__cohorts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.dashboard__cohorts-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-lg);
+  margin: 0;
+}
+
+.dashboard__cohorts-heading svg {
+  color: var(--color-accent);
+}
+
+.dashboard__cohorts-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.dashboard__cohorts-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-card);
+}
+
+.dashboard__cohorts-name {
+  font-weight: var(--weight-medium);
+  color: var(--color-foreground);
+}
+
 /* The inline link's own line-box (~21px) fails the 44px touch-target floor every other
    interactive element on this screen meets -- inline-block + padding/negative-margin offset
    (same technique as .lesson-player__exit/.practice-set__exit) grows the hit area without

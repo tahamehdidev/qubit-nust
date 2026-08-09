@@ -19,7 +19,13 @@ vi.mock("../services/progress.service.js", () => ({
   progressService: { listForUser: vi.fn() },
 }));
 vi.mock("../services/cohort.service.js", () => ({
-  cohortService: { list: vi.fn(), regenerateJoinCode: vi.fn(), bulkEnrollStudents: vi.fn() },
+  cohortService: {
+    list: vi.fn(),
+    regenerateJoinCode: vi.fn(),
+    bulkEnrollStudents: vi.fn(),
+    listMine: vi.fn(),
+    leave: vi.fn(),
+  },
 }));
 vi.mock("../services/dashboard.service.js", () => ({
   dashboardService: { getCompletion: vi.fn(), getLessonPacing: vi.fn() },
@@ -35,6 +41,9 @@ function renderDashboard() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  // Sane default for every learner test -- individual tests override with their own cohort
+  // fixtures where the cohort card itself is what's under test.
+  cohortService.listMine.mockResolvedValue([]);
 });
 
 test("a learner sees a cross-course progress summary, not the course catalog's browse grid", async () => {
@@ -136,6 +145,59 @@ test("a learner with zero progress rows sees an empty state pointing at the cata
 
   expect(await screen.findByText(/started any courses yet/)).toBeInTheDocument();
   expect(screen.getByRole("link", { name: "Browse courses" })).toHaveAttribute("href", "/courses");
+});
+
+// Phase 8D.
+test("a learner sees no cohorts card at all when they haven't joined any", async () => {
+  useAuth.mockReturnValue({ user: { id: "u1", role: "learner" } });
+  courseService.list.mockResolvedValue({ courses: [] });
+  progressService.listForUser.mockResolvedValue({ progress: [] });
+  renderDashboard();
+
+  await screen.findByText(/started any courses yet/);
+  expect(screen.queryByText("Your cohorts")).not.toBeInTheDocument();
+});
+
+test("a learner sees their joined cohorts and can leave one", async () => {
+  const user = userEvent.setup();
+  useAuth.mockReturnValue({ user: { id: "u1", role: "learner" } });
+  courseService.list.mockResolvedValue({ courses: [] });
+  progressService.listForUser.mockResolvedValue({ progress: [] });
+  cohortService.listMine.mockResolvedValue([
+    { id: 1, cohort_id: 5, cohort_name: "Quantum 101" },
+    { id: 2, cohort_id: 6, cohort_name: "Advanced Circuits" },
+  ]);
+  cohortService.leave.mockResolvedValue({ id: 1, status: "removed" });
+  renderDashboard();
+
+  expect(await screen.findByText("Your cohorts")).toBeInTheDocument();
+  expect(screen.getByText("Quantum 101")).toBeInTheDocument();
+  expect(screen.getByText("Advanced Circuits")).toBeInTheDocument();
+
+  const row = screen.getByText("Quantum 101").closest("li");
+  await user.click(within(row).getByRole("button", { name: "Leave" }));
+
+  expect(cohortService.leave).toHaveBeenCalledWith(5);
+  await screen.findByText("Advanced Circuits");
+  expect(screen.queryByText("Quantum 101")).not.toBeInTheDocument();
+});
+
+test("a failed leave shows an error banner and keeps the cohort in the list", async () => {
+  const user = userEvent.setup();
+  useAuth.mockReturnValue({ user: { id: "u1", role: "learner" } });
+  courseService.list.mockResolvedValue({ courses: [] });
+  progressService.listForUser.mockResolvedValue({ progress: [] });
+  cohortService.listMine.mockResolvedValue([{ id: 1, cohort_id: 5, cohort_name: "Quantum 101" }]);
+  cohortService.leave.mockRejectedValue({
+    response: { data: { error: { code: "NOT_FOUND", message: "No active enrollment found." } } },
+  });
+  renderDashboard();
+
+  await screen.findByText("Quantum 101");
+  await user.click(screen.getByRole("button", { name: "Leave" }));
+
+  expect(await screen.findByRole("alert")).toHaveTextContent("No active enrollment found.");
+  expect(screen.getByText("Quantum 101")).toBeInTheDocument();
 });
 
 test("an instructor with zero cohorts sees an empty state explaining cohorts are admin-provisioned, not a bare 'not found'", async () => {

@@ -93,3 +93,18 @@ test("bulkEnrollStudents posts to /cohorts/:id/students/bulk and returns the per
   });
   expect(result).toEqual(results);
 });
+
+test("listMine fetches /cohorts/mine and returns the cohorts array", async () => {
+  const cohorts = [{ id: 1, cohort_id: 2, cohort_name: "Quantum 101" }];
+  apiClient.get.mockResolvedValue({ data: { cohorts } });
+  const result = await cohortService.listMine();
+  expect(apiClient.get).toHaveBeenCalledWith("/cohorts/mine");
+  expect(result).toEqual(cohorts);
+});
+
+test("leave patches /cohorts/:id/students/me with no body and returns the enrollment", async () => {
+  apiClient.patch.mockResolvedValue({ data: { enrollment: { id: 9, status: "removed" } } });
+  const result = await cohortService.leave(2);
+  expect(apiClient.patch).toHaveBeenCalledWith("/cohorts/2/students/me");
+  expect(result).toEqual({ id: 9, status: "removed" });
+});

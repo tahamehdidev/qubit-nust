@@ -158,6 +158,13 @@ function LearnerDashboard() {
   const [error, setError] = useState(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
 
+  // Phase 8D: the join relationship POST /cohorts/join creates was write-only from the learner's
+  // side -- no way to see which cohort(s) they'd joined, or leave one, short of an
+  // instructor/admin removing them manually.
+  const [cohorts, setCohorts] = useState([]);
+  const [leavingCohortId, setLeavingCohortId] = useState(null);
+  const [leaveError, setLeaveError] = useState(null);
+
   useEffect(() => {
     let cancelled = false;
     setError(null);
@@ -165,9 +172,10 @@ function LearnerDashboard() {
 
     async function load() {
       try {
-        const [coursesResult, progressResult] = await Promise.all([
+        const [coursesResult, progressResult, cohortsResult] = await Promise.all([
           courseService.list(),
           progressService.listForUser({ userId: "me" }),
+          cohortService.listMine(),
         ]);
         if (cancelled) return;
         const titleByCourseId = Object.fromEntries(
@@ -179,6 +187,7 @@ function LearnerDashboard() {
             courseTitle: titleByCourseId[row.course_id] ?? "Untitled course",
           }))
         );
+        setCohorts(cohortsResult);
       } catch (err) {
         if (!cancelled) setError(parseApiError(err).message);
       }
@@ -188,6 +197,19 @@ function LearnerDashboard() {
       cancelled = true;
     };
   }, [loadAttempt]);
+
+  async function handleLeaveCohort(cohortId) {
+    setLeaveError(null);
+    setLeavingCohortId(cohortId);
+    try {
+      await cohortService.leave(cohortId);
+      setCohorts((current) => current.filter((entry) => entry.cohort_id !== cohortId));
+    } catch (err) {
+      setLeaveError(parseApiError(err).message);
+    } finally {
+      setLeavingCohortId(null);
+    }
+  }
 
   if (error) {
     return (
@@ -229,6 +251,35 @@ function LearnerDashboard() {
           ) : null}
         </div>
       </div>
+
+      {cohorts.length > 0 ? (
+        <Card as="section" className="dashboard__cohorts">
+          <h2 className="dashboard__cohorts-heading">
+            <Users size={18} aria-hidden="true" />
+            Your cohorts
+          </h2>
+          {leaveError ? (
+            <p className="dashboard__banner" role="alert">
+              {leaveError}
+            </p>
+          ) : null}
+          <ul className="dashboard__cohorts-list">
+            {cohorts.map((entry) => (
+              <li key={entry.id} className="dashboard__cohorts-row">
+                <span className="dashboard__cohorts-name">{entry.cohort_name}</span>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  isLoading={leavingCohortId === entry.cohort_id}
+                  onClick={() => handleLeaveCohort(entry.cohort_id)}
+                >
+                  Leave
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
 
       {entries.length === 0 ? (
         <Card className="dashboard__empty-cta">

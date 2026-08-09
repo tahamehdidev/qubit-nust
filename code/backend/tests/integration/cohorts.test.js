@@ -670,3 +670,105 @@ test("cross-instructor access to the dashboard endpoints -> 403; admin bypasses"
   assert.equal(adminRes.status, 200);
   assert.deepEqual(adminRes.body.courses, []); // no students, no Progress rows
 });
+
+// Phase 8D.
+test("GET /cohorts/mine lists only the cohorts the caller has actively joined", async () => {
+  const { accessToken: instructorToken } = await createUserWithToken({ role: "instructor" });
+  const { accessToken: learnerToken } = await createUserWithToken({ role: "learner" });
+
+  const cohortRes = await request(app)
+    .post("/cohorts")
+    .set("Authorization", `Bearer ${instructorToken}`)
+    .send({ name: "Quantum 101" });
+  const { id: cohortId, join_code: joinCode } = cohortRes.body.cohort;
+
+  const beforeJoinRes = await request(app)
+    .get("/cohorts/mine")
+    .set("Authorization", `Bearer ${learnerToken}`);
+  assert.equal(beforeJoinRes.status, 200);
+  assert.deepEqual(beforeJoinRes.body.cohorts, []);
+
+  await request(app)
+    .post("/cohorts/join")
+    .set("Authorization", `Bearer ${learnerToken}`)
+    .send({ joinCode });
+
+  const afterJoinRes = await request(app)
+    .get("/cohorts/mine")
+    .set("Authorization", `Bearer ${learnerToken}`);
+  assert.equal(afterJoinRes.status, 200);
+  assert.equal(afterJoinRes.body.cohorts.length, 1);
+  assert.equal(afterJoinRes.body.cohorts[0].cohort_id, cohortId);
+  assert.equal(afterJoinRes.body.cohorts[0].cohort_name, "Quantum 101");
+});
+
+test("GET /cohorts/mine requires the learner role -- an instructor gets 403", async () => {
+  const { accessToken: instructorToken } = await createUserWithToken({ role: "instructor" });
+  const res = await request(app)
+    .get("/cohorts/mine")
+    .set("Authorization", `Bearer ${instructorToken}`);
+  assert.equal(res.status, 403);
+});
+
+test("PATCH /cohorts/:id/students/me lets a learner leave their own cohort, dropping it from /cohorts/mine", async () => {
+  const { accessToken: instructorToken } = await createUserWithToken({ role: "instructor" });
+  const { accessToken: learnerToken } = await createUserWithToken({ role: "learner" });
+
+  const cohortRes = await request(app)
+    .post("/cohorts")
+    .set("Authorization", `Bearer ${instructorToken}`)
+    .send({ name: "Cohort" });
+  const { id: cohortId, join_code: joinCode } = cohortRes.body.cohort;
+
+  await request(app)
+    .post("/cohorts/join")
+    .set("Authorization", `Bearer ${learnerToken}`)
+    .send({ joinCode });
+
+  const leaveRes = await request(app)
+    .patch(`/cohorts/${cohortId}/students/me`)
+    .set("Authorization", `Bearer ${learnerToken}`);
+  assert.equal(leaveRes.status, 200);
+  assert.equal(leaveRes.body.enrollment.status, "removed");
+
+  const mineRes = await request(app)
+    .get("/cohorts/mine")
+    .set("Authorization", `Bearer ${learnerToken}`);
+  assert.deepEqual(mineRes.body.cohorts, []);
+
+  // Re-joining afterward still works -- leaving isn't a one-way lockout from that cohort.
+  const rejoinRes = await request(app)
+    .post("/cohorts/join")
+    .set("Authorization", `Bearer ${learnerToken}`)
+    .send({ joinCode });
+  assert.equal(rejoinRes.status, 201);
+});
+
+test("PATCH /cohorts/:id/students/me with no active enrollment -> 404", async () => {
+  const { accessToken: instructorToken } = await createUserWithToken({ role: "instructor" });
+  const { accessToken: learnerToken } = await createUserWithToken({ role: "learner" });
+
+  const cohortRes = await request(app)
+    .post("/cohorts")
+    .set("Authorization", `Bearer ${instructorToken}`)
+    .send({ name: "Cohort" });
+
+  const res = await request(app)
+    .patch(`/cohorts/${cohortRes.body.cohort.id}/students/me`)
+    .set("Authorization", `Bearer ${learnerToken}`);
+  assert.equal(res.status, 404);
+});
+
+test("PATCH /cohorts/:id/students/me requires the learner role -- an instructor gets 403", async () => {
+  const { accessToken: instructorToken } = await createUserWithToken({ role: "instructor" });
+
+  const cohortRes = await request(app)
+    .post("/cohorts")
+    .set("Authorization", `Bearer ${instructorToken}`)
+    .send({ name: "Cohort" });
+
+  const res = await request(app)
+    .patch(`/cohorts/${cohortRes.body.cohort.id}/students/me`)
+    .set("Authorization", `Bearer ${instructorToken}`);
+  assert.equal(res.status, 403);
+});
