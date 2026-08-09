@@ -28,4 +28,11 @@ export const env = {
   // logs the reset link instead of sending a real email until a real Resend API key is supplied.
   RESEND_API_KEY: process.env.RESEND_API_KEY ?? null,
   RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL ?? "Qubit — NUST <onboarding@resend.dev>",
+  // Phase 7A.1 -- defaults match pg.Pool's own built-in defaults exactly, so pulling these out
+  // changes nothing about today's behavior. Sizing becomes a dashboard env var change later
+  // (config/db.js's own comment documents the actual sizing rule for the eventual tier upgrade),
+  // not a code change.
+  DB_POOL_MAX: Number(process.env.DB_POOL_MAX ?? 10),
+  DB_IDLE_TIMEOUT_MS: Number(process.env.DB_IDLE_TIMEOUT_MS ?? 10_000),
+  DB_CONNECTION_TIMEOUT_MS: Number(process.env.DB_CONNECTION_TIMEOUT_MS ?? 0),
 };

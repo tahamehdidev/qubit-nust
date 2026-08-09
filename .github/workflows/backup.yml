@@ -1,0 +1,41 @@
+name: Database Backup
+
+# Phase 7A.4 -- Render's free-tier Postgres has no automated backups. Runs scripts/backup.js
+# daily and keeps the dump as a workflow artifact (free, no extra infrastructure).
+#
+# Requires a repository secret named BACKUP_DATABASE_URL set to the PRODUCTION database's owner
+# connection string (the one render.yaml documents as manually set in Render's dashboard, NOT the
+# restricted app_user connection) -- add it under Settings > Secrets and variables > Actions.
+# This workflow does nothing useful until that secret exists.
+on:
+  schedule:
+    - cron: "0 3 * * *" # daily, 03:00 UTC
+  workflow_dispatch: {} # manual "Run workflow" button, for an on-demand backup
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: code/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: code/backend/package-lock.json
+      - run: npm ci
+      # Not assumed preinstalled on the runner image -- explicit and deterministic instead.
+      - name: Install pg_dump
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Run backup
+        env:
+          BACKUP_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
+        run: npm run backup
+      - uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_id }}
+          path: code/backend/backups/*.sql
+          retention-days: 90
+          if-no-files-found: error
