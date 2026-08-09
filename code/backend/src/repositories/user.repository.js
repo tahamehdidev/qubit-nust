@@ -70,6 +70,28 @@ async function deactivate(id) {
   return result.rows[0] ?? null;
 }
 
+// PATCH /admin/users/:userId/reactivate (Phase 8C) -- the inverse of deactivate(). Setting
+// deactivated_at back to NULL is naturally idempotent on an already-active account (a no-op
+// UPDATE), same idempotency shape as deactivate() itself.
+async function reactivate(id) {
+  const result = await pool.query(
+    'UPDATE "user" SET deactivated_at = NULL WHERE id = $1 RETURNING *',
+    [id]
+  );
+  return result.rows[0] ?? null;
+}
+
+// PATCH /admin/users/:userId/role (Phase 8C). Scoped to learner<->instructor by the validator and
+// service layer above this, not here -- this function itself is a plain, unrestricted column
+// write, same division of responsibility as updateName/updatePasswordHash.
+async function updateRole(id, role) {
+  const result = await pool.query('UPDATE "user" SET role = $1 WHERE id = $2 RETURNING *', [
+    role,
+    id,
+  ]);
+  return result.rows[0] ?? null;
+}
+
 export const userRepository = {
   findByEmail,
   findById,
@@ -78,4 +100,6 @@ export const userRepository = {
   updatePasswordHash,
   findAll,
   deactivate,
+  reactivate,
+  updateRole,
 };

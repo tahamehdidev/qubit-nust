@@ -15,4 +15,20 @@ async function deactivateUser(userId) {
   return data.user;
 }
 
-export const adminService = { listUsers, createInstructor, deactivateUser };
+async function reactivateUser(userId) {
+  const { data } = await apiClient.patch(`/admin/users/${userId}/reactivate`);
+  return data.user;
+}
+
+async function changeUserRole(userId, role) {
+  const { data } = await apiClient.patch(`/admin/users/${userId}/role`, { role });
+  return data.user;
+}
+
+export const adminService = {
+  listUsers,
+  createInstructor,
+  deactivateUser,
+  reactivateUser,
+  changeUserRole,
+};

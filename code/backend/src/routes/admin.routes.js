@@ -2,11 +2,13 @@ import { Router } from "express";
 import { requireRole } from "../middleware/role.middleware.js";
 import { validateBody } from "../middleware/validateBody.middleware.js";
 import { validateUuidParam } from "../middleware/validateParams.middleware.js";
-import { CreateInstructorSchema } from "../validators/admin.validator.js";
+import { CreateInstructorSchema, ChangeUserRoleSchema } from "../validators/admin.validator.js";
 import {
   listUsersController,
   createInstructorController,
   deactivateUserController,
+  reactivateUserController,
+  changeUserRoleController,
 } from "../controllers/admin.controller.js";
 
 const router = Router();
@@ -25,6 +27,19 @@ router.patch(
   requireRole("admin"),
   validateUuidParam("userId"),
   deactivateUserController
+);
+router.patch(
+  "/users/:userId/reactivate",
+  requireRole("admin"),
+  validateUuidParam("userId"),
+  reactivateUserController
+);
+router.patch(
+  "/users/:userId/role",
+  requireRole("admin"),
+  validateUuidParam("userId"),
+  validateBody(ChangeUserRoleSchema),
+  changeUserRoleController
 );
 
 export default router;

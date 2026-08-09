@@ -33,3 +33,17 @@ test("deactivateUser patches /admin/users/:id/deactivate and returns the updated
   expect(apiClient.patch).toHaveBeenCalledWith("/admin/users/u1/deactivate");
   expect(result).toEqual({ id: "u1", deactivatedAt: "now" });
 });
+
+test("reactivateUser patches /admin/users/:id/reactivate and returns the updated user", async () => {
+  apiClient.patch.mockResolvedValue({ data: { user: { id: "u1", deactivatedAt: null } } });
+  const result = await adminService.reactivateUser("u1");
+  expect(apiClient.patch).toHaveBeenCalledWith("/admin/users/u1/reactivate");
+  expect(result).toEqual({ id: "u1", deactivatedAt: null });
+});
+
+test("changeUserRole patches /admin/users/:id/role with the new role and returns the updated user", async () => {
+  apiClient.patch.mockResolvedValue({ data: { user: { id: "u1", role: "instructor" } } });
+  const result = await adminService.changeUserRole("u1", "instructor");
+  expect(apiClient.patch).toHaveBeenCalledWith("/admin/users/u1/role", { role: "instructor" });
+  expect(result).toEqual({ id: "u1", role: "instructor" });
+});

@@ -161,3 +161,99 @@ test("PATCH /admin/users/:userId/deactivate for a nonexistent user -> 404", asyn
     .set("Authorization", `Bearer ${adminToken}`);
   assert.equal(res.status, 404);
 });
+
+test("PATCH /admin/users/:userId/reactivate reverses a deactivation and lets the account log in again", async () => {
+  const { accessToken: adminToken, user: admin } = await createUserWithToken({ role: "admin" });
+  const { user: learner } = await createUserWithToken({
+    role: "learner",
+    email: "reactivate-target@example.com",
+  });
+
+  await request(app)
+    .patch(`/admin/users/${learner.id}/deactivate`)
+    .set("Authorization", `Bearer ${adminToken}`);
+
+  const reactivateRes = await request(app)
+    .patch(`/admin/users/${learner.id}/reactivate`)
+    .set("Authorization", `Bearer ${adminToken}`);
+  assert.equal(reactivateRes.status, 200);
+  assert.equal(reactivateRes.body.user.deactivatedAt, null);
+
+  const loginRes = await request(app)
+    .post("/auth/login")
+    .send({ email: "reactivate-target@example.com", password: "irrelevant-password-123" });
+  assert.equal(loginRes.status, 200);
+
+  const auditRows = await pool.query(
+    "SELECT * FROM audit_log WHERE action = 'user.reactivated' AND user_id = $1",
+    [admin.id]
+  );
+  assert.equal(auditRows.rows.length, 1);
+});
+
+test("PATCH /admin/users/:userId/reactivate for a nonexistent user -> 404", async () => {
+  const { accessToken: adminToken } = await createUserWithToken({ role: "admin" });
+  const res = await request(app)
+    .patch("/admin/users/00000000-0000-0000-0000-000000000000/reactivate")
+    .set("Authorization", `Bearer ${adminToken}`);
+  assert.equal(res.status, 404);
+});
+
+test("PATCH /admin/users/:userId/role changes a learner to an instructor and records an audit entry", async () => {
+  const { accessToken: adminToken, user: admin } = await createUserWithToken({ role: "admin" });
+  const { user: learner } = await createUserWithToken({ role: "learner" });
+
+  const res = await request(app)
+    .patch(`/admin/users/${learner.id}/role`)
+    .set("Authorization", `Bearer ${adminToken}`)
+    .send({ role: "instructor" });
+
+  assert.equal(res.status, 200);
+  assert.equal(res.body.user.role, "instructor");
+
+  const auditRows = await pool.query(
+    "SELECT * FROM audit_log WHERE action = 'user.role_changed' AND user_id = $1",
+    [admin.id]
+  );
+  assert.equal(auditRows.rows.length, 1);
+  assert.equal(auditRows.rows[0].metadata.previousRole, "learner");
+  assert.equal(auditRows.rows[0].metadata.newRole, "instructor");
+});
+
+test("PATCH /admin/users/:userId/role rejects role=admin with 400 VALIDATION_ERROR", async () => {
+  const { accessToken: adminToken } = await createUserWithToken({ role: "admin" });
+  const { user: learner } = await createUserWithToken({ role: "learner" });
+
+  const res = await request(app)
+    .patch(`/admin/users/${learner.id}/role`)
+    .set("Authorization", `Bearer ${adminToken}`)
+    .send({ role: "admin" });
+
+  assert.equal(res.status, 400);
+  assert.equal(res.body.error.code, "VALIDATION_ERROR");
+});
+
+test("PATCH /admin/users/:userId/role refuses to act on a target who is already an admin", async () => {
+  const { accessToken: adminToken } = await createUserWithToken({ role: "admin" });
+  const { user: otherAdmin } = await createUserWithToken({ role: "admin" });
+
+  const res = await request(app)
+    .patch(`/admin/users/${otherAdmin.id}/role`)
+    .set("Authorization", `Bearer ${adminToken}`)
+    .send({ role: "instructor" });
+
+  assert.equal(res.status, 400);
+  assert.equal(res.body.error.code, "INVALID_ROLE_FOR_ACTION");
+});
+
+test("PATCH /admin/users/:userId/role requires the admin role -- a learner or instructor gets 403", async () => {
+  const { accessToken: learnerToken } = await createUserWithToken({ role: "learner" });
+  const { user: target } = await createUserWithToken({ role: "learner" });
+
+  const res = await request(app)
+    .patch(`/admin/users/${target.id}/role`)
+    .set("Authorization", `Bearer ${learnerToken}`)
+    .send({ role: "instructor" });
+
+  assert.equal(res.status, 403);
+});

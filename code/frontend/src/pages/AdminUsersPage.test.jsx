@@ -6,7 +6,13 @@ import { adminService } from "../services/admin.service.js";
 import { AdminUsersPage } from "./AdminUsersPage.jsx";
 
 vi.mock("../services/admin.service.js", () => ({
-  adminService: { listUsers: vi.fn(), createInstructor: vi.fn(), deactivateUser: vi.fn() },
+  adminService: {
+    listUsers: vi.fn(),
+    createInstructor: vi.fn(),
+    deactivateUser: vi.fn(),
+    reactivateUser: vi.fn(),
+    changeUserRole: vi.fn(),
+  },
 }));
 
 function renderPage() {
@@ -44,6 +50,99 @@ test("an admin sees the account list", async () => {
   expect(screen.getByText("Grace Hopper")).toBeInTheDocument();
   expect(screen.getByText("Deactivated")).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Deactivate" })).toBeInTheDocument();
+});
+
+// Phase 8C.
+test("a deactivated account's row offers Reactivate instead of Deactivate", async () => {
+  const user = userEvent.setup();
+  adminService.listUsers.mockResolvedValue({
+    users: [
+      {
+        id: "u2",
+        name: "Grace Hopper",
+        email: "grace@example.com",
+        role: "instructor",
+        deactivatedAt: "2026-01-01T00:00:00Z",
+      },
+    ],
+    pagination: { page: 1, limit: 20, total: 1 },
+  });
+  adminService.reactivateUser.mockResolvedValue({
+    id: "u2",
+    name: "Grace Hopper",
+    email: "grace@example.com",
+    role: "instructor",
+    deactivatedAt: null,
+  });
+  renderPage();
+
+  await screen.findByText("Grace Hopper");
+  await user.click(screen.getByRole("button", { name: "Reactivate" }));
+
+  expect(adminService.reactivateUser).toHaveBeenCalledWith("u2");
+  await waitFor(() => expect(screen.queryByText("Deactivated")).not.toBeInTheDocument());
+  expect(screen.getByRole("button", { name: "Deactivate" })).toBeInTheDocument();
+});
+
+test("clicking the role toggle promotes a learner to instructor without a confirmation dialog", async () => {
+  const user = userEvent.setup();
+  adminService.listUsers.mockResolvedValue({
+    users: [
+      { id: "u1", name: "Ada Lovelace", email: "ada@example.com", role: "learner", deactivatedAt: null },
+    ],
+    pagination: { page: 1, limit: 20, total: 1 },
+  });
+  adminService.changeUserRole.mockResolvedValue({
+    id: "u1",
+    name: "Ada Lovelace",
+    email: "ada@example.com",
+    role: "instructor",
+    deactivatedAt: null,
+  });
+  renderPage();
+
+  await screen.findByText("Ada Lovelace");
+  await user.click(screen.getByRole("button", { name: "Make instructor" }));
+
+  expect(adminService.changeUserRole).toHaveBeenCalledWith("u1", "instructor");
+  expect(await screen.findByRole("button", { name: "Make learner" })).toBeInTheDocument();
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+});
+
+test("an admin row has no role-change control", async () => {
+  adminService.listUsers.mockResolvedValue({
+    users: [
+      { id: "a1", name: "Root Admin", email: "root@example.com", role: "admin", deactivatedAt: null },
+    ],
+    pagination: { page: 1, limit: 20, total: 1 },
+  });
+  renderPage();
+
+  await screen.findByText("Root Admin");
+  expect(screen.queryByRole("button", { name: "Make instructor" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Make learner" })).not.toBeInTheDocument();
+});
+
+test("a failed role change shows an error banner without changing the row", async () => {
+  const user = userEvent.setup();
+  adminService.listUsers.mockResolvedValue({
+    users: [
+      { id: "u1", name: "Ada Lovelace", email: "ada@example.com", role: "learner", deactivatedAt: null },
+    ],
+    pagination: { page: 1, limit: 20, total: 1 },
+  });
+  adminService.changeUserRole.mockRejectedValue({
+    response: {
+      data: { error: { code: "INVALID_ROLE_FOR_ACTION", message: "Cannot change this account." } },
+    },
+  });
+  renderPage();
+
+  await screen.findByText("Ada Lovelace");
+  await user.click(screen.getByRole("button", { name: "Make instructor" }));
+
+  expect(await screen.findByRole("alert")).toHaveTextContent("Cannot change this account.");
+  expect(screen.getByRole("button", { name: "Make instructor" })).toBeInTheDocument();
 });
 
 test("typing in the search box re-fetches with the search param", async () => {

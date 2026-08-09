@@ -22,3 +22,17 @@ export const deactivateUserController = asyncHandler(async (req, res) => {
   const user = await userService.deactivateUser(req.params.userId, req.user.id);
   res.status(200).json({ user });
 });
+
+export const reactivateUserController = asyncHandler(async (req, res) => {
+  const user = await userService.reactivateUser(req.params.userId, req.user.id);
+  res.status(200).json({ user });
+});
+
+export const changeUserRoleController = asyncHandler(async (req, res) => {
+  const user = await userService.changeUserRole(
+    req.params.userId,
+    req.validatedBody.role,
+    req.user.id
+  );
+  res.status(200).json({ user });
+});

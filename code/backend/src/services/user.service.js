@@ -8,6 +8,7 @@ import {
   NotFoundError,
   EmailAlreadyRegisteredError,
   InvalidCredentialsError,
+  InvalidRoleForActionError,
 } from "../errors/index.js";
 
 // password_hash is never returned in any response, from any endpoint (02-api-contract.md §2.3) --
@@ -81,6 +82,55 @@ async function deactivateUser(id, deactivatedByAdminId) {
   return toPublicUser(user);
 }
 
+// PATCH /admin/users/:userId/reactivate (Phase 8C). Deactivation was documented as "effectively
+// final" at MVP scale (02-api-contract.md §9.1) -- a reasonable call for a handful of test
+// accounts, but a real operational risk once mistaken deactivations and appeals happen against a
+// real student population. No session-revocation counterpart needed here (deactivate() already
+// revoked everything; there's nothing active left to touch).
+async function reactivateUser(id, reactivatedByAdminId) {
+  const user = await userRepository.reactivate(id);
+  if (!user) throw new NotFoundError("User not found.");
+
+  await auditLogService.record({
+    userId: reactivatedByAdminId,
+    action: "user.reactivated",
+    resourceType: "User",
+    resourceId: id,
+    metadata: { reactivatedUserId: id },
+  });
+
+  return toPublicUser(user);
+}
+
+// PATCH /admin/users/:userId/role (Phase 8C). The validator already restricts the *incoming*
+// value to learner/instructor; this guards the other half -- refusing to act on a target who is
+// currently an admin, so an existing admin can't be demoted (or, symmetrically, re-promoted)
+// through this endpoint either. Both directions of "touches admin-level access" stay CLI-only.
+async function changeUserRole(id, newRole, changedByAdminId) {
+  const user = await userRepository.findById(id);
+  if (!user) throw new NotFoundError("User not found.");
+
+  if (user.role === "admin") {
+    throw new InvalidRoleForActionError(
+      "Admin accounts cannot have their role changed through this endpoint.",
+      "role"
+    );
+  }
+
+  const previousRole = user.role;
+  const updated = await userRepository.updateRole(id, newRole);
+
+  await auditLogService.record({
+    userId: changedByAdminId,
+    action: "user.role_changed",
+    resourceType: "User",
+    resourceId: id,
+    metadata: { targetUserId: id, previousRole, newRole },
+  });
+
+  return toPublicUser(updated);
+}
+
 // POST /admin/users (Phase 7C.1) -- the admin-UI equivalent of scripts/create-admin.js, scoped to
 // instructor accounts only (the route/validator enforce this; admin account creation stays a
 // CLI-only action, a deliberately smaller blast radius for the one action that grants
@@ -123,5 +173,7 @@ export const userService = {
   changePassword,
   list,
   deactivateUser,
+  reactivateUser,
+  changeUserRole,
   createInstructor,
 };

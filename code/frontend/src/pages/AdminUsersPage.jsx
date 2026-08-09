@@ -33,6 +33,15 @@ export function AdminUsersPage() {
   const [pendingDeactivation, setPendingDeactivation] = useState(null);
   const [isDeactivating, setIsDeactivating] = useState(false);
 
+  // Phase 8C: reactivate + role-change are both quick per-row actions, unlike deactivation --
+  // no confirmation dialog (deactivation logs the account out immediately and blocks login;
+  // these two don't have that same one-way-feeling consequence, and each is a single click to
+  // reverse if it turns out to be a mistake). actionError is shared between both since they're
+  // both transient, per-row failures shown in the same banner slot listError already uses.
+  const [actionError, setActionError] = useState(null);
+  const [reactivatingId, setReactivatingId] = useState(null);
+  const [changingRoleId, setChangingRoleId] = useState(null);
+
   useEffect(() => {
     let cancelled = false;
     setListError(null);
@@ -91,6 +100,32 @@ export function AdminUsersPage() {
       setPendingDeactivation(null);
     } finally {
       setIsDeactivating(false);
+    }
+  }
+
+  async function handleReactivate(userId) {
+    setActionError(null);
+    setReactivatingId(userId);
+    try {
+      const updated = await adminService.reactivateUser(userId);
+      setUsers((current) => current.map((u) => (u.id === updated.id ? updated : u)));
+    } catch (err) {
+      setActionError(parseApiError(err).message);
+    } finally {
+      setReactivatingId(null);
+    }
+  }
+
+  async function handleRoleChange(userId, newRole) {
+    setActionError(null);
+    setChangingRoleId(userId);
+    try {
+      const updated = await adminService.changeUserRole(userId, newRole);
+      setUsers((current) => current.map((u) => (u.id === updated.id ? updated : u)));
+    } catch (err) {
+      setActionError(parseApiError(err).message);
+    } finally {
+      setChangingRoleId(null);
     }
   }
 
@@ -187,6 +222,11 @@ export function AdminUsersPage() {
             {listError}
           </p>
         ) : null}
+        {actionError ? (
+          <p className="admin-users__banner" role="alert">
+            {actionError}
+          </p>
+        ) : null}
 
         {users === null ? (
           <p className="admin-users__empty">Loading&hellip;</p>
@@ -201,19 +241,49 @@ export function AdminUsersPage() {
                   <span className="admin-users__row-email">{accountUser.email}</span>
                 </div>
                 <span className="admin-users__row-role">{accountUser.role}</span>
-                {accountUser.deactivatedAt ? (
-                  <span className="admin-users__status admin-users__status--deactivated">
-                    Deactivated
-                  </span>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => setPendingDeactivation(accountUser)}
-                  >
-                    Deactivate
-                  </Button>
-                )}
+                <div className="admin-users__row-actions">
+                  {/* Phase 8C: promotion/demotion is learner<->instructor only -- an admin row
+                      gets no role control at all, matching the backend's own refusal to act on
+                      an admin target through this endpoint. */}
+                  {accountUser.role !== "admin" ? (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      isLoading={changingRoleId === accountUser.id}
+                      onClick={() =>
+                        handleRoleChange(
+                          accountUser.id,
+                          accountUser.role === "learner" ? "instructor" : "learner"
+                        )
+                      }
+                    >
+                      {accountUser.role === "learner" ? "Make instructor" : "Make learner"}
+                    </Button>
+                  ) : null}
+                  {accountUser.deactivatedAt ? (
+                    <>
+                      <span className="admin-users__status admin-users__status--deactivated">
+                        Deactivated
+                      </span>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        isLoading={reactivatingId === accountUser.id}
+                        onClick={() => handleReactivate(accountUser.id)}
+                      >
+                        Reactivate
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => setPendingDeactivation(accountUser)}
+                    >
+                      Deactivate
+                    </Button>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
