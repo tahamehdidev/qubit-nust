@@ -18,6 +18,7 @@ import attemptRoutes from "./routes/attempt.routes.js";
 import progressRoutes from "./routes/progress.routes.js";
 import cohortRoutes from "./routes/cohort.routes.js";
 import auditLogRoutes from "./routes/auditLog.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 
 export const app = express();
 
@@ -62,6 +63,7 @@ app.use("/attempts", attemptRoutes);
 app.use("/progress", progressRoutes);
 app.use("/cohorts", cohortRoutes);
 app.use("/audit-log", auditLogRoutes);
+app.use("/admin", adminRoutes);
 
 // Further resource routes mount here as each is built -- see 04-application-architecture.md §7
 // for the full intended registration order.

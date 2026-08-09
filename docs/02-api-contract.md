@@ -15,8 +15,9 @@ This document is the single source of truth for every endpoint the backend expos
 - **Section 1** explains two authorization concepts used throughout every group below — read this before the endpoint groups, since most "Who" columns reference it.
 - **Sections 2–7** are the six functional groups of endpoints, in the order they were designed.
 - **Section 8** is Group 7 — the audit log, added during Step 6 as the mitigation for a compromised-admin actor.
-- **Section 9** lists conventions that apply uniformly across all endpoints (error shapes, pagination, naming) so they aren't repeated in every group.
-- **Section 10** lists what was deliberately deferred, and why.
+- **Section 9** is Group 8 — admin user management, added in Phase 7C.1 once cohort self-enrollment (Phase 7B.2) made real user volume plausible.
+- **Section 10** lists conventions that apply uniformly across all endpoints (error shapes, pagination, naming) so they aren't repeated in every group.
+- **Section 11** lists what was deliberately deferred, and why.
 
 ---
 
@@ -73,6 +74,7 @@ Every error case throughout this contract (Sections 2–7) returns the same resp
 | `REORDER_SET_MISMATCH` | 400 | Reorder request's ID set doesn't match actual siblings (Section 3.4) |
 | `RATE_LIMITED` | 429 | Any rate-limited endpoint, once its limit is exceeded — see `03-security-architecture.md` for the full per-endpoint limit table |
 | `INVALID_OR_EXPIRED_TOKEN` | 400 | Password reset confirm with an unknown, already-used, or expired token (Section 2.10) |
+| `ACCOUNT_DEACTIVATED` | 403 | Login attempt against a deactivated account (Section 2.4, Section 9.5) |
 
 Every "Errors:" line throughout Sections 2–7 should be read as returning this shape with the corresponding code from this table.
 
@@ -196,7 +198,7 @@ A third, separate concern: even once a request is authorized to access an endpoi
 ```
 Also sets: `Set-Cookie: refreshToken=...; HttpOnly; Secure; SameSite=Strict`. Always Strict, in every environment — the deployed frontend proxies `/api/*` to the backend through its own domain (03-security-architecture.md §6.3), so the cookie is first-party even though frontend and backend are hosted separately. Each successful login inserts a new `RefreshToken` row (hash stored, never the raw token).
 
-**Errors:** `400` missing fields · `401` invalid email or password (same message for both cases)
+**Errors:** `400` missing fields · `401` invalid email or password (same message for both cases) · `403` `ACCOUNT_DEACTIVATED` (Phase 7C.1) -- only reachable once the password has already been verified correct, so this doesn't weaken the enumeration-safety of the 401 case above
 
 ### 2.5 `POST /auth/refresh`
 
@@ -374,7 +376,7 @@ GET /questions?search=grover&type=mcq&page=1&limit=20
   "pagination": { "page": 1, "limit": 20, "total": 37 }
 }
 ```
-List endpoints are never a bare array — always wrapped with a `pagination` object alongside, so pagination metadata can be added without a breaking change later. This convention applies to every list endpoint in this contract (see Section 9).
+List endpoints are never a bare array — always wrapped with a `pagination` object alongside, so pagination metadata can be added without a breaking change later. This convention applies to every list endpoint in this contract (see Section 10).
 
 ### 4.4 Field shaping for `Question.content` (ties to Section 1.5)
 
@@ -569,7 +571,7 @@ Resolves each email to a user and enrolls it, independently — one bad row (no 
 ### 7.1 Design notes
 
 - Every endpoint in this group is **read-only and aggregated** — nothing here creates or modifies data, it summarizes data Groups 4–5 already produced. RBAC is the same ownership check as Group 5; the design complexity here is in what gets aggregated, not access control.
-- Two of the three analytics views originally scoped (per the project's strategy document) were deliberately narrowed or deferred — see 7.4 and Section 10.
+- Two of the three analytics views originally scoped (per the project's strategy document) were deliberately narrowed or deferred — see 7.4 and Section 11.
 
 ### 7.2 Endpoints
 
@@ -655,7 +657,66 @@ All query parameters optional; combinable.
 
 ---
 
-## 9. Cross-Cutting Conventions
+## 9. Group 8 — Admin User Management (Phase 7C.1)
+
+### 9.1 Design notes
+
+- Deferred at MVP (originally listed in Section 11 below as "Admin user listing/management endpoints... kept the auth surface area smaller") — revisited once Phase 7B.2's self-enrollment could plausibly create real user volume quickly, at which point an admin having no way to search accounts or handle a problem account became a real gap, not a hypothetical one.
+- Deactivation is a soft-delete (`User.deactivated_at`), mirroring `CohortEnrollment.status='removed'`'s existing "mark, don't delete" convention — history (attempts, progress, audit-log entries) stays intact. There is no reactivation endpoint; treat deactivation as effectively final for this pass.
+- Deactivating a user immediately revokes every `RefreshToken` for that account (logged out everywhere, same mechanism as `POST /auth/logout-all`) and blocks all future logins (`403 ACCOUNT_DEACTIVATED`) — both are real, not just "the account looks disabled in a list somewhere."
+- `POST /admin/users` creates an **instructor** account only — the request has no `role` field to set otherwise. Admin account creation stays a CLI-only action (`scripts/create-admin.js`), a deliberately smaller blast radius for the one action that grants platform-wide access.
+
+### 9.2 Endpoints
+
+| Method | Route | Purpose | Who |
+|---|---|---|---|
+| `GET` | `/admin/users` | Search/filter/paginate all accounts | `admin` |
+| `POST` | `/admin/users` | Create an instructor account | `admin` |
+| `PATCH` | `/admin/users/:userId/deactivate` | Deactivate an account | `admin` |
+
+### 9.3 `GET /admin/users`
+
+```
+GET /admin/users?search=ada&role=learner&page=1&limit=20
+```
+
+All query parameters optional; `search` matches name or email as a case-insensitive substring.
+
+**Response — `200 OK`:**
+```json
+{
+  "users": [
+    { "id": "uuid", "email": "ada@nust.edu.pk", "name": "Ada Lovelace", "role": "learner", "deactivatedAt": null }
+  ],
+  "pagination": { "page": 1, "limit": 20, "total": 1 }
+}
+```
+
+### 9.4 `POST /admin/users`
+
+**Request:** `{ "email": "new.instructor@nust.edu.pk", "name": "New Instructor" }`
+
+**Response — `201 Created`:**
+```json
+{
+  "user": { "id": "uuid", "email": "new.instructor@nust.edu.pk", "name": "New Instructor", "role": "instructor", "deactivatedAt": null },
+  "generatedPassword": "shown once -- share it with them out-of-band, never retrievable again"
+}
+```
+
+**Errors:** `409` email already registered
+
+### 9.5 `PATCH /admin/users/:userId/deactivate`
+
+No request body. Idempotent — a second call against an already-deactivated account succeeds and keeps the original `deactivatedAt` timestamp, rather than erroring or bumping it.
+
+**Response — `200 OK`:** `{ "user": { ..., "deactivatedAt": "2026-08-09T12:00:00Z" } }`
+
+**Errors:** `404` no such user
+
+---
+
+## 10. Cross-Cutting Conventions
 
 These apply uniformly across every endpoint in this contract, rather than being repeated per group.
 
@@ -672,12 +733,13 @@ These apply uniformly across every endpoint in this contract, rather than being 
 
 ---
 
-## 10. Deferred — Flagged for a Later Design Pass
+## 11. Deferred — Flagged for a Later Design Pass
 
 Documented here so they are not forgotten, and so it's clear they were a deliberate scope decision made during this step, not an oversight.
 
 - **Common wrong-answer breakdown per question.** Requires aggregating over `Attempt.answer` (JSONB) content, grouped by actual value — a different query technique than anything else in this contract, and one that needs its own design pass on how answers get normalized for grouping across different question types before it can be specified properly.
 - **True time-on-lesson tracking.** The current data model has no event capturing when a learner starts a lesson or screen. The inter-question approximation in Section 7.4 is a stopgap; a proper implementation would need a new schema element (e.g. a `LessonView` table recording start/end timestamps) — a data model change, to be designed in a future pass rather than rushed into this contract.
-- **Admin user listing/management endpoints** (`GET /users`, `GET /users/:id` for admins). Explicitly out of scope for MVP — kept the auth surface area smaller.
+- ~~Admin user listing/management endpoints~~ — implemented in Phase 7C.1 (Section 9 above).
+- **Account reactivation.** Phase 7C.1 shipped deactivation only, deliberately — treat it as effectively final for now. Add a reactivation endpoint if a real need for it shows up.
 
 ---

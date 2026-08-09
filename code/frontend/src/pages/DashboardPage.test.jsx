@@ -370,6 +370,11 @@ test("an admin sees a dedicated dashboard, not the instructor's cohort-scoped on
   expect(await screen.findByText("Cohort reporting is scoped to instructors")).toBeInTheDocument();
   expect(screen.getByText("3 courses in the catalog")).toBeInTheDocument();
   expect(screen.getByRole("link", { name: "Browse courses" })).toHaveAttribute("href", "/courses");
+  // Phase 7C.1: the one thing an admin genuinely can manage from the UI now.
+  expect(screen.getByRole("link", { name: "Manage users" })).toHaveAttribute(
+    "href",
+    "/admin/users"
+  );
   // The actual bug: this must never call the instructor-only cohort endpoint at all.
   expect(cohortService.list).not.toHaveBeenCalled();
 });

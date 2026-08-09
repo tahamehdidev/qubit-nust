@@ -16,6 +16,7 @@ import { LessonPlayerPage } from "./pages/LessonPlayerPage.jsx";
 import { PracticeSetPage } from "./pages/PracticeSetPage.jsx";
 import { DashboardPage } from "./pages/DashboardPage.jsx";
 import { JoinCohortPage } from "./pages/JoinCohortPage.jsx";
+import { AdminUsersPage } from "./pages/AdminUsersPage.jsx";
 import { NotFoundPage } from "./pages/NotFoundPage.jsx";
 
 // Placeholder routes for every core screen (Frontend Milestone 0) -- real content, auth gating,
@@ -48,6 +49,7 @@ export function App() {
             <Route path="/practice-sets/:practiceSetId" element={<PracticeSetPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/join/:joinCode" element={<JoinCohortPage />} />
+            <Route path="/admin/users" element={<AdminUsersPage />} />
           </Route>
         </Route>
         {/* Nav-flow audit: no catch-all existed at all -- an unmatched URL rendered blank. Outside

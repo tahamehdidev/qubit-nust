@@ -75,4 +75,10 @@ export class InvalidOrExpiredTokenError extends AppError {
   }
 }
 
+export class AccountDeactivatedError extends AppError {
+  constructor(message = "This account has been deactivated.") {
+    super("ACCOUNT_DEACTIVATED", message, 403);
+  }
+}
+
 export { AppError };

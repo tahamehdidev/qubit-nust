@@ -13,6 +13,8 @@ import {
   DuplicateResourceError,
   ReorderSetMismatchError,
   RateLimitedError,
+  InvalidOrExpiredTokenError,
+  AccountDeactivatedError,
 } from "../../src/errors/index.js";
 
 test("AppError base class carries code/message/statusCode/field", () => {
@@ -37,6 +39,8 @@ test("each subclass sets the right code and status per 02-api-contract.md §0.3"
     [new DuplicateResourceError("already attached"), "DUPLICATE_RESOURCE", 409, null],
     [new ReorderSetMismatchError(), "REORDER_SET_MISMATCH", 400, null],
     [new RateLimitedError(), "RATE_LIMITED", 429, null],
+    [new InvalidOrExpiredTokenError(), "INVALID_OR_EXPIRED_TOKEN", 400, null],
+    [new AccountDeactivatedError(), "ACCOUNT_DEACTIVATED", 403, null],
   ];
 
   for (const [err, code, statusCode, field] of cases) {

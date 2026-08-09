@@ -7,6 +7,7 @@ import {
   EmailAlreadyRegisteredError,
   InvalidCredentialsError,
   UnauthenticatedError,
+  AccountDeactivatedError,
 } from "../errors/index.js";
 
 async function signup({ email, password, name }) {
@@ -40,6 +41,15 @@ async function login({ email, password }) {
 
   if (!user || !isValid) {
     throw new InvalidCredentialsError();
+  }
+
+  // Checked only after a real password match, deliberately -- this does confirm the account
+  // exists to whoever just typed its correct password, but that's the account's own owner (or
+  // someone who already has its credentials, a bigger problem this check doesn't make worse),
+  // not a stranger probing for valid emails the way INVALID_CREDENTIALS' uniform message guards
+  // against above (Phase 7C.1).
+  if (user.deactivated_at) {
+    throw new AccountDeactivatedError();
   }
 
   const { rawToken, accessToken } = await refreshTokenService.issue({

@@ -130,6 +130,22 @@ function AdminDashboard() {
           Browse courses
         </Link>
       </Card>
+
+      {/* Phase 7C.1 -- the one thing this account genuinely can manage from the UI now. */}
+      <Card className="dashboard__empty-cta">
+        <div className="dashboard__empty-cta-text">
+          <Users size={20} aria-hidden="true" className="dashboard__empty-cta-icon" />
+          <div>
+            <p className="dashboard__empty-cta-title">User management</p>
+            <p className="dashboard__empty-cta-subtitle">
+              Search accounts, deactivate one, or create a new instructor account.
+            </p>
+          </div>
+        </div>
+        <Link to="/admin/users" className="button button--primary">
+          Manage users
+        </Link>
+      </Card>
     </main>
   );
 }
