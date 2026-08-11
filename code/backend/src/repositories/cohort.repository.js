@@ -18,6 +18,20 @@ async function findAllForInstructor(instructorId) {
   return result.rows;
 }
 
+// GET /cohorts as admin (Phase 8C) -- platform-wide, unlike findAllForInstructor's own-cohorts
+// scoping. Didn't exist at any layer before this; the route itself was instructor-only with no
+// admin variant documented. Joins in the owning instructor's name/email so the admin table has
+// enough to identify each cohort without a second round trip per row.
+async function findAll() {
+  const result = await pool.query(
+    `SELECT c.*, u.name AS instructor_name, u.email AS instructor_email
+     FROM cohort c
+     JOIN "user" u ON u.id = c.instructor_id
+     ORDER BY c.created_at`
+  );
+  return result.rows;
+}
+
 // Returns null on a join_code collision (23505) rather than throwing, same pattern as
 // cohortEnrollmentRepository.create's unique-violation handling -- the service layer retries with
 // a freshly generated code (utils/joinCode.js) rather than treating this as a real error.
@@ -65,6 +79,7 @@ export const cohortRepository = {
   findById,
   findByJoinCode,
   findAllForInstructor,
+  findAll,
   create,
   update,
   updateJoinCode,

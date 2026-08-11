@@ -37,9 +37,10 @@ import {
 
 const router = Router();
 
-// Instructor-only, self-listing (02-api-contract.md §6.2) -- no admin variant documented for
-// this route, unlike every other route below.
-router.get("/", requireRole("instructor"), listCohortsController);
+// Phase 8C: extended to admin, unlike every other route in this file that already had both from
+// day one -- listCohortsController itself branches on role (own cohorts for an instructor,
+// platform-wide for an admin).
+router.get("/", requireRole("instructor", "admin"), listCohortsController);
 
 // Phase 7B.2's primary self-enrollment path. Learner-only -- an instructor/admin account has no
 // reason to "join" a cohort as a student, so this is gated the same way rather than left to

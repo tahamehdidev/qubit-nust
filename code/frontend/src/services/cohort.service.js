@@ -1,7 +1,10 @@
 import { apiClient } from "./apiClient.js";
 
-// Always the caller's own cohorts (02-api-contract.md §6.2) -- instructor-only, no admin variant
-// documented for this route, so there's no userId-style param to accept here.
+// The caller's own cohorts, for an instructor (02-api-contract.md §6.2) -- the instructorId=me
+// param is vestigial (the backend always derives "own" from the authenticated session, never the
+// query string) but left as-is rather than churned for its own sake. Use listAll() instead for
+// the admin-facing platform-wide view (Phase 8C) -- same endpoint, but that name would be
+// actively misleading applied to an admin call.
 async function list() {
   const { data } = await apiClient.get("/cohorts", { params: { instructorId: "me" } });
   return data; // { cohorts, pagination }
@@ -74,6 +77,15 @@ async function leave(cohortId) {
   return data.enrollment;
 }
 
+// Admin-only, platform-wide (Phase 8C) -- an admin previously had no way to see any cohort it
+// didn't already know the numeric id of. Same GET /cohorts endpoint as list(), which branches
+// server-side on the caller's role; no query param needed here since "own cohorts" doesn't apply
+// to an admin account.
+async function listAll() {
+  const { data } = await apiClient.get("/cohorts");
+  return data; // { cohorts, pagination }
+}
+
 export const cohortService = {
   list,
   getById,
@@ -88,4 +100,5 @@ export const cohortService = {
   bulkEnrollStudents,
   listMine,
   leave,
+  listAll,
 };

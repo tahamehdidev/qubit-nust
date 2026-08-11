@@ -74,6 +74,18 @@ test("admin: renders an Admin nav link pointing at /admin/users", () => {
   expect(screen.getByRole("link", { name: "Admin" })).toHaveAttribute("href", "/admin/users");
 });
 
+// Phase 8C: admin's platform-wide cohort visibility, previously unreachable at all.
+test("admin: renders a Cohorts nav link pointing at /admin/cohorts", () => {
+  useAuth.mockReturnValue({
+    user: { id: "a1", role: "admin" },
+    logout: vi.fn(),
+    isAuthenticated: true,
+    isLoading: false,
+  });
+  renderAt("/courses");
+  expect(screen.getByRole("link", { name: "Cohorts" })).toHaveAttribute("href", "/admin/cohorts");
+});
+
 // Phase 8B: real cohort management, previously reachable via no nav link at all.
 test("instructor: renders a Cohorts nav link pointing at /cohorts", () => {
   useAuth.mockReturnValue({

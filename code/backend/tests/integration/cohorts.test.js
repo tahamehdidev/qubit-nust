@@ -76,6 +76,40 @@ test("GET /cohorts?instructorId=me lists only the caller's own cohorts", async (
   assert.equal(res.body.cohorts[0].name, "A's Cohort");
 });
 
+// Phase 8C.
+test("GET /cohorts as admin lists every cohort platform-wide, with the owning instructor's name/email", async () => {
+  const { accessToken: instructorAToken, user: instructorA } = await createUserWithToken({
+    role: "instructor",
+    name: "Instructor A",
+    email: "instructor-a@example.com",
+  });
+  const { accessToken: instructorBToken } = await createUserWithToken({ role: "instructor" });
+  const { accessToken: adminToken } = await createUserWithToken({ role: "admin" });
+
+  await request(app)
+    .post("/cohorts")
+    .set("Authorization", `Bearer ${instructorAToken}`)
+    .send({ name: "A's Cohort" });
+  await request(app)
+    .post("/cohorts")
+    .set("Authorization", `Bearer ${instructorBToken}`)
+    .send({ name: "B's Cohort" });
+
+  const res = await request(app).get("/cohorts").set("Authorization", `Bearer ${adminToken}`);
+  assert.equal(res.status, 200);
+  assert.equal(res.body.cohorts.length, 2);
+  const cohortA = res.body.cohorts.find((c) => c.name === "A's Cohort");
+  assert.equal(cohortA.instructor_id, instructorA.id);
+  assert.equal(cohortA.instructor_name, "Instructor A");
+  assert.equal(cohortA.instructor_email, "instructor-a@example.com");
+});
+
+test("GET /cohorts requires the instructor or admin role -- a learner gets 403", async () => {
+  const { accessToken: learnerToken } = await createUserWithToken({ role: "learner" });
+  const res = await request(app).get("/cohorts").set("Authorization", `Bearer ${learnerToken}`);
+  assert.equal(res.status, 403);
+});
+
 test("cross-instructor access to GET/PATCH/DELETE /cohorts/:id -> 403; admin bypasses", async () => {
   const { accessToken: ownerToken } = await createUserWithToken({ role: "instructor" });
   const { accessToken: strangerToken } = await createUserWithToken({ role: "instructor" });

@@ -6,10 +6,15 @@ export const getCohortController = asyncHandler(async (req, res) => {
   res.status(200).json({ cohort });
 });
 
-// GET /cohorts?instructorId=me (02-api-contract.md §6.2) -- instructor-only, always the caller's
-// own cohorts; no admin variant is documented for this route.
+// GET /cohorts (02-api-contract.md §6.2, extended Phase 8C). An instructor always gets their own
+// cohorts, same as before. An admin gets every cohort platform-wide -- there's no "my cohorts"
+// concept for an admin account, and this is the one route that used to have no admin variant at
+// all, unlike every sibling route in this file.
 export const listCohortsController = asyncHandler(async (req, res) => {
-  const cohorts = await cohortService.listForInstructor(req.user.id);
+  const cohorts =
+    req.user.role === "admin"
+      ? await cohortService.listAll()
+      : await cohortService.listForInstructor(req.user.id);
   res.status(200).json({
     cohorts,
     pagination: { page: 1, limit: cohorts.length, total: cohorts.length },

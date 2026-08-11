@@ -27,6 +27,12 @@ async function listForInstructor(instructorId) {
   return cohortRepository.findAllForInstructor(instructorId);
 }
 
+// GET /cohorts as admin (Phase 8C) -- visibility only, not full management: an admin previously
+// had no way to see any cohort it didn't already know the numeric id of.
+async function listAll() {
+  return cohortRepository.findAll();
+}
+
 // Resolves who a new Cohort's instructor_id is, per the server-side branching rule
 // (02-api-contract.md §6.3): an instructor's own instructorId in the body is ignored (mass-
 // assignment principle, same as signup's role field); an admin may set it explicitly, but it
@@ -126,6 +132,7 @@ export const cohortService = {
   getById,
   getByJoinCode,
   listForInstructor,
+  listAll,
   create,
   update,
   remove,

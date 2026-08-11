@@ -82,6 +82,12 @@ export function AuthenticatedLayout() {
                 Admin
               </NavLink>
             ) : null}
+            {user?.role === "admin" ? (
+              <NavLink to="/admin/cohorts" className={navLinkClassName}>
+                <Users size={16} aria-hidden="true" />
+                Cohorts
+              </NavLink>
+            ) : null}
             {/* Phase 8D: every role was previously missing any way to update their own name or
                 change their password while logged in. */}
             <NavLink to="/settings" className={navLinkClassName}>

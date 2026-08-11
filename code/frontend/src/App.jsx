@@ -21,6 +21,7 @@ import { JoinCohortPage } from "./pages/JoinCohortPage.jsx";
 import { CohortsPage } from "./pages/CohortsPage.jsx";
 import { CohortDetailPage } from "./pages/CohortDetailPage.jsx";
 import { AdminUsersPage } from "./pages/AdminUsersPage.jsx";
+import { AdminCohortsPage } from "./pages/AdminCohortsPage.jsx";
 import { NotFoundPage } from "./pages/NotFoundPage.jsx";
 
 // Placeholder routes for every core screen (Frontend Milestone 0) -- real content, auth gating,
@@ -58,6 +59,9 @@ export function App() {
                 that there's more than one role-restricted destination to justify it. */}
             <Route element={<RoleGate allow={["admin"]} />}>
               <Route path="/admin/users" element={<AdminUsersPage />} />
+              {/* Phase 8C: platform-wide cohort visibility, previously unreachable for admin at
+                  all (no route, no repository query to even build it from). */}
+              <Route path="/admin/cohorts" element={<AdminCohortsPage />} />
             </Route>
             {/* Phase 8B: real cohort management, previously just a panel bolted onto the
                 dashboard. Instructor-only, matching GET /cohorts's own backend restriction. */}
