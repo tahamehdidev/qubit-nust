@@ -374,61 +374,14 @@
   color: var(--color-accent);
 }
 
-/* ---------- Invite students panel (Phase 7B.2) ---------- */
-
-.dashboard__invite-intro {
-  margin: 0;
-  color: var(--color-muted-foreground);
-  font-size: var(--text-sm);
-}
-
-.dashboard__invite-code-row {
+/* Phase 8B: the cohort picker now shares a row with a "Manage cohort" link out to the dedicated
+   cohort page -- the invite/bulk-import panel that used to sit below it lives there now. */
+.dashboard__cohort-toolbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
+  justify-content: space-between;
   gap: var(--space-3);
-}
-
-/* A code, not prose -- monospace + letter-spacing makes each of the 8 characters individually
-   scannable, the same reason a verification-code input would use a wider tracking value. */
-.dashboard__invite-code {
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
-  background-color: var(--color-muted);
-  border: 1px solid var(--color-border-strong);
-  font-family: var(--font-mono, monospace);
-  font-size: var(--text-base);
-  letter-spacing: 0.08em;
-}
-
-.dashboard__bulk-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.dashboard__bulk-textarea {
-  min-height: 88px;
-  resize: vertical;
-  font-family: inherit;
-}
-
-.dashboard__bulk-results {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  font-size: var(--text-sm);
-}
-
-.dashboard__bulk-result--ok {
-  color: var(--color-success);
-}
-
-.dashboard__bulk-result--fail {
-  color: var(--color-destructive-text);
 }
 
 .dashboard__cohort-picker {

@@ -200,13 +200,15 @@ test("a failed leave shows an error banner and keeps the cohort in the list", as
   expect(screen.getByText("Quantum 101")).toBeInTheDocument();
 });
 
-test("an instructor with zero cohorts sees an empty state explaining cohorts are admin-provisioned, not a bare 'not found'", async () => {
+// Phase 8B: cohort creation is self-serve now, so the empty state points at /cohorts instead of
+// describing a wait on an admin.
+test("an instructor with zero cohorts sees an empty state pointing at self-serve cohort creation", async () => {
   useAuth.mockReturnValue({ user: { id: "i1", role: "instructor" } });
   cohortService.list.mockResolvedValue({ cohorts: [] });
   const { container } = renderDashboard();
 
-  expect(await screen.findByText("No cohorts assigned yet")).toBeInTheDocument();
-  expect(screen.getByText(/provisioned directly by an admin/)).toBeInTheDocument();
+  expect(await screen.findByText("No cohorts yet")).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Create a cohort" })).toHaveAttribute("href", "/cohorts");
   expect(dashboardService.getCompletion).not.toHaveBeenCalled();
   // This is the entire admin experience of this screen (GET /cohorts is always scoped to the
   // caller's own id, and an admin owns none), not a rare edge case -- it gets the same hero
@@ -317,12 +319,10 @@ test("an instructor with multiple cohorts sees a picker, and switching cohorts r
   expect(dashboardService.getLessonPacing).toHaveBeenCalledWith(6);
 });
 
-test("shows the selected cohort's join code and copies an invite link to the clipboard", async () => {
-  const user = userEvent.setup();
-  const writeText = vi.fn().mockResolvedValue();
-  // jsdom's navigator.clipboard is a getter-only property -- Object.assign can't touch it, so
-  // this replaces the property descriptor outright instead.
-  Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+// Phase 8B: the invite-link/regenerate/bulk-import panel moved to CohortDetailPage -- its
+// coverage now lives in CohortDetailPage.test.jsx. This dashboard's own remaining cohort-scoped
+// affordance is just a link out to that page.
+test("shows a Manage cohort link pointing at the selected cohort's detail page", async () => {
   useAuth.mockReturnValue({ user: { id: "i1", role: "instructor" } });
   cohortService.list.mockResolvedValue({
     cohorts: [{ id: 5, name: "Fall Cohort", join_code: "ABC123DE" }],
@@ -331,86 +331,10 @@ test("shows the selected cohort's join code and copies an invite link to the cli
   dashboardService.getLessonPacing.mockResolvedValue({ lessons: [] });
   renderDashboard();
 
-  expect(await screen.findByText("ABC123DE")).toBeInTheDocument();
-  await user.click(screen.getByRole("button", { name: "Copy invite link" }));
-
-  expect(writeText).toHaveBeenCalledWith(expect.stringContaining("/join/ABC123DE"));
-  expect(await screen.findByRole("button", { name: "Copied!" })).toBeInTheDocument();
-});
-
-test("a denied clipboard permission shows a fallback message instead of failing silently", async () => {
-  const user = userEvent.setup();
-  const writeText = vi.fn().mockRejectedValue(new Error("Write permission denied."));
-  Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
-  useAuth.mockReturnValue({ user: { id: "i1", role: "instructor" } });
-  cohortService.list.mockResolvedValue({
-    cohorts: [{ id: 5, name: "Fall Cohort", join_code: "ABC123DE" }],
-  });
-  dashboardService.getCompletion.mockResolvedValue({ courses: [] });
-  dashboardService.getLessonPacing.mockResolvedValue({ lessons: [] });
-  renderDashboard();
-
-  await screen.findByText("ABC123DE");
-  await user.click(screen.getByRole("button", { name: "Copy invite link" }));
-
-  expect(await screen.findByRole("alert")).toHaveTextContent(
-    "Could not copy automatically -- copy the code above instead."
+  expect(await screen.findByRole("link", { name: "Manage cohort" })).toHaveAttribute(
+    "href",
+    "/cohorts/5"
   );
-  expect(screen.queryByRole("button", { name: "Copied!" })).not.toBeInTheDocument();
-});
-
-test("regenerating the join code replaces the displayed code with the new one", async () => {
-  const user = userEvent.setup();
-  useAuth.mockReturnValue({ user: { id: "i1", role: "instructor" } });
-  cohortService.list.mockResolvedValue({
-    cohorts: [{ id: 5, name: "Fall Cohort", join_code: "OLD12345" }],
-  });
-  cohortService.regenerateJoinCode.mockResolvedValue({
-    id: 5,
-    name: "Fall Cohort",
-    join_code: "NEW98765",
-  });
-  dashboardService.getCompletion.mockResolvedValue({ courses: [] });
-  dashboardService.getLessonPacing.mockResolvedValue({ lessons: [] });
-  renderDashboard();
-
-  await screen.findByText("OLD12345");
-  await user.click(screen.getByRole("button", { name: "Regenerate" }));
-
-  expect(cohortService.regenerateJoinCode).toHaveBeenCalledWith(5);
-  expect(await screen.findByText("NEW98765")).toBeInTheDocument();
-  expect(screen.queryByText("OLD12345")).not.toBeInTheDocument();
-});
-
-test("bulk-enrolling by email shows a per-row result for each submitted address", async () => {
-  const user = userEvent.setup();
-  useAuth.mockReturnValue({ user: { id: "i1", role: "instructor" } });
-  cohortService.list.mockResolvedValue({
-    cohorts: [{ id: 5, name: "Fall Cohort", join_code: "ABC123DE" }],
-  });
-  cohortService.bulkEnrollStudents.mockResolvedValue([
-    { email: "a@example.com", status: "enrolled" },
-    { email: "b@example.com", status: "failed", reason: "No account found for this email." },
-  ]);
-  dashboardService.getCompletion.mockResolvedValue({ courses: [] });
-  dashboardService.getLessonPacing.mockResolvedValue({ lessons: [] });
-  renderDashboard();
-
-  await screen.findByText("ABC123DE");
-  await user.type(
-    screen.getByLabelText("Or add students by email"),
-    "a@example.com\nb@example.com"
-  );
-  await user.click(screen.getByRole("button", { name: "Add students" }));
-
-  expect(cohortService.bulkEnrollStudents).toHaveBeenCalledWith(5, [
-    "a@example.com",
-    "b@example.com",
-  ]);
-  expect(await screen.findByText(/a@example.com.*Added/)).toBeInTheDocument();
-  expect(
-    screen.getByText(/b@example.com.*No account found for this email\./)
-  ).toBeInTheDocument();
 });
 
 // Bug fix: admin used to fall into InstructorDashboard, which immediately calls

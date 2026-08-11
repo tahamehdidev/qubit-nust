@@ -18,6 +18,8 @@ import { PracticeSetPage } from "./pages/PracticeSetPage.jsx";
 import { DashboardPage } from "./pages/DashboardPage.jsx";
 import { SettingsPage } from "./pages/SettingsPage.jsx";
 import { JoinCohortPage } from "./pages/JoinCohortPage.jsx";
+import { CohortsPage } from "./pages/CohortsPage.jsx";
+import { CohortDetailPage } from "./pages/CohortDetailPage.jsx";
 import { AdminUsersPage } from "./pages/AdminUsersPage.jsx";
 import { NotFoundPage } from "./pages/NotFoundPage.jsx";
 
@@ -56,6 +58,12 @@ export function App() {
                 that there's more than one role-restricted destination to justify it. */}
             <Route element={<RoleGate allow={["admin"]} />}>
               <Route path="/admin/users" element={<AdminUsersPage />} />
+            </Route>
+            {/* Phase 8B: real cohort management, previously just a panel bolted onto the
+                dashboard. Instructor-only, matching GET /cohorts's own backend restriction. */}
+            <Route element={<RoleGate allow={["instructor"]} />}>
+              <Route path="/cohorts" element={<CohortsPage />} />
+              <Route path="/cohorts/:cohortId" element={<CohortDetailPage />} />
             </Route>
           </Route>
         </Route>

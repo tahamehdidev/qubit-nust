@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, NavLink, Link } from "react-router-dom";
-import { BookOpen, LayoutDashboard, Settings, ShieldCheck } from "lucide-react";
+import { BookOpen, LayoutDashboard, Settings, ShieldCheck, Users } from "lucide-react";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { RouteTransition } from "./RouteTransition.jsx";
 // Reuses Button.css's classes for the anonymous-nav Sign up CTA without mounting a <Button>
@@ -70,6 +70,12 @@ export function AuthenticatedLayout() {
             {/* Phase 8A: admin's one dedicated destination (/admin/users) previously had no
                 persistent nav entry -- reachable only via a card link on the admin's own
                 dashboard, an orphaned-page problem the role-completeness audit flagged. */}
+            {user?.role === "instructor" ? (
+              <NavLink to="/cohorts" className={navLinkClassName}>
+                <Users size={16} aria-hidden="true" />
+                Cohorts
+              </NavLink>
+            ) : null}
             {user?.role === "admin" ? (
               <NavLink to="/admin/users" className={navLinkClassName}>
                 <ShieldCheck size={16} aria-hidden="true" />

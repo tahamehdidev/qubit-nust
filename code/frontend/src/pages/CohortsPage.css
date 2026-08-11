@@ -1,0 +1,116 @@
+.cohorts-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 700px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-5);
+}
+
+.cohorts-page__subtitle {
+  margin: calc(var(--space-4) * -1) 0 0;
+  color: var(--color-muted-foreground);
+}
+
+.cohorts-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.cohorts-page__section h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xl);
+  margin: 0;
+}
+
+.cohorts-page__section-icon {
+  color: var(--color-accent);
+}
+
+.cohorts-page__banner {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-destructive);
+  background-color: var(--color-muted);
+  color: var(--color-destructive-text);
+  font-size: var(--text-sm);
+}
+
+.cohorts-page__create-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 400px;
+}
+
+.cohorts-page__empty {
+  color: var(--color-muted-foreground);
+}
+
+.cohorts-page__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.cohorts-page__card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--radius-md);
+}
+
+.cohorts-page__card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  transition: box-shadow 150ms var(--ease-out-quart, ease-out);
+}
+
+.cohorts-page__card-link:hover .cohorts-page__card,
+.cohorts-page__card-link:focus-visible .cohorts-page__card {
+  box-shadow: var(--shadow-md);
+}
+
+.cohorts-page__card-icon-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background-color: color-mix(in oklch, var(--color-accent) 12%, var(--color-card));
+  color: var(--color-accent);
+}
+
+.cohorts-page__card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  flex: 1;
+}
+
+.cohorts-page__card-name {
+  font-weight: var(--weight-medium);
+  color: var(--color-foreground);
+}
+
+.cohorts-page__card-code {
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-sm);
+  color: var(--color-muted-foreground);
+  letter-spacing: 0.05em;
+}
+
+.cohorts-page__card-cta {
+  flex-shrink: 0;
+  color: var(--color-muted-foreground);
+}

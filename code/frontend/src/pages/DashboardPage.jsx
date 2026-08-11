@@ -1,16 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  BookOpen,
-  ChevronRight,
-  Flame,
-  Zap,
-  Users,
-  Gauge,
-  ShieldCheck,
-  UserPlus,
-  RefreshCw,
-} from "lucide-react";
+import { BookOpen, ChevronRight, Flame, Zap, Users, Gauge, ShieldCheck } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { courseService } from "../services/course.service.js";
 import { progressService } from "../services/progress.service.js";
@@ -352,15 +342,6 @@ function InstructorDashboard() {
   const [error, setError] = useState(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
 
-  // Invite panel (Phase 7B.2) state -- kept local to this component rather than lifted, since
-  // nothing outside the panel itself reads it.
-  const [isRegenerating, setIsRegenerating] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
-  const [bulkEmailsText, setBulkEmailsText] = useState("");
-  const [bulkResults, setBulkResults] = useState(null);
-  const [isBulkSubmitting, setIsBulkSubmitting] = useState(false);
-  const [inviteError, setInviteError] = useState(null);
-
   useEffect(() => {
     let cancelled = false;
     setError(null);
@@ -390,13 +371,6 @@ function InstructorDashboard() {
     let cancelled = false;
     setCompletion(null);
     setPacing(null);
-    // Invite panel state is scoped to whichever cohort was selected when it was set -- switching
-    // cohorts via the picker below should never leave last cohort's bulk-import results or a
-    // stale "Copied!" state showing next to a different cohort's join code.
-    setBulkEmailsText("");
-    setBulkResults(null);
-    setInviteError(null);
-    setIsCopied(false);
 
     async function loadCohortData() {
       try {
@@ -417,60 +391,6 @@ function InstructorDashboard() {
     };
   }, [selectedCohortId]);
 
-  const selectedCohort = cohorts?.find((cohort) => cohort.id === selectedCohortId) ?? null;
-  const inviteLink = selectedCohort
-    ? `${window.location.origin}/join/${selectedCohort.join_code}`
-    : null;
-
-  async function handleCopyInviteLink() {
-    try {
-      await navigator.clipboard.writeText(inviteLink);
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
-    } catch {
-      // The Clipboard API can reject (denied permission, non-HTTPS, older browsers) -- the join
-      // code is still right there in the row above, so this degrades to "copy it yourself"
-      // rather than a silent no-op with no feedback at all.
-      setInviteError("Could not copy automatically -- copy the code above instead.");
-    }
-  }
-
-  async function handleRegenerateCode() {
-    setInviteError(null);
-    setIsRegenerating(true);
-    try {
-      const updatedCohort = await cohortService.regenerateJoinCode(selectedCohortId);
-      setCohorts((current) =>
-        current.map((cohort) => (cohort.id === updatedCohort.id ? updatedCohort : cohort))
-      );
-    } catch (err) {
-      setInviteError(parseApiError(err).message);
-    } finally {
-      setIsRegenerating(false);
-    }
-  }
-
-  async function handleBulkSubmit(event) {
-    event.preventDefault();
-    const emails = bulkEmailsText
-      .split(/[\n,]/)
-      .map((email) => email.trim())
-      .filter(Boolean);
-    if (emails.length === 0) return;
-
-    setInviteError(null);
-    setBulkResults(null);
-    setIsBulkSubmitting(true);
-    try {
-      const results = await cohortService.bulkEnrollStudents(selectedCohortId, emails);
-      setBulkResults(results);
-    } catch (err) {
-      setInviteError(parseApiError(err).message);
-    } finally {
-      setIsBulkSubmitting(false);
-    }
-  }
-
   if (error) {
     return (
       <DashboardError message={error} onRetry={() => setLoadAttempt((attempt) => attempt + 1)} />
@@ -482,12 +402,8 @@ function InstructorDashboard() {
   }
 
   if (cohorts.length === 0) {
-    // Real, not a placeholder: GET /cohorts is documented instructor-only, always the caller's
-    // own cohorts (02-api-contract.md §6.2, "no admin variant is documented for this route") --
-    // an admin account has created zero cohorts under its own id, so this branch is the ENTIRE
-    // admin experience of this page, every single time, not a rare edge case. Same hero + empty-
-    // cta-card language as LearnerDashboard's own empty state below, no button here (there's
-    // genuinely nothing to click through to -- cohort assignment isn't self-serve).
+    // Phase 8B: cohort creation moved from admin-only provisioning to self-serve on /cohorts, so
+    // this empty state now points there instead of describing a wait on someone else.
     return (
       <main className="dashboard">
         <div className="dashboard__hero">
@@ -501,15 +417,16 @@ function InstructorDashboard() {
           <div className="dashboard__empty-cta-text">
             <Users size={20} aria-hidden="true" className="dashboard__empty-cta-icon" />
             <div>
-              <p className="dashboard__empty-cta-title">No cohorts assigned yet</p>
+              <p className="dashboard__empty-cta-title">No cohorts yet</p>
               <p className="dashboard__empty-cta-subtitle">
-                Cohorts are provisioned directly by an admin &mdash; there&rsquo;s no self-serve
-                cohort creation in this app yet, so this isn&rsquo;t a sign anything is broken.
-                Once a cohort is assigned to your account, its completion and pacing data will
-                appear here.
+                Create a cohort to start inviting students &mdash; completion and pacing data will
+                appear here once they join and start attempting questions.
               </p>
             </div>
           </div>
+          <Link to="/cohorts" className="button button--primary">
+            Create a cohort
+          </Link>
         </Card>
       </main>
     );
@@ -542,91 +459,31 @@ function InstructorDashboard() {
         </div>
       </div>
 
-      {cohorts.length > 1 ? (
-        <label className="dashboard__cohort-picker">
-          Cohort
-          <select
-            value={selectedCohortId ?? ""}
-            onChange={(event) => setSelectedCohortId(Number(event.target.value))}
-          >
-            {cohorts.map((cohort) => (
-              <option key={cohort.id} value={cohort.id}>
-                {cohort.name}
-              </option>
-            ))}
-          </select>
-        </label>
-      ) : null}
-
-      {selectedCohort ? (
-        <Card as="section" className="dashboard__section">
-          <h2>
-            <UserPlus className="dashboard__section-icon" size={18} aria-hidden="true" />
-            Invite students
-          </h2>
-          <p className="dashboard__invite-intro">
-            Share this link so students can join {selectedCohort.name} themselves &mdash; no need
-            to add them one by one.
-          </p>
-
-          {inviteError ? (
-            <p className="dashboard__banner" role="alert">
-              {inviteError}
-            </p>
-          ) : null}
-
-          <div className="dashboard__invite-code-row">
-            <code className="dashboard__invite-code">{selectedCohort.join_code}</code>
-            <Button type="button" variant="secondary" onClick={handleCopyInviteLink}>
-              {isCopied ? "Copied!" : "Copy invite link"}
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleRegenerateCode}
-              isLoading={isRegenerating}
-              title="Invalidates the current code -- anyone with the old link can no longer join"
+      <div className="dashboard__cohort-toolbar">
+        {cohorts.length > 1 ? (
+          <label className="dashboard__cohort-picker">
+            Cohort
+            <select
+              value={selectedCohortId ?? ""}
+              onChange={(event) => setSelectedCohortId(Number(event.target.value))}
             >
-              <RefreshCw size={16} aria-hidden="true" />
-              Regenerate
-            </Button>
-          </div>
-
-          <form className="dashboard__bulk-form" onSubmit={handleBulkSubmit}>
-            <label className="field" htmlFor="dashboard-bulk-emails">
-              <span className="field__label">Or add students by email</span>
-              <textarea
-                id="dashboard-bulk-emails"
-                className="field__control dashboard__bulk-textarea"
-                placeholder="One email per line, or comma-separated"
-                value={bulkEmailsText}
-                onChange={(event) => setBulkEmailsText(event.target.value)}
-                disabled={isBulkSubmitting}
-              />
-            </label>
-            <Button type="submit" isLoading={isBulkSubmitting} disabled={!bulkEmailsText.trim()}>
-              Add students
-            </Button>
-          </form>
-
-          {bulkResults ? (
-            <ul className="dashboard__bulk-results">
-              {bulkResults.map((result) => (
-                <li
-                  key={result.email}
-                  className={
-                    result.status === "enrolled"
-                      ? "dashboard__bulk-result dashboard__bulk-result--ok"
-                      : "dashboard__bulk-result dashboard__bulk-result--fail"
-                  }
-                >
-                  {result.email} &mdash; {result.status === "enrolled" ? "Added" : result.reason}
-                </li>
+              {cohorts.map((cohort) => (
+                <option key={cohort.id} value={cohort.id}>
+                  {cohort.name}
+                </option>
               ))}
-            </ul>
-          ) : null}
-        </Card>
-      ) : null}
+            </select>
+          </label>
+        ) : null}
+        {/* Phase 8B: roster, invite link, bulk import, rename, and delete all live on the
+            dedicated cohort page now -- this dashboard stays a reporting screen (completion +
+            pacing), not a place cohort management got bolted onto. */}
+        {selectedCohortId !== null ? (
+          <Link to={`/cohorts/${selectedCohortId}`} className="button button--secondary">
+            Manage cohort
+          </Link>
+        ) : null}
+      </div>
 
       <Card as="section" className="dashboard__section">
         <h2>
