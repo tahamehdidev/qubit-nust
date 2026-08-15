@@ -24,3 +24,13 @@ test("the `as` prop renders a different element (e.g. a real <section> landmark)
   expect(container.querySelector("section.card")).toBeInTheDocument();
   expect(container.querySelector("div.card")).not.toBeInTheDocument();
 });
+
+test("does not get the interactive hover class by default", () => {
+  render(<Card>Content</Card>);
+  expect(screen.getByText("Content").className).not.toContain("card--interactive");
+});
+
+test("the `interactive` prop adds the hover-lift class", () => {
+  render(<Card interactive>Content</Card>);
+  expect(screen.getByText("Content").className).toContain("card--interactive");
+});
