@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { courseService } from "../services/course.service.js";
 import { lessonService } from "../services/lesson.service.js";
 import { screenService } from "../services/screen.service.js";
+import { practiceSetService } from "../services/practiceSet.service.js";
 import { ContentLessonDetailPage } from "./ContentLessonDetailPage.jsx";
 
 vi.mock("../context/AuthContext.jsx", () => ({
@@ -19,6 +20,9 @@ vi.mock("../services/lesson.service.js", () => ({
 }));
 vi.mock("../services/screen.service.js", () => ({
   screenService: { listForLesson: vi.fn(), reorder: vi.fn() },
+}));
+vi.mock("../services/practiceSet.service.js", () => ({
+  practiceSetService: { listForLesson: vi.fn(), create: vi.fn() },
 }));
 
 const COURSE = {
@@ -47,6 +51,8 @@ const SCREENS = [
   },
 ];
 
+const PRACTICE_SETS = [{ id: 500, lesson_id: 100, title: "Warm-up Set" }];
+
 function renderPage() {
   return render(
     <MemoryRouter initialEntries={["/admin/content/lessons/100"]}>
@@ -56,6 +62,10 @@ function renderPage() {
         <Route
           path="/admin/content/lessons/:lessonId/screens/:screenId"
           element={<div>Screen editor page</div>}
+        />
+        <Route
+          path="/admin/content/practice-sets/:practiceSetId"
+          element={<div>Practice set detail page</div>}
         />
       </Routes>
     </MemoryRouter>
@@ -68,6 +78,7 @@ beforeEach(() => {
   lessonService.getById.mockResolvedValue(LESSON);
   courseService.getById.mockResolvedValue(COURSE);
   screenService.listForLesson.mockResolvedValue({ screens: SCREENS });
+  practiceSetService.listForLesson.mockResolvedValue({ practiceSets: PRACTICE_SETS });
 });
 
 test("renders the lesson title, breadcrumb, and screen list", async () => {
@@ -142,6 +153,43 @@ test("a failed reorder shows an error banner", async () => {
   await user.click(screen.getByRole("button", { name: "Move Hello world down" }));
 
   expect(await screen.findByRole("alert")).toHaveTextContent("Reorder failed.");
+});
+
+test("renders the practice-set list, each linking to its own detail page", async () => {
+  renderPage();
+
+  const link = await screen.findByRole("link", { name: "Warm-up Set" });
+  expect(link).toHaveAttribute("href", "/admin/content/practice-sets/500");
+});
+
+test("clicking a practice set navigates to its detail page", async () => {
+  const user = userEvent.setup();
+  renderPage();
+
+  await user.click(await screen.findByRole("link", { name: "Warm-up Set" }));
+
+  expect(await screen.findByText("Practice set detail page")).toBeInTheDocument();
+});
+
+test("adding a practice set appends it to the list", async () => {
+  const user = userEvent.setup();
+  practiceSetService.create.mockResolvedValue({ id: 501, lesson_id: 100, title: "New Set" });
+  renderPage();
+
+  await screen.findByRole("link", { name: "Warm-up Set" });
+  await user.type(screen.getByLabelText("New practice set title"), "New Set");
+  await user.click(screen.getByRole("button", { name: "Add practice set" }));
+
+  expect(practiceSetService.create).toHaveBeenCalledWith("100", { title: "New Set" });
+  expect(await screen.findByRole("link", { name: "New Set" })).toBeInTheDocument();
+});
+
+test("a non-owner instructor sees no add-practice-set form", async () => {
+  useAuth.mockReturnValue({ user: { id: "i2", role: "instructor" } });
+  renderPage();
+
+  await screen.findByRole("link", { name: "Warm-up Set" });
+  expect(screen.queryByLabelText("New practice set title")).not.toBeInTheDocument();
 });
 
 test("deleting the lesson probes for cascade counts, then deletes and navigates to the chapter page", async () => {

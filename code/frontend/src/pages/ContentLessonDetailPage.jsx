@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { courseService } from "../services/course.service.js";
 import { lessonService } from "../services/lesson.service.js";
 import { screenService } from "../services/screen.service.js";
+import { practiceSetService } from "../services/practiceSet.service.js";
 import { parseApiError } from "../utils/parseApiError.js";
 import { Card } from "../components/ui/Card.jsx";
 import { Input } from "../components/ui/Input.jsx";
@@ -37,6 +38,11 @@ function describeScreen(screen) {
 
 // Phase 9 (Milestone 4). lessonService.getById is a real endpoint (unlike chapters), so this page
 // is fully self-sufficient -- no router-state dependency, a direct deep-link/refresh works.
+// Phase 9 (Milestone 7): the practice-sets sub-section (list + create, deferred from Milestone 4)
+// is list+create only, no reorder -- practice sets have no order_index of their own
+// (practice_set.repository.js's own comment), and delete lives on each practice set's own detail
+// page's Danger Zone, matching the Course→Chapter/Chapter→Lesson pattern of the parent list being
+// create+link-only.
 export function ContentLessonDetailPage() {
   const { lessonId } = useParams();
   const navigate = useNavigate();
@@ -45,6 +51,7 @@ export function ContentLessonDetailPage() {
   const [lesson, setLesson] = useState(null);
   const [course, setCourse] = useState(null);
   const [screens, setScreens] = useState(null);
+  const [practiceSets, setPracticeSets] = useState(null);
   const [error, setError] = useState(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
 
@@ -55,6 +62,10 @@ export function ContentLessonDetailPage() {
 
   const [screenError, setScreenError] = useState(null);
   const [isReorderingScreens, setIsReorderingScreens] = useState(false);
+
+  const [newPracticeSetTitle, setNewPracticeSetTitle] = useState("");
+  const [isCreatingPracticeSet, setIsCreatingPracticeSet] = useState(false);
+  const [practiceSetError, setPracticeSetError] = useState(null);
 
   const [isProbingDelete, setIsProbingDelete] = useState(false);
   const [deleteWarning, setDeleteWarning] = useState(null);
@@ -68,19 +79,22 @@ export function ContentLessonDetailPage() {
     setLesson(null);
     setCourse(null);
     setScreens(null);
+    setPracticeSets(null);
 
     async function load() {
       try {
         const lessonResult = await lessonService.getById(lessonId);
         if (cancelled) return;
-        const [courseResult, screensResult] = await Promise.all([
+        const [courseResult, screensResult, practiceSetsResult] = await Promise.all([
           courseService.getById(lessonResult.course_id),
           screenService.listForLesson(lessonId),
+          practiceSetService.listForLesson(lessonId),
         ]);
         if (cancelled) return;
         setLesson(lessonResult);
         setCourse(courseResult);
         setScreens(screensResult.screens);
+        setPracticeSets(practiceSetsResult.practiceSets);
         setTitle(lessonResult.title);
       } catch (err) {
         if (!cancelled) setError(parseApiError(err).message);
@@ -127,6 +141,21 @@ export function ContentLessonDetailPage() {
     }
   }
 
+  async function handleAddPracticeSet(event) {
+    event.preventDefault();
+    setPracticeSetError(null);
+    setIsCreatingPracticeSet(true);
+    try {
+      const practiceSet = await practiceSetService.create(lessonId, { title: newPracticeSetTitle });
+      setPracticeSets((current) => [...current, practiceSet]);
+      setNewPracticeSetTitle("");
+    } catch (err) {
+      setPracticeSetError(parseApiError(err).message);
+    } finally {
+      setIsCreatingPracticeSet(false);
+    }
+  }
+
   async function handleDeleteClick() {
     setDeleteError(null);
     setIsProbingDelete(true);
@@ -165,7 +194,7 @@ export function ContentLessonDetailPage() {
     );
   }
 
-  if (lesson === null || course === null || screens === null) {
+  if (lesson === null || course === null || screens === null || practiceSets === null) {
     return (
       <main className="content-lesson-detail">
         <p className="content-lesson-detail__empty">Loading&hellip;</p>
@@ -283,6 +312,53 @@ export function ContentLessonDetailPage() {
             <Plus size={16} aria-hidden="true" />
             Add screen
           </Link>
+        ) : null}
+      </Card>
+
+      <Card as="section" className="content-lesson-detail__section">
+        <h2>Practice sets</h2>
+        {practiceSets.length === 0 ? (
+          <p className="content-lesson-detail__empty">No practice sets yet.</p>
+        ) : (
+          <ul className="content-lesson-detail__practice-set-list">
+            {practiceSets.map((practiceSet) => (
+              <li key={practiceSet.id}>
+                <Link
+                  to={`/admin/content/practice-sets/${practiceSet.id}`}
+                  className="content-lesson-detail__practice-set-link"
+                >
+                  {practiceSet.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {isOwner ? (
+          <>
+            {practiceSetError ? (
+              <p className="content-lesson-detail__banner" role="alert">
+                {practiceSetError}
+              </p>
+            ) : null}
+            <form
+              className="content-lesson-detail__add-practice-set-form"
+              onSubmit={handleAddPracticeSet}
+            >
+              <Input
+                label="New practice set title"
+                value={newPracticeSetTitle}
+                onChange={(event) => setNewPracticeSetTitle(event.target.value)}
+                required
+                maxLength={200}
+                disabled={isCreatingPracticeSet}
+              />
+              <Button type="submit" isLoading={isCreatingPracticeSet}>
+                <Plus size={16} aria-hidden="true" />
+                Add practice set
+              </Button>
+            </form>
+          </>
         ) : null}
       </Card>
 
