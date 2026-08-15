@@ -1,11 +1,15 @@
 import { BlochSphereParamsForm } from "./BlochSphereParamsForm.jsx";
 import { GateCircuitDiagramParamsForm } from "./GateCircuitDiagramParamsForm.jsx";
+import { AmplitudeBarChartParamsForm } from "./AmplitudeBarChartParamsForm.jsx";
+import { TopologyDiagramParamsForm } from "./TopologyDiagramParamsForm.jsx";
+import { QuadrantSelectorParamsForm } from "./QuadrantSelectorParamsForm.jsx";
+import { BasisEncoderParamsForm } from "./BasisEncoderParamsForm.jsx";
 import "./SimulationScreenForm.css";
 
-// Phase 9 (Milestone 4). Widget types not yet built get a stub note rather than a broken form --
-// the remaining four (amplitude_bar_chart, topology_diagram, quadrant_selector, basis_encoder)
-// are Milestone 5's job (screen.validator.js doesn't validate their params either, so there's no
-// schema this milestone could build against yet).
+// Phase 9 (Milestone 5). All six widget types now have an authoring form. The last four
+// (amplitude_bar_chart, topology_diagram, quadrant_selector, basis_encoder) are the ones
+// screen.validator.js doesn't validate at all -- simulationParamsValidation.js's submit-time
+// guardrail is what stands in for real backend validation on those.
 const WIDGET_TYPE_OPTIONS = [
   { value: "bloch_sphere", label: "Bloch sphere" },
   { value: "gate_circuit_diagram", label: "Gate circuit diagram" },
@@ -18,11 +22,30 @@ const WIDGET_TYPE_OPTIONS = [
 const DEFAULT_PARAMS_BY_WIDGET_TYPE = {
   bloch_sphere: { mode: "free_placement" },
   gate_circuit_diagram: { qubitCount: 1, gates: [] },
+  amplitude_bar_chart: { amplitudes: [], labels: [] },
+  topology_diagram: { qubits: [], edges: [] },
+  quadrant_selector: {
+    xAxisLabel: "",
+    yAxisLabel: "",
+    xAxisValues: ["", ""],
+    yAxisValues: ["", ""],
+    quadrants: [
+      { label: "", description: "", highlighted: true },
+      { label: "", description: "", highlighted: false },
+      { label: "", description: "", highlighted: false },
+      { label: "", description: "", highlighted: false },
+    ],
+  },
+  basis_encoder: { qubitCount: 1, defaultNumber: 0 },
 };
 
 const PARAMS_FORM_BY_WIDGET_TYPE = {
   bloch_sphere: BlochSphereParamsForm,
   gate_circuit_diagram: GateCircuitDiagramParamsForm,
+  amplitude_bar_chart: AmplitudeBarChartParamsForm,
+  topology_diagram: TopologyDiagramParamsForm,
+  quadrant_selector: QuadrantSelectorParamsForm,
+  basis_encoder: BasisEncoderParamsForm,
 };
 
 export function SimulationScreenForm({ content, onChange, disabled = false }) {

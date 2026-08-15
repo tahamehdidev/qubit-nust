@@ -112,6 +112,18 @@ test("switching screen type resets the content to that type's default", async ()
   expect(screen.getByLabelText("Widget type")).toBeInTheDocument();
 });
 
+test("submitting a simulation screen with client-side-invalid params shows an error and does not submit", async () => {
+  const user = userEvent.setup();
+  renderPage("new");
+
+  await user.selectOptions(await screen.findByLabelText("Screen type"), "simulation");
+  await user.selectOptions(screen.getByLabelText("Widget type"), "amplitude_bar_chart");
+  await user.click(screen.getByRole("button", { name: "Create screen" }));
+
+  expect(await screen.findByRole("alert")).toHaveTextContent("Add at least one basis state.");
+  expect(screenService.create).not.toHaveBeenCalled();
+});
+
 test("a non-owner instructor sees a read-only note and no form", async () => {
   useAuth.mockReturnValue({ user: { id: "i2", role: "instructor" } });
   renderPage("1000");

@@ -10,6 +10,7 @@ import { Card } from "../components/ui/Card.jsx";
 import { Button } from "../components/ui/Button.jsx";
 import { Modal } from "../components/ui/Modal.jsx";
 import { ScreenForm } from "../components/content/ScreenForm.jsx";
+import { validateSimulationParams } from "../components/content/simulationParamsValidation.js";
 import "./ContentScreenEditorPage.css";
 
 const DEFAULT_NEW_CONTENT = { text: "" };
@@ -98,6 +99,15 @@ export function ContentScreenEditorPage() {
     event.preventDefault();
     setSaveError(null);
     setSaveSuccess(false);
+
+    if (type === "simulation") {
+      const validationError = validateSimulationParams(content.widgetType, content.params);
+      if (validationError) {
+        setSaveError(validationError);
+        return;
+      }
+    }
+
     setIsSaving(true);
     try {
       if (isNew) {

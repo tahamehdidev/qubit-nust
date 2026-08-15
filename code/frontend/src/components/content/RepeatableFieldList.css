@@ -1,0 +1,31 @@
+.repeatable-field-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.repeatable-field-list__empty {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.repeatable-field-list__row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.repeatable-field-list__row:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.repeatable-field-list__row-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  flex: 1;
+}
