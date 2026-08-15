@@ -1,0 +1,4 @@
+.explanation-screen-form__textarea {
+  min-height: 160px;
+  resize: vertical;
+}

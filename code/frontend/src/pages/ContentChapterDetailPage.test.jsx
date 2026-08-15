@@ -68,6 +68,10 @@ test("renders the chapter title, breadcrumb, and lesson list", async () => {
     "/admin/content/courses/5"
   );
   expect(screen.getByText("Intro to Gates")).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /Intro to Gates/ })).toHaveAttribute(
+    "href",
+    "/admin/content/lessons/100"
+  );
 });
 
 test("a non-owner instructor sees a read-only note and no write affordances", async () => {

@@ -1,0 +1,12 @@
+.simulation-screen-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.simulation-screen-form__stub-note {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  font-style: italic;
+}

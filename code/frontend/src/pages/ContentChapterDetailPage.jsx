@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate, Navigate, Link } from "react-router-dom";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { courseService } from "../services/course.service.js";
 import { chapterService } from "../services/chapter.service.js";
@@ -250,14 +250,26 @@ export function ContentChapterDetailPage() {
             isReordering={isReorderingLessons}
             onReorder={handleReorderLessons}
             renderItem={(lesson) => (
-              <div className="content-chapter-detail__lesson-row">{lesson.title}</div>
+              <Link
+                to={`/admin/content/lessons/${lesson.id}`}
+                className="content-chapter-detail__lesson-row"
+              >
+                {lesson.title}
+                <ChevronRight size={16} aria-hidden="true" />
+              </Link>
             )}
           />
         ) : (
           <ul className="content-chapter-detail__lesson-list">
             {sortedLessons.map((lesson) => (
-              <li key={lesson.id} className="content-chapter-detail__lesson-row">
-                {lesson.title}
+              <li key={lesson.id}>
+                <Link
+                  to={`/admin/content/lessons/${lesson.id}`}
+                  className="content-chapter-detail__lesson-row"
+                >
+                  {lesson.title}
+                  <ChevronRight size={16} aria-hidden="true" />
+                </Link>
               </li>
             ))}
           </ul>

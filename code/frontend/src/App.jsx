@@ -25,6 +25,8 @@ import { AdminCohortsPage } from "./pages/AdminCohortsPage.jsx";
 import { ContentCoursesPage } from "./pages/ContentCoursesPage.jsx";
 import { ContentCourseDetailPage } from "./pages/ContentCourseDetailPage.jsx";
 import { ContentChapterDetailPage } from "./pages/ContentChapterDetailPage.jsx";
+import { ContentLessonDetailPage } from "./pages/ContentLessonDetailPage.jsx";
+import { ContentScreenEditorPage } from "./pages/ContentScreenEditorPage.jsx";
 import { NotFoundPage } from "./pages/NotFoundPage.jsx";
 
 // Placeholder routes for every core screen (Frontend Milestone 0) -- real content, auth gating,
@@ -79,6 +81,11 @@ export function App() {
               <Route path="/admin/content" element={<ContentCoursesPage />} />
               <Route path="/admin/content/courses/:courseId" element={<ContentCourseDetailPage />} />
               <Route path="/admin/content/chapters/:chapterId" element={<ContentChapterDetailPage />} />
+              <Route path="/admin/content/lessons/:lessonId" element={<ContentLessonDetailPage />} />
+              <Route
+                path="/admin/content/lessons/:lessonId/screens/:screenId"
+                element={<ContentScreenEditorPage />}
+              />
             </Route>
           </Route>
         </Route>
