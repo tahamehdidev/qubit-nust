@@ -18,7 +18,7 @@ vi.mock("../services/chapter.service.js", () => ({
   chapterService: { update: vi.fn(), remove: vi.fn() },
 }));
 vi.mock("../services/lesson.service.js", () => ({
-  lessonService: { listForChapter: vi.fn(), create: vi.fn() },
+  lessonService: { listForChapter: vi.fn(), create: vi.fn(), reorder: vi.fn() },
 }));
 
 const COURSE = {
@@ -27,7 +27,10 @@ const COURSE = {
   created_by_id: "i1",
   chapters: [{ id: 10, course_id: 5, title: "Gates and Circuits", order_index: 1 }],
 };
-const LESSONS = [{ id: 100, chapter_id: 10, title: "Intro to Gates", order_index: 1 }];
+const LESSONS = [
+  { id: 100, chapter_id: 10, title: "Intro to Gates", order_index: 1 },
+  { id: 101, chapter_id: 10, title: "Two-Qubit Gates", order_index: 2 },
+];
 
 function renderPage(initialState = { courseId: 5, courseTitle: "Quantum Algorithms" }) {
   return render(
@@ -92,7 +95,7 @@ test("saving a rename calls update and shows a confirmation", async () => {
 
 test("adding a lesson appends it to the list", async () => {
   const user = userEvent.setup();
-  lessonService.create.mockResolvedValue({ id: 101, chapter_id: 10, title: "New Lesson", order_index: 2 });
+  lessonService.create.mockResolvedValue({ id: 102, chapter_id: 10, title: "New Lesson", order_index: 3 });
   renderPage();
 
   await screen.findByText("Intro to Gates");
@@ -101,6 +104,30 @@ test("adding a lesson appends it to the list", async () => {
 
   expect(lessonService.create).toHaveBeenCalledWith("10", { title: "New Lesson" });
   expect(await screen.findByText("New Lesson")).toBeInTheDocument();
+});
+
+test("reordering a lesson calls lessonService.reorder with the full ordered id list", async () => {
+  const user = userEvent.setup();
+  lessonService.reorder.mockResolvedValue(undefined);
+  renderPage();
+
+  await screen.findByText("Intro to Gates");
+  await user.click(screen.getByRole("button", { name: "Move Intro to Gates down" }));
+
+  expect(lessonService.reorder).toHaveBeenCalledWith("10", [101, 100]);
+});
+
+test("a failed reorder shows an error banner", async () => {
+  const user = userEvent.setup();
+  lessonService.reorder.mockRejectedValue({
+    response: { data: { error: { code: "REORDER_SET_MISMATCH", message: "Reorder failed." } } },
+  });
+  renderPage();
+
+  await screen.findByText("Intro to Gates");
+  await user.click(screen.getByRole("button", { name: "Move Intro to Gates down" }));
+
+  expect(await screen.findByRole("alert")).toHaveTextContent("Reorder failed.");
 });
 
 test("deleting the chapter probes for cascade counts, then deletes and navigates to the course page", async () => {

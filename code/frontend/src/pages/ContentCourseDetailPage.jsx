@@ -9,6 +9,7 @@ import { Card } from "../components/ui/Card.jsx";
 import { Input } from "../components/ui/Input.jsx";
 import { Button } from "../components/ui/Button.jsx";
 import { ConfirmDeleteModal } from "../components/ui/ConfirmDeleteModal.jsx";
+import { ReorderableList } from "../components/content/ReorderableList.jsx";
 import "./ContentCourseDetailPage.css";
 
 // Phase 9 (Milestone 1). Read access is open to any authenticated user (GET /courses/:id is
@@ -33,6 +34,7 @@ export function ContentCourseDetailPage() {
   const [newChapterTitle, setNewChapterTitle] = useState("");
   const [isCreatingChapter, setIsCreatingChapter] = useState(false);
   const [chapterError, setChapterError] = useState(null);
+  const [isReorderingChapters, setIsReorderingChapters] = useState(false);
 
   // The unconfirmed DELETE call is the only way to learn the cascade counts (the 400 body's
   // message IS the cascade-count sentence, per 02-api-contract.md §3.5) -- there's no separate
@@ -96,6 +98,33 @@ export function ContentCourseDetailPage() {
       setChapterError(parseApiError(err).message);
     } finally {
       setIsCreatingChapter(false);
+    }
+  }
+
+  // Passed to ReorderableList as `onReorder` -- it owns error presentation (the shared
+  // content-course-detail__banner slot) and re-throws so the list knows to revert its optimistic
+  // local order when the server call fails.
+  async function handleReorderChapters(orderedIds) {
+    setChapterError(null);
+    setIsReorderingChapters(true);
+    try {
+      await chapterService.reorder(courseId, orderedIds);
+      // Keeps this page's own order_index values in sync with what the server actually saved --
+      // ReorderableList manages its own display order independently, but this page's sortedChapters
+      // still derives from course.chapters, so a later create/delete recomputing that sort must see
+      // the real, current order rather than silently reverting to the pre-reorder one.
+      setCourse((current) => ({
+        ...current,
+        chapters: current.chapters.map((chapter) => ({
+          ...chapter,
+          order_index: orderedIds.indexOf(chapter.id) + 1,
+        })),
+      }));
+    } catch (err) {
+      setChapterError(parseApiError(err).message);
+      throw err;
+    } finally {
+      setIsReorderingChapters(false);
     }
   }
 
@@ -213,7 +242,27 @@ export function ContentCourseDetailPage() {
         <h2>Chapters</h2>
         {sortedChapters.length === 0 ? (
           <p className="content-course-detail__empty">No chapters yet.</p>
+        ) : isOwner ? (
+          <ReorderableList
+            items={sortedChapters}
+            getId={(chapter) => chapter.id}
+            getLabel={(chapter) => chapter.title}
+            isReordering={isReorderingChapters}
+            onReorder={handleReorderChapters}
+            renderItem={(chapter) => (
+              <Link
+                to={`/admin/content/chapters/${chapter.id}`}
+                state={{ courseId: course.id, courseTitle: course.title }}
+                className="content-course-detail__chapter-link"
+              >
+                <span className="content-course-detail__chapter-title">{chapter.title}</span>
+                <ChevronRight size={16} aria-hidden="true" />
+              </Link>
+            )}
+          />
         ) : (
+          // Non-owner: a plain read-only list -- reordering requires ownership server-side too,
+          // so there's no point offering drag/move controls that would just 403.
           <ul className="content-course-detail__chapter-list">
             {sortedChapters.map((chapter) => (
               <li key={chapter.id}>

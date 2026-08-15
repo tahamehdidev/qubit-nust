@@ -10,6 +10,7 @@ import { Card } from "../components/ui/Card.jsx";
 import { Input } from "../components/ui/Input.jsx";
 import { Button } from "../components/ui/Button.jsx";
 import { ConfirmDeleteModal } from "../components/ui/ConfirmDeleteModal.jsx";
+import { ReorderableList } from "../components/content/ReorderableList.jsx";
 import "./ContentChapterDetailPage.css";
 
 // Phase 9 (Milestone 2). There's no GET /chapters/:id endpoint, so this page can't recover a
@@ -38,6 +39,7 @@ export function ContentChapterDetailPage() {
   const [newLessonTitle, setNewLessonTitle] = useState("");
   const [isCreatingLesson, setIsCreatingLesson] = useState(false);
   const [lessonError, setLessonError] = useState(null);
+  const [isReorderingLessons, setIsReorderingLessons] = useState(false);
 
   const [isProbingDelete, setIsProbingDelete] = useState(false);
   const [deleteWarning, setDeleteWarning] = useState(null);
@@ -112,6 +114,28 @@ export function ContentChapterDetailPage() {
       setLessonError(parseApiError(err).message);
     } finally {
       setIsCreatingLesson(false);
+    }
+  }
+
+  async function handleReorderLessons(orderedIds) {
+    setLessonError(null);
+    setIsReorderingLessons(true);
+    try {
+      await lessonService.reorder(chapterId, orderedIds);
+      // Same reasoning as ContentCourseDetailPage's chapter reorder handler -- keep the local
+      // order_index values in sync with what actually persisted, so a later create/delete
+      // recomputing sortedLessons doesn't silently revert to the pre-reorder order.
+      setLessons((current) =>
+        current.map((lesson) => ({
+          ...lesson,
+          order_index: orderedIds.indexOf(lesson.id) + 1,
+        }))
+      );
+    } catch (err) {
+      setLessonError(parseApiError(err).message);
+      throw err;
+    } finally {
+      setIsReorderingLessons(false);
     }
   }
 
@@ -218,6 +242,17 @@ export function ContentChapterDetailPage() {
         <h2>Lessons</h2>
         {sortedLessons.length === 0 ? (
           <p className="content-chapter-detail__empty">No lessons yet.</p>
+        ) : isOwner ? (
+          <ReorderableList
+            items={sortedLessons}
+            getId={(lesson) => lesson.id}
+            getLabel={(lesson) => lesson.title}
+            isReordering={isReorderingLessons}
+            onReorder={handleReorderLessons}
+            renderItem={(lesson) => (
+              <div className="content-chapter-detail__lesson-row">{lesson.title}</div>
+            )}
+          />
         ) : (
           <ul className="content-chapter-detail__lesson-list">
             {sortedLessons.map((lesson) => (

@@ -14,7 +14,7 @@ vi.mock("../services/course.service.js", () => ({
   courseService: { getById: vi.fn(), update: vi.fn(), remove: vi.fn() },
 }));
 vi.mock("../services/chapter.service.js", () => ({
-  chapterService: { create: vi.fn() },
+  chapterService: { create: vi.fn(), reorder: vi.fn() },
 }));
 
 const COURSE = {
@@ -22,7 +22,10 @@ const COURSE = {
   title: "Quantum Algorithms",
   narrative: "A narrative.",
   created_by_id: "i1",
-  chapters: [{ id: 1, course_id: 5, title: "Gates and Circuits", order_index: 1 }],
+  chapters: [
+    { id: 1, course_id: 5, title: "Gates and Circuits", order_index: 1 },
+    { id: 2, course_id: 5, title: "Entanglement", order_index: 2 },
+  ],
 };
 
 function renderPage() {
@@ -87,7 +90,7 @@ test("saving edits calls update and shows a confirmation", async () => {
 
 test("adding a chapter appends it to the list", async () => {
   const user = userEvent.setup();
-  chapterService.create.mockResolvedValue({ id: 2, course_id: 5, title: "New Chapter", order_index: 2 });
+  chapterService.create.mockResolvedValue({ id: 3, course_id: 5, title: "New Chapter", order_index: 3 });
   renderPage();
 
   await screen.findByText("Gates and Circuits");
@@ -149,6 +152,40 @@ test("a failed confirmed delete closes the modal and shows an error, without nav
 
   expect(await screen.findByRole("alert")).toHaveTextContent("You do not own this course.");
   expect(screen.queryByText("Courses list page")).not.toBeInTheDocument();
+});
+
+test("reordering a chapter calls chapterService.reorder with the full ordered id list", async () => {
+  const user = userEvent.setup();
+  chapterService.reorder.mockResolvedValue(undefined);
+  renderPage();
+
+  await screen.findByText("Gates and Circuits");
+  await user.click(screen.getByRole("button", { name: "Move Gates and Circuits down" }));
+
+  expect(chapterService.reorder).toHaveBeenCalledWith("5", [2, 1]);
+});
+
+test("a failed reorder shows an error banner", async () => {
+  const user = userEvent.setup();
+  chapterService.reorder.mockRejectedValue({
+    response: { data: { error: { code: "REORDER_SET_MISMATCH", message: "Reorder failed." } } },
+  });
+  renderPage();
+
+  await screen.findByText("Gates and Circuits");
+  await user.click(screen.getByRole("button", { name: "Move Gates and Circuits down" }));
+
+  expect(await screen.findByRole("alert")).toHaveTextContent("Reorder failed.");
+});
+
+test("a non-owner instructor sees a plain, non-reorderable chapter list", async () => {
+  useAuth.mockReturnValue({ user: { id: "i2", role: "instructor" } });
+  renderPage();
+
+  await screen.findByText("Gates and Circuits");
+  expect(
+    screen.queryByRole("button", { name: "Move Gates and Circuits down" })
+  ).not.toBeInTheDocument();
 });
 
 test("chapter links carry course id/title via router state for the chapter page to use", async () => {
