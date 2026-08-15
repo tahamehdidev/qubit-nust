@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { courseService } from "../services/course.service.js";
 import { lessonService } from "../services/lesson.service.js";
 import { screenService } from "../services/screen.service.js";
+import { questionService } from "../services/question.service.js";
 import { ContentScreenEditorPage } from "./ContentScreenEditorPage.jsx";
 
 vi.mock("../context/AuthContext.jsx", () => ({
@@ -18,7 +19,17 @@ vi.mock("../services/lesson.service.js", () => ({
   lessonService: { getById: vi.fn() },
 }));
 vi.mock("../services/screen.service.js", () => ({
-  screenService: { listForLesson: vi.fn(), create: vi.fn(), update: vi.fn(), remove: vi.fn() },
+  screenService: {
+    listForLesson: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    remove: vi.fn(),
+    attachQuestion: vi.fn(),
+    detachQuestion: vi.fn(),
+  },
+}));
+vi.mock("../services/question.service.js", () => ({
+  questionService: { list: vi.fn() },
 }));
 
 const COURSE = { id: 5, title: "Quantum Algorithms", created_by_id: "i1", chapters: [] };
@@ -122,6 +133,38 @@ test("submitting a simulation screen with client-side-invalid params shows an er
 
   expect(await screen.findByRole("alert")).toHaveTextContent("Add at least one basis state.");
   expect(screenService.create).not.toHaveBeenCalled();
+});
+
+test("a question screen in create mode shows a save-first note, not the picker", async () => {
+  const user = userEvent.setup();
+  renderPage("new");
+
+  await user.selectOptions(await screen.findByLabelText("Screen type"), "question");
+
+  expect(screen.getByText(/Save this screen first/)).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Attach a question" })).not.toBeInTheDocument();
+});
+
+test("attaching a question in edit mode calls screenService.attachQuestion and shows the attached prompt", async () => {
+  const user = userEvent.setup();
+  const questionScreen = { ...EXPLANATION_SCREEN, id: 1001, type: "question", content: {}, questions: [] };
+  screenService.listForLesson.mockResolvedValue({ screens: [questionScreen] });
+  questionService.list.mockResolvedValue({
+    questions: [{ id: 7, prompt: "What is 2+2?", type: "mcq" }],
+    pagination: { page: 1, limit: 10, total: 1 },
+  });
+  screenService.attachQuestion.mockResolvedValue(undefined);
+  renderPage("1001");
+
+  await user.click(await screen.findByRole("button", { name: "Attach a question" }));
+  const dialog = await screen.findByRole("dialog");
+  await user.click(await within(dialog).findByRole("button", { name: "Use this question" }));
+
+  expect(screenService.attachQuestion).toHaveBeenCalledWith("1001", 7);
+  // The modal's <dialog> stays in the DOM (just closed) rather than unmounting, so its own copy
+  // of the prompt text is still present -- assert via the attached-question actions instead of
+  // re-querying the (now ambiguous) prompt text.
+  expect(await screen.findByRole("button", { name: "Detach" })).toBeInTheDocument();
 });
 
 test("a non-owner instructor sees a read-only note and no form", async () => {

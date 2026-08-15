@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { BookOpen, Plus, ChevronRight } from "lucide-react";
+import { BookOpen, HelpCircle, Plus, ChevronRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { courseService } from "../services/course.service.js";
 import { parseApiError } from "../utils/parseApiError.js";
@@ -72,7 +72,13 @@ export function ContentCoursesPage() {
 
   return (
     <main className="content-courses">
-      <h1>Content</h1>
+      <div className="content-courses__header">
+        <h1>Content</h1>
+        <Link to="/admin/content/questions" className="content-courses__question-bank-link">
+          <HelpCircle size={16} aria-hidden="true" />
+          Question bank
+        </Link>
+      </div>
       <p className="content-courses__subtitle">
         Create a course, then add chapters, lessons, and screens to it.
       </p>

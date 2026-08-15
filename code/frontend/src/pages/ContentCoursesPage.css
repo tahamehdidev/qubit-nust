@@ -7,8 +7,33 @@
   padding: var(--space-8) var(--space-5);
 }
 
+.content-courses__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.content-courses__header h1 {
+  margin: 0;
+}
+
+.content-courses__question-bank-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-accent);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+}
+
+.content-courses__question-bank-link:hover {
+  text-decoration: underline;
+}
+
 .content-courses__subtitle {
-  margin: calc(var(--space-4) * -1) 0 0;
+  margin: 0;
   color: var(--color-muted-foreground);
 }
 

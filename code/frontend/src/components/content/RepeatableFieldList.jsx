@@ -14,6 +14,12 @@ import "./RepeatableFieldList.css";
 // is the caller's own row body; `updateRow(nextItem)` replaces that row in place. `onAdd()` returns
 // a fresh default row, called fresh each time so callers can derive next-id-style defaults (e.g.
 // TopologyDiagramParamsForm's next qubit id) rather than sharing one stale template object.
+//
+// A removal also passes `{ removedIndex }` as onChange's second argument -- most callers only
+// need the resulting array and ignore it, but a caller with coupled sibling state that references
+// a row by position (McqContentForm's correctOptionIndex) needs to know exactly which position
+// disappeared to adjust that reference correctly; diffing the before/after arrays by value would
+// silently misfire on duplicate row values.
 export function RepeatableFieldList({
   items,
   onChange,
@@ -28,7 +34,10 @@ export function RepeatableFieldList({
   }
 
   function removeRow(index) {
-    onChange(items.filter((_, i) => i !== index));
+    onChange(
+      items.filter((_, i) => i !== index),
+      { removedIndex: index }
+    );
   }
 
   function addRow() {

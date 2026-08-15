@@ -1,0 +1,10 @@
+.question-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.question-form__textarea {
+  min-height: 100px;
+  resize: vertical;
+}

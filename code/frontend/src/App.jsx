@@ -27,6 +27,8 @@ import { ContentCourseDetailPage } from "./pages/ContentCourseDetailPage.jsx";
 import { ContentChapterDetailPage } from "./pages/ContentChapterDetailPage.jsx";
 import { ContentLessonDetailPage } from "./pages/ContentLessonDetailPage.jsx";
 import { ContentScreenEditorPage } from "./pages/ContentScreenEditorPage.jsx";
+import { QuestionBankPage } from "./pages/QuestionBankPage.jsx";
+import { QuestionEditPage } from "./pages/QuestionEditPage.jsx";
 import { NotFoundPage } from "./pages/NotFoundPage.jsx";
 
 // Placeholder routes for every core screen (Frontend Milestone 0) -- real content, auth gating,
@@ -86,6 +88,8 @@ export function App() {
                 path="/admin/content/lessons/:lessonId/screens/:screenId"
                 element={<ContentScreenEditorPage />}
               />
+              <Route path="/admin/content/questions" element={<QuestionBankPage />} />
+              <Route path="/admin/content/questions/:questionId" element={<QuestionEditPage />} />
             </Route>
           </Route>
         </Route>

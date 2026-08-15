@@ -1,5 +1,6 @@
 import { ExplanationScreenForm } from "./ExplanationScreenForm.jsx";
 import { SimulationScreenForm } from "./SimulationScreenForm.jsx";
+import { QuestionScreenForm } from "./QuestionScreenForm.jsx";
 import "./ScreenForm.css";
 
 // Phase 9 (Milestone 4). Owns `type` + `content`, resetting content to that type's default
@@ -18,7 +19,17 @@ const DEFAULT_CONTENT_BY_TYPE = {
   simulation: { widgetType: "bloch_sphere", params: { mode: "free_placement" } },
 };
 
-export function ScreenForm({ type, content, onTypeChange, onContentChange, disabled = false }) {
+export function ScreenForm({
+  type,
+  content,
+  onTypeChange,
+  onContentChange,
+  disabled = false,
+  screenId,
+  attachedQuestion,
+  onQuestionAttached,
+  onQuestionDetached,
+}) {
   function handleTypeChange(nextType) {
     onTypeChange(nextType, DEFAULT_CONTENT_BY_TYPE[nextType]);
   }
@@ -45,9 +56,13 @@ export function ScreenForm({ type, content, onTypeChange, onContentChange, disab
       ) : null}
 
       {type === "question" ? (
-        <p className="screen-form__stub-note">
-          Question screens aren&rsquo;t authorable here yet &mdash; coming in a later milestone.
-        </p>
+        <QuestionScreenForm
+          screenId={screenId}
+          attachedQuestion={attachedQuestion}
+          onQuestionAttached={onQuestionAttached}
+          onQuestionDetached={onQuestionDetached}
+          disabled={disabled}
+        />
       ) : null}
 
       {type === "simulation" ? (

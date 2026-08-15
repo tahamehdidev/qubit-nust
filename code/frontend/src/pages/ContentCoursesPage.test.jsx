@@ -29,6 +29,15 @@ beforeEach(() => {
   useAuth.mockReturnValue({ user: { id: "i1", role: "instructor" } });
 });
 
+test("renders a link to the question bank", () => {
+  courseService.list.mockResolvedValue({ courses: [] });
+  renderPage();
+  expect(screen.getByRole("link", { name: /Question bank/ })).toHaveAttribute(
+    "href",
+    "/admin/content/questions"
+  );
+});
+
 test("renders courses, tagging which ones the caller owns", async () => {
   courseService.list.mockResolvedValue({
     courses: [

@@ -95,6 +95,18 @@ export function ContentScreenEditorPage() {
     setSaveSuccess(false);
   }
 
+  // QuestionScreenForm attaches/detaches live against the ScreenQuestion junction (a separate API
+  // call from this page's own content/Save flow -- Screen.content for type "question" carries no
+  // data of its own), so these just keep the locally-held `screen.questions` in sync with what it
+  // already did server-side, the same way Save keeps `screen` in sync after a content update.
+  function handleQuestionAttached(question) {
+    setScreen((current) => ({ ...current, questions: [question] }));
+  }
+
+  function handleQuestionDetached() {
+    setScreen((current) => ({ ...current, questions: [] }));
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setSaveError(null);
@@ -197,6 +209,10 @@ export function ContentScreenEditorPage() {
                 onTypeChange={handleTypeChange}
                 onContentChange={handleContentChange}
                 disabled={isSaving}
+                screenId={isNew ? undefined : screenId}
+                attachedQuestion={screen?.questions?.[0] ?? null}
+                onQuestionAttached={handleQuestionAttached}
+                onQuestionDetached={handleQuestionDetached}
               />
               <Button type="submit" isLoading={isSaving}>
                 {isNew ? "Create screen" : "Save"}

@@ -43,14 +43,14 @@ test("clicking add calls onChange with the new row appended", async () => {
   expect(onChange).toHaveBeenCalledWith([{ value: "a" }, { value: "b" }, { value: "" }]);
 });
 
-test("clicking remove on a row calls onChange with that row filtered out", async () => {
+test("clicking remove on a row calls onChange with that row filtered out and the removed index", async () => {
   const user = userEvent.setup();
   const onChange = vi.fn();
   renderList({ onChange });
 
   await user.click(screen.getByRole("button", { name: "Remove row 1" }));
 
-  expect(onChange).toHaveBeenCalledWith([{ value: "b" }]);
+  expect(onChange).toHaveBeenCalledWith([{ value: "b" }], { removedIndex: 0 });
 });
 
 test("editing a row's field calls onChange with that row replaced", () => {
