@@ -22,6 +22,8 @@ import { CohortsPage } from "./pages/CohortsPage.jsx";
 import { CohortDetailPage } from "./pages/CohortDetailPage.jsx";
 import { AdminUsersPage } from "./pages/AdminUsersPage.jsx";
 import { AdminCohortsPage } from "./pages/AdminCohortsPage.jsx";
+import { ContentCoursesPage } from "./pages/ContentCoursesPage.jsx";
+import { ContentCourseDetailPage } from "./pages/ContentCourseDetailPage.jsx";
 import { NotFoundPage } from "./pages/NotFoundPage.jsx";
 
 // Placeholder routes for every core screen (Frontend Milestone 0) -- real content, auth gating,
@@ -68,6 +70,13 @@ export function App() {
             <Route element={<RoleGate allow={["instructor"]} />}>
               <Route path="/cohorts" element={<CohortsPage />} />
               <Route path="/cohorts/:cohortId" element={<CohortDetailPage />} />
+            </Route>
+            {/* Phase 9 (Milestone 1): content-authoring UI -- the backend API has always allowed
+                both roles to author content (an instructor owns their own courses; admin bypasses
+                ownership everywhere), so this is the one authoring surface open to both. */}
+            <Route element={<RoleGate allow={["instructor", "admin"]} />}>
+              <Route path="/admin/content" element={<ContentCoursesPage />} />
+              <Route path="/admin/content/courses/:courseId" element={<ContentCourseDetailPage />} />
             </Route>
           </Route>
         </Route>

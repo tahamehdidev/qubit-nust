@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, NavLink, Link } from "react-router-dom";
-import { BookOpen, LayoutDashboard, Settings, ShieldCheck, Users } from "lucide-react";
+import { BookOpen, LayoutDashboard, PenSquare, Settings, ShieldCheck, Users } from "lucide-react";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { RouteTransition } from "./RouteTransition.jsx";
 // Reuses Button.css's classes for the anonymous-nav Sign up CTA without mounting a <Button>
@@ -86,6 +86,15 @@ export function AuthenticatedLayout() {
               <NavLink to="/admin/cohorts" className={navLinkClassName}>
                 <Users size={16} aria-hidden="true" />
                 Cohorts
+              </NavLink>
+            ) : null}
+            {/* Phase 9: content authoring, open to both roles -- an instructor writes to their
+                own courses, admin bypasses ownership everywhere, same as every other content
+                write endpoint. */}
+            {user?.role === "instructor" || user?.role === "admin" ? (
+              <NavLink to="/admin/content" className={navLinkClassName}>
+                <PenSquare size={16} aria-hidden="true" />
+                Content
               </NavLink>
             ) : null}
             {/* Phase 8D: every role was previously missing any way to update their own name or

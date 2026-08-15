@@ -1,0 +1,120 @@
+.content-courses {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 700px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-5);
+}
+
+.content-courses__subtitle {
+  margin: calc(var(--space-4) * -1) 0 0;
+  color: var(--color-muted-foreground);
+}
+
+.content-courses__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.content-courses__section h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xl);
+  margin: 0;
+}
+
+.content-courses__section-icon {
+  color: var(--color-accent);
+}
+
+.content-courses__banner {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-destructive);
+  background-color: var(--color-muted);
+  color: var(--color-destructive-text);
+  font-size: var(--text-sm);
+}
+
+.content-courses__create-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 450px;
+}
+
+.content-courses__narrative-textarea {
+  min-height: 80px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.content-courses__empty {
+  color: var(--color-muted-foreground);
+}
+
+.content-courses__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.content-courses__card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--radius-md);
+}
+
+.content-courses__card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  transition: box-shadow 150ms var(--ease-out-quart, ease-out);
+}
+
+.content-courses__card-link:hover .content-courses__card,
+.content-courses__card-link:focus-visible .content-courses__card {
+  box-shadow: var(--shadow-md);
+}
+
+.content-courses__card-icon-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background-color: color-mix(in oklch, var(--color-accent) 12%, var(--color-card));
+  color: var(--color-accent);
+}
+
+.content-courses__card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  flex: 1;
+}
+
+.content-courses__card-title {
+  font-weight: var(--weight-medium);
+  color: var(--color-foreground);
+}
+
+.content-courses__card-owner {
+  font-size: var(--text-sm);
+  color: var(--color-muted-foreground);
+}
+
+.content-courses__card-cta {
+  flex-shrink: 0;
+  color: var(--color-muted-foreground);
+}
