@@ -84,3 +84,34 @@
   gap: var(--space-3);
   margin-top: var(--space-4);
 }
+
+/* ---------- Skeleton ---------- */
+
+.content-screen-editor__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.content-screen-editor__skeleton-block {
+  height: 220px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-muted);
+  animation: content-screen-editor-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes content-screen-editor-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content-screen-editor__skeleton-block {
+    animation: none;
+  }
+}

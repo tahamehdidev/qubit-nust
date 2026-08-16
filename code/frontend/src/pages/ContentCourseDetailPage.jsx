@@ -169,7 +169,10 @@ export function ContentCourseDetailPage() {
   if (course === null) {
     return (
       <main className="content-course-detail">
-        <p className="content-course-detail__empty">Loading&hellip;</p>
+        <div className="content-course-detail__skeleton" aria-hidden="true">
+          <div className="content-course-detail__skeleton-block" />
+          <div className="content-course-detail__skeleton-block" />
+        </div>
       </main>
     );
   }

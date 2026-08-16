@@ -119,7 +119,11 @@ export function ContentCoursesPage() {
       </Card>
 
       {courses === null ? (
-        <p className="content-courses__empty">Loading&hellip;</p>
+        <div className="content-courses__skeleton" aria-hidden="true">
+          <div className="content-courses__skeleton-row" />
+          <div className="content-courses__skeleton-row" />
+          <div className="content-courses__skeleton-row" />
+        </div>
       ) : courses.length === 0 ? (
         <p className="content-courses__empty">
           No courses yet &mdash; create one above to get started.

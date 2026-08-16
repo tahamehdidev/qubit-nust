@@ -197,7 +197,10 @@ export function ContentLessonDetailPage() {
   if (lesson === null || course === null || screens === null || practiceSets === null) {
     return (
       <main className="content-lesson-detail">
-        <p className="content-lesson-detail__empty">Loading&hellip;</p>
+        <div className="content-lesson-detail__skeleton" aria-hidden="true">
+          <div className="content-lesson-detail__skeleton-block" />
+          <div className="content-lesson-detail__skeleton-block" />
+        </div>
       </main>
     );
   }

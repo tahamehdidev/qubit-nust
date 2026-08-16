@@ -126,7 +126,9 @@ export function QuestionEditPage() {
   if (!isLoaded) {
     return (
       <main className="question-edit">
-        <p className="question-edit__empty">Loading&hellip;</p>
+        <div className="question-edit__skeleton" aria-hidden="true">
+          <div className="question-edit__skeleton-block" />
+        </div>
       </main>
     );
   }

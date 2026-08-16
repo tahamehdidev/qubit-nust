@@ -107,7 +107,11 @@ export function QuestionBankPage() {
       </Card>
 
       {result === null ? (
-        <p className="question-bank__empty">Loading&hellip;</p>
+        <div className="question-bank__skeleton" aria-hidden="true">
+          <div className="question-bank__skeleton-row" />
+          <div className="question-bank__skeleton-row" />
+          <div className="question-bank__skeleton-row" />
+        </div>
       ) : result.questions.length === 0 ? (
         <p className="question-bank__empty">No questions found.</p>
       ) : (

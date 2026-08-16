@@ -81,6 +81,9 @@
   gap: var(--space-2);
 }
 
+/* Not a link -- only the Detach button inside is interactive, so this stays at the flat resting
+   elevation with no hover-lift affordance to promise, same reasoning as DashboardPage's
+   `.dashboard__row--plain` for its own non-link instructor sub-rows. */
 .content-practice-set-detail__question-row {
   display: flex;
   align-items: center;
@@ -89,6 +92,7 @@
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   background-color: var(--color-card);
+  box-shadow: var(--shadow-sm);
 }
 
 .content-practice-set-detail__question-type {
@@ -123,4 +127,35 @@
   justify-content: flex-end;
   gap: var(--space-3);
   margin-top: var(--space-4);
+}
+
+/* ---------- Skeleton ---------- */
+
+.content-practice-set-detail__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.content-practice-set-detail__skeleton-block {
+  height: 120px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-muted);
+  animation: content-practice-set-detail-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes content-practice-set-detail-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content-practice-set-detail__skeleton-block {
+    animation: none;
+  }
 }

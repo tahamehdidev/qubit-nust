@@ -93,6 +93,18 @@
   font-weight: var(--weight-medium);
   color: var(--color-foreground);
   text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition:
+    box-shadow var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out);
+}
+
+.content-chapter-detail__lesson-row:hover,
+.content-chapter-detail__lesson-row:focus-visible {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--color-border-strong);
 }
 
 .content-chapter-detail__add-lesson-form {
@@ -114,4 +126,35 @@
   margin: 0;
   color: var(--color-muted-foreground);
   font-size: var(--text-sm);
+}
+
+/* ---------- Skeleton ---------- */
+
+.content-chapter-detail__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.content-chapter-detail__skeleton-block {
+  height: 120px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-muted);
+  animation: content-chapter-detail-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes content-chapter-detail-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content-chapter-detail__skeleton-block {
+    animation: none;
+  }
 }

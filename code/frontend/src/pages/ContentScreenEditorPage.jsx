@@ -164,7 +164,9 @@ export function ContentScreenEditorPage() {
   if (lesson === null || course === null || screen === null) {
     return (
       <main className="content-screen-editor">
-        <p className="content-screen-editor__empty">Loading&hellip;</p>
+        <div className="content-screen-editor__skeleton" aria-hidden="true">
+          <div className="content-screen-editor__skeleton-block" />
+        </div>
       </main>
     );
   }

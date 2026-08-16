@@ -167,7 +167,10 @@ export function ContentPracticeSetDetailPage() {
   if (practiceSet === null || lesson === null || course === null) {
     return (
       <main className="content-practice-set-detail">
-        <p className="content-practice-set-detail__empty">Loading&hellip;</p>
+        <div className="content-practice-set-detail__skeleton" aria-hidden="true">
+          <div className="content-practice-set-detail__skeleton-block" />
+          <div className="content-practice-set-detail__skeleton-block" />
+        </div>
       </main>
     );
   }

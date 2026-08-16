@@ -178,7 +178,10 @@ export function ContentChapterDetailPage() {
   if (course === null || lessons === null) {
     return (
       <main className="content-chapter-detail">
-        <p className="content-chapter-detail__empty">Loading&hellip;</p>
+        <div className="content-chapter-detail__skeleton" aria-hidden="true">
+          <div className="content-chapter-detail__skeleton-block" />
+          <div className="content-chapter-detail__skeleton-block" />
+        </div>
       </main>
     );
   }
