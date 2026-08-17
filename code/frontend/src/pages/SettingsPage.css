@@ -56,8 +56,11 @@
   width: 100%;
 }
 
+/* Matches DashboardPage's own advisory-note convention (font-style: italic) rather than
+   inventing a new visual treatment for the same kind of "heads up" text. */
 .settings-page__password-note {
   margin: 0;
   font-size: var(--text-sm);
+  font-style: italic;
   color: var(--color-muted-foreground);
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { cohortService } from "../services/cohort.service.js";
 import { parseApiError } from "../utils/parseApiError.js";
 import { Card } from "../components/ui/Card.jsx";
@@ -53,11 +54,15 @@ export function JoinCohortPage() {
     <main className="join-cohort">
       <Card className="join-cohort__card">
         {status === "joining" ? (
-          <p className="join-cohort__status" role="status">
-            Joining your cohort&hellip;
-          </p>
+          <>
+            <Loader2 className="join-cohort__icon join-cohort__icon--joining" aria-hidden="true" />
+            <p className="join-cohort__status" role="status">
+              Joining your cohort&hellip;
+            </p>
+          </>
         ) : status === "joined" || status === "already" ? (
           <>
+            <CheckCircle2 className="join-cohort__icon join-cohort__icon--success" aria-hidden="true" />
             <h1>{status === "joined" ? "You're in" : "Already joined"}</h1>
             <p className="join-cohort__body">
               {status === "joined"
@@ -70,6 +75,7 @@ export function JoinCohortPage() {
           </>
         ) : (
           <>
+            <XCircle className="join-cohort__icon join-cohort__icon--error" aria-hidden="true" />
             <h1>Couldn&rsquo;t join this cohort</h1>
             <p className="join-cohort__body" role="alert">
               {errorMessage}

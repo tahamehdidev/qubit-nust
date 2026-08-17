@@ -25,3 +25,36 @@
 .join-cohort__body {
   color: var(--color-muted-foreground);
 }
+
+.join-cohort__icon {
+  width: 40px;
+  height: 40px;
+}
+
+.join-cohort__icon--joining {
+  color: var(--color-accent);
+  animation: join-cohort-spin 800ms linear infinite;
+}
+
+/* Same reasoning as Button.css's own spinner: a longer duration under reduced-motion, not
+   animation: none -- an in-progress state needs some visible motion to read as "working" at
+   all, unlike a purely decorative entrance. */
+@media (prefers-reduced-motion: reduce) {
+  .join-cohort__icon--joining {
+    animation-duration: 1600ms;
+  }
+}
+
+@keyframes join-cohort-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.join-cohort__icon--success {
+  color: var(--color-success);
+}
+
+.join-cohort__icon--error {
+  color: var(--color-destructive);
+}
