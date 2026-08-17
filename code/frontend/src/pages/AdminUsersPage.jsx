@@ -229,7 +229,11 @@ export function AdminUsersPage() {
         ) : null}
 
         {users === null ? (
-          <p className="admin-users__empty">Loading&hellip;</p>
+          <div className="admin-users__skeleton" aria-hidden="true">
+            <div className="admin-users__skeleton-row" />
+            <div className="admin-users__skeleton-row" />
+            <div className="admin-users__skeleton-row" />
+          </div>
         ) : users.length === 0 ? (
           <p className="admin-users__empty">No accounts match this search.</p>
         ) : (

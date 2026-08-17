@@ -57,7 +57,11 @@ export function AdminCohortsPage() {
         {error ? (
           <Button onClick={() => setLoadAttempt((attempt) => attempt + 1)}>Try again</Button>
         ) : cohorts === null ? (
-          <p className="admin-cohorts__empty">Loading&hellip;</p>
+          <div className="admin-cohorts__skeleton" aria-hidden="true">
+            <div className="admin-cohorts__skeleton-row" />
+            <div className="admin-cohorts__skeleton-row" />
+            <div className="admin-cohorts__skeleton-row" />
+          </div>
         ) : cohorts.length === 0 ? (
           <p className="admin-cohorts__empty">No cohorts exist yet.</p>
         ) : (

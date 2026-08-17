@@ -52,6 +52,7 @@
   gap: var(--space-2);
 }
 
+/* Read-only visibility row, no actions or link -- flat resting elevation only. */
 .admin-cohorts__row {
   display: flex;
   align-items: center;
@@ -61,6 +62,7 @@
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   background-color: var(--color-card);
+  box-shadow: var(--shadow-sm);
 }
 
 .admin-cohorts__row-body {
@@ -91,4 +93,35 @@
   font-family: var(--font-mono, monospace);
   font-size: var(--text-sm);
   letter-spacing: 0.05em;
+}
+
+/* ---------- Skeleton ---------- */
+
+.admin-cohorts__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.admin-cohorts__skeleton-row {
+  height: 60px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-muted);
+  animation: admin-cohorts-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes admin-cohorts-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-cohorts__skeleton-row {
+    animation: none;
+  }
 }

@@ -211,7 +211,10 @@ export function CohortDetailPage() {
   if (cohort === null || students === null) {
     return (
       <main className="cohort-detail">
-        <p className="cohort-detail__empty">Loading&hellip;</p>
+        <div className="cohort-detail__skeleton" aria-hidden="true">
+          <div className="cohort-detail__skeleton-block" />
+          <div className="cohort-detail__skeleton-block" />
+        </div>
       </main>
     );
   }

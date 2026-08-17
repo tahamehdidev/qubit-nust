@@ -98,7 +98,10 @@ export function CohortsPage() {
       </Card>
 
       {cohorts === null ? (
-        <p className="cohorts-page__empty">Loading&hellip;</p>
+        <div className="cohorts-page__skeleton" aria-hidden="true">
+          <div className="cohorts-page__skeleton-row" />
+          <div className="cohorts-page__skeleton-row" />
+        </div>
       ) : cohorts.length === 0 ? (
         <p className="cohorts-page__empty">
           No cohorts yet &mdash; create one above to start inviting students.
