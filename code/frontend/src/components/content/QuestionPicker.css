@@ -37,6 +37,14 @@
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
+  transition:
+    border-color var(--duration-base) var(--ease-out),
+    background-color var(--duration-base) var(--ease-out);
+}
+
+.question-picker__item:hover {
+  border-color: var(--color-border-strong);
+  background-color: var(--color-muted);
 }
 
 .question-picker__type-badge {

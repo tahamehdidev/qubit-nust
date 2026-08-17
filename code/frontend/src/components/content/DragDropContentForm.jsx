@@ -68,7 +68,9 @@ export function DragDropContentForm({ content, onChange, disabled = false }) {
           getId={(row) => row.id}
           getLabel={(row) => row.label}
           onReorder={handleReorderCorrectOrder}
-          renderItem={(row) => <span>{row.label}</span>}
+          renderItem={(row) => (
+            <span className="drag-drop-content-form__order-label">{row.label || "(empty)"}</span>
+          )}
         />
       </fieldset>
     </div>

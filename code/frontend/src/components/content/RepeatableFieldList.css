@@ -14,13 +14,9 @@
   display: flex;
   align-items: flex-end;
   gap: var(--space-3);
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.repeatable-field-list__row:last-of-type {
-  border-bottom: none;
-  padding-bottom: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background-color: color-mix(in oklch, var(--color-muted) 45%, transparent);
 }
 
 .repeatable-field-list__row-body {
