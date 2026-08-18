@@ -10,7 +10,7 @@
     "lint:fix": "eslint src tests --fix",
     "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\"",
     "format:check": "prettier --check \"src/**/*.js\" \"tests/**/*.js\"",
-    "test": "node --test --test-concurrency=1 --import ./tests/preload.js \"tests/**/*.test.js\"",
+    "test": "node --test --test-concurrency=1 --import ./tests/preload.js",
     "create-admin": "node scripts/create-admin.js",
     "migrate": "node scripts/migrate.js",
     "migrate:test": "node scripts/migrate.js --test",
