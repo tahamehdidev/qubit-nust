@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Compass } from "lucide-react";
 import "./NotFoundPage.css";
 
 // Nav-flow audit: there was no catch-all route at all -- an unmatched URL (typo, stale bookmark,
@@ -8,6 +9,9 @@ import "./NotFoundPage.css";
 export function NotFoundPage() {
   return (
     <main className="not-found-page">
+      {/* Muted, not destructive-red -- a 404 is "you're somewhere unexpected," not a failed
+          action, so it gets a calm icon rather than an alarm color. */}
+      <Compass className="not-found-page__icon" aria-hidden="true" />
       <h1>Page not found</h1>
       <p>The page you&rsquo;re looking for doesn&rsquo;t exist or may have moved.</p>
       <div className="not-found-page__actions">

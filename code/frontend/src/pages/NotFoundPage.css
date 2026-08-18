@@ -9,6 +9,12 @@
   text-align: center;
 }
 
+.not-found-page__icon {
+  width: 40px;
+  height: 40px;
+  color: var(--color-muted-foreground);
+}
+
 .not-found-page h1 {
   font-size: var(--text-2xl);
 }
