@@ -233,8 +233,8 @@ export function LandingPage() {
             <div className="landing-page__hero-copy">
               <h1>See the qubit before you compute with it.</h1>
               <p className="landing-page__hero-tagline">
-                That&apos;s not a diagram — it&apos;s a real quantum state. Drag the arrow and
-                watch the numbers respond.
+                That&apos;s not a diagram — it&apos;s a real quantum state. Drag the arrow and watch
+                the numbers respond.
               </p>
               {/* Critique finding: the hero showed raw bra-ket/Greek notation (P(|0>), theta,
                   phi) on first paint, directly ahead of the Method section's own promise a few
@@ -295,16 +295,20 @@ export function LandingPage() {
           <div className="landing-page__section-inner">
             <h2>Three courses, one core question each.</h2>
             <p className="landing-page__courses-lede">
-              Pick whichever question pulls at you first — each course is a complete,
-              self-contained path from the qubit itself to a real capstone result, not a fragment
-              of a bigger track.
+              Pick whichever question pulls at you first — each course is a complete, self-contained
+              path from the qubit itself to a real capstone result, not a fragment of a bigger
+              track.
             </p>
             <div className="landing-page__course-grid">
               {COURSES.map((course, index) => (
                 <Card
                   key={course.name}
                   as={Link}
-                  to={courseIdByTitle[course.name] ? `/courses/${courseIdByTitle[course.name]}` : "/courses"}
+                  to={
+                    courseIdByTitle[course.name]
+                      ? `/courses/${courseIdByTitle[course.name]}`
+                      : "/courses"
+                  }
                   className="landing-page__course-card"
                   style={{ transitionDelay: `${index * 70}ms` }}
                 >
@@ -326,8 +330,8 @@ export function LandingPage() {
           <div className="landing-page__section-inner landing-page__compare-inner">
             <h2>Start with whichever question grabs you first.</h2>
             <p className="landing-page__compare-lede">
-              Each course teaches the qubit fundamentals it needs from scratch. Nothing here
-              assumes you&apos;ve taken one of the others first.
+              Each course teaches the qubit fundamentals it needs from scratch. Nothing here assumes
+              you&apos;ve taken one of the others first.
             </p>
             <ul className="landing-page__compare-list">
               {COURSES.map((course, index) => (
@@ -360,20 +364,19 @@ export function LandingPage() {
             <h2>Formal notation comes later. The picture comes first.</h2>
             <p>
               Every concept starts as something you can see and manipulate — a qubit as a literal
-              arrow on a sphere, a gate as a rotation you watch happen — before any bra-ket
-              notation appears. The same interactive widgets, including a real Bloch sphere, carry
-              through all three courses, so the mental model you build in the first lesson keeps
-              paying off in the last.
+              arrow on a sphere, a gate as a rotation you watch happen — before any bra-ket notation
+              appears. The same interactive widgets, including a real Bloch sphere, carry through
+              all three courses, so the mental model you build in the first lesson keeps paying off
+              in the last.
             </p>
             <p>
-              XP and streaks are here, but they stay in the background. The thing being measured
-              is whether you can explain a concept afterward, not how many screens you cleared.
+              XP and streaks are here, but they stay in the background. The thing being measured is
+              whether you can explain a concept afterward, not how many screens you cleared.
             </p>
             <ul className="landing-page__method-list">
               <li>Real 3D simulations you manipulate directly, not static diagrams to memorize.</li>
               <li>
-                Every question graded instantly, with a real second attempt, not just a final
-                score.
+                Every question graded instantly, with a real second attempt, not just a final score.
               </li>
               <li>
                 Six widgets — sphere, gates, measurement, and more — reused across all three

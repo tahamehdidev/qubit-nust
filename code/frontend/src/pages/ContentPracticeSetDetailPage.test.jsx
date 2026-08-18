@@ -36,7 +36,12 @@ const COURSE = { id: 5, title: "Quantum Algorithms", created_by_id: "i1", chapte
 const LESSON = { id: 100, chapter_id: 10, title: "Intro to Gates", order_index: 1, course_id: 5 };
 const QUESTION_A = { id: 1, prompt: "What is 2+2?", type: "mcq" };
 const QUESTION_B = { id: 2, prompt: "Order these", type: "drag_drop" };
-const PRACTICE_SET = { id: 500, lesson_id: 100, title: "Warm-up Set", questions: [QUESTION_A, QUESTION_B] };
+const PRACTICE_SET = {
+  id: 500,
+  lesson_id: 100,
+  title: "Warm-up Set",
+  questions: [QUESTION_A, QUESTION_B],
+};
 
 function renderPage() {
   return render(
@@ -130,7 +135,9 @@ test("detaching a question calls detachQuestion with no confirmation and removes
   renderPage();
 
   await screen.findByText("What is 2+2?");
-  const row = screen.getByText("What is 2+2?").closest(".content-practice-set-detail__question-row");
+  const row = screen
+    .getByText("What is 2+2?")
+    .closest(".content-practice-set-detail__question-row");
   await user.click(within(row).getByRole("button", { name: "Detach" }));
 
   expect(practiceSetService.detachQuestion).toHaveBeenCalledWith("500", 1);
@@ -153,9 +160,7 @@ test("attaching a question from the picker calls attachQuestion and adds it to t
   // of the prompt text is still present -- assert via the question row it landed in instead of
   // the (now ambiguous) prompt text alone.
   const matches = await screen.findAllByText("A new question");
-  expect(
-    matches.some((el) => el.closest(".content-practice-set-detail__question-row"))
-  ).toBe(true);
+  expect(matches.some((el) => el.closest(".content-practice-set-detail__question-row"))).toBe(true);
 });
 
 test("deleting the practice set uses a plain confirm modal (no typed name), then navigates back", async () => {

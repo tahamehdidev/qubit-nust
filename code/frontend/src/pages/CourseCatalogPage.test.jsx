@@ -25,7 +25,11 @@ vi.mock("../services/progress.service.js", () => ({
 }));
 
 const COURSES = [
-  { id: 8, title: "Quantum Computing Hardware", narrative: "Building a useful quantum computer..." },
+  {
+    id: 8,
+    title: "Quantum Computing Hardware",
+    narrative: "Building a useful quantum computer...",
+  },
   { id: 9, title: "Quantum Machine Learning", narrative: "QML is a genuinely different..." },
   { id: 10, title: "Quantum Algorithms", narrative: "Quantum algorithms exploit..." },
 ];
@@ -59,7 +63,9 @@ test("renders every course with its narrative once loaded", async () => {
   progressService.listForUser.mockResolvedValue({ progress: [], pagination: {} });
   renderCatalog();
 
-  expect(await screen.findByRole("heading", { name: "Quantum Machine Learning" })).toBeInTheDocument();
+  expect(
+    await screen.findByRole("heading", { name: "Quantum Machine Learning" })
+  ).toBeInTheDocument();
   expect(screen.getByText("Building a useful quantum computer...")).toBeInTheDocument();
   expect(progressService.listForUser).toHaveBeenCalledWith({ userId: "me" });
 });

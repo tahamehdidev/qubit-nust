@@ -23,7 +23,10 @@ function renderPage() {
     <MemoryRouter initialEntries={["/admin/content/questions"]}>
       <Routes>
         <Route path="/admin/content/questions" element={<QuestionBankPage />} />
-        <Route path="/admin/content/questions/:questionId" element={<div>Question edit page</div>} />
+        <Route
+          path="/admin/content/questions/:questionId"
+          element={<div>Question edit page</div>}
+        />
       </Routes>
     </MemoryRouter>
   );
@@ -92,7 +95,10 @@ test("typing a search term debounces before re-querying", async () => {
 });
 
 test("shows a no-results message for an empty result set", async () => {
-  questionService.list.mockResolvedValue({ questions: [], pagination: { page: 1, limit: 20, total: 0 } });
+  questionService.list.mockResolvedValue({
+    questions: [],
+    pagination: { page: 1, limit: 20, total: 0 },
+  });
   renderPage();
 
   expect(await screen.findByText("No questions found.")).toBeInTheDocument();

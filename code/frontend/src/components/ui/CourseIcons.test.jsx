@@ -1,11 +1,6 @@
 import { test, expect } from "vitest";
 import { render } from "@testing-library/react";
-import {
-  NeuralNetIcon,
-  AlgorithmIcon,
-  QubitChipIcon,
-  getCourseIcon,
-} from "./CourseIcons.jsx";
+import { NeuralNetIcon, AlgorithmIcon, QubitChipIcon, getCourseIcon } from "./CourseIcons.jsx";
 
 test("getCourseIcon returns the matching icon for each real seeded course title", () => {
   expect(getCourseIcon("Quantum Machine Learning")).toBe(NeuralNetIcon);

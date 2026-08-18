@@ -159,8 +159,7 @@ export function AdminUsersPage() {
               Account created for <strong>{createdAccount.email}</strong>.
             </p>
             <p>
-              One-time password &mdash; won&rsquo;t be shown again, share it with them
-              out-of-band:
+              One-time password &mdash; won&rsquo;t be shown again, share it with them out-of-band:
             </p>
             <code className="admin-users__generated-password font-mono">
               {createdAccount.generatedPassword}
@@ -324,8 +323,8 @@ export function AdminUsersPage() {
         title="Deactivate this account?"
       >
         <p>
-          {pendingDeactivation?.name} will be logged out immediately and won&rsquo;t be able to
-          log back in.
+          {pendingDeactivation?.name} will be logged out immediately and won&rsquo;t be able to log
+          back in.
         </p>
         <div className="admin-users__modal-actions">
           <Button type="button" variant="secondary" onClick={() => setPendingDeactivation(null)}>

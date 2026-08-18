@@ -70,12 +70,16 @@ test("fetches the course, then fetches every chapter's lessons in parallel", asy
   mockLessonsForChapters();
   renderDetail();
 
-  expect(await screen.findByRole("heading", { name: "Quantum Machine Learning" })).toBeInTheDocument();
+  expect(
+    await screen.findByRole("heading", { name: "Quantum Machine Learning" })
+  ).toBeInTheDocument();
   expect(courseService.getById).toHaveBeenCalledWith("9");
   expect(lessonService.listForChapter).toHaveBeenCalledWith(100);
   expect(lessonService.listForChapter).toHaveBeenCalledWith(101);
   expect(lessonService.listForChapter).toHaveBeenCalledTimes(2);
-  expect(screen.getByText("QML is a genuinely different computational paradigm.")).toBeInTheDocument();
+  expect(
+    screen.getByText("QML is a genuinely different computational paradigm.")
+  ).toBeInTheDocument();
 });
 
 // Reinvention pass: every chapter starts expanded now (was just the first) -- the syllabus is the
@@ -189,12 +193,8 @@ test("chapter titles are real headings, so screen readers can jump between them"
   renderDetail();
   await screen.findByRole("heading", { name: "Quantum Machine Learning" });
 
-  expect(
-    screen.getByRole("heading", { name: /Why Quantum, Why Now/ })
-  ).toBeInTheDocument();
-  expect(
-    screen.getByRole("heading", { name: /The Quantum Bit, Visually/ })
-  ).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: /Why Quantum, Why Now/ })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: /The Quantum Bit, Visually/ })).toBeInTheDocument();
 });
 
 // Critique fix: with no aria-label, JSX's own whitespace-stripping between the index/title/count
@@ -285,7 +285,9 @@ test("a generic fetch failure shows the error banner with a retry action that re
   mockLessonsForChapters();
   await user.click(screen.getByRole("button", { name: "Try again" }));
 
-  expect(await screen.findByRole("heading", { name: "Quantum Machine Learning" })).toBeInTheDocument();
+  expect(
+    await screen.findByRole("heading", { name: "Quantum Machine Learning" })
+  ).toBeInTheDocument();
 });
 
 // Phase 5.5: this page is now reachable without a session, so it must never assume req.user
@@ -338,7 +340,9 @@ test("while auth state is loading, the skeleton shows instead of either the anon
   courseService.getById.mockResolvedValue(COURSE);
   renderDetail();
 
-  expect(screen.queryByRole("heading", { name: "Quantum Machine Learning" })).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("heading", { name: "Quantum Machine Learning" })
+  ).not.toBeInTheDocument();
   expect(screen.queryByRole("link", { name: "Sign up free" })).not.toBeInTheDocument();
   expect(courseService.getById).not.toHaveBeenCalled();
 });

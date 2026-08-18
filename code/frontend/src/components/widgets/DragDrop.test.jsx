@@ -136,16 +136,11 @@ test("shows incorrect feedback and a Try Again button that restores the starting
 test("shows a verdict on the list itself, not just the shared text feedback below it", async () => {
   const user = userEvent.setup();
   const { container: correctContainer } = render(
-    <DragDrop
-      question={dragDropQuestion}
-      onSubmit={dragDropSubmitScenarios.correctFirstAttempt}
-    />
+    <DragDrop question={dragDropQuestion} onSubmit={dragDropSubmitScenarios.correctFirstAttempt} />
   );
   await user.click(screen.getByRole("button", { name: "Submit" }));
   await waitFor(() =>
-    expect(
-      correctContainer.querySelector(".drag-drop__list-wrapper--correct")
-    ).toBeInTheDocument()
+    expect(correctContainer.querySelector(".drag-drop__list-wrapper--correct")).toBeInTheDocument()
   );
   expect(within(correctContainer).getByText("Correct order")).toBeInTheDocument();
 

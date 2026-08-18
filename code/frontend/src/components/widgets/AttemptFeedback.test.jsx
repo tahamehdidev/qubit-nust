@@ -70,7 +70,10 @@ test("renders the explanation on an incorrect attempt when present", () => {
 
 test("renders no explanation block when the question has none authored (null)", () => {
   const { container } = render(
-    <AttemptFeedback status={ATTEMPT_STATUS.CORRECT} result={{ xpAwarded: true, explanation: null }} />
+    <AttemptFeedback
+      status={ATTEMPT_STATUS.CORRECT}
+      result={{ xpAwarded: true, explanation: null }}
+    />
   );
   expect(container.querySelector(".attempt-feedback__explanation")).not.toBeInTheDocument();
 });

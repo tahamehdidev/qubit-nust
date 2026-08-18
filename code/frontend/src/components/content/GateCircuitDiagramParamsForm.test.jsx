@@ -11,7 +11,9 @@ test("defaults qubit count to 1 and shows no gates message", () => {
 
 test("changing qubit count calls onChange with the updated count", () => {
   const onChange = vi.fn();
-  render(<GateCircuitDiagramParamsForm params={{ qubitCount: 1, gates: [] }} onChange={onChange} />);
+  render(
+    <GateCircuitDiagramParamsForm params={{ qubitCount: 1, gates: [] }} onChange={onChange} />
+  );
 
   fireEvent.change(screen.getByLabelText("Qubit count"), { target: { value: "2" } });
 
@@ -27,7 +29,9 @@ test("renders one qubit-label input per qubit", () => {
 test("adding a gate appends a default H gate on qubit 0", async () => {
   const user = userEvent.setup();
   const onChange = vi.fn();
-  render(<GateCircuitDiagramParamsForm params={{ qubitCount: 1, gates: [] }} onChange={onChange} />);
+  render(
+    <GateCircuitDiagramParamsForm params={{ qubitCount: 1, gates: [] }} onChange={onChange} />
+  );
 
   await user.click(screen.getByRole("button", { name: "Add gate" }));
 
@@ -84,7 +88,13 @@ test("unchecking a gate's qubit removes it from that gate's qubits list", async 
 });
 
 test("disabled prop disables the add-gate button and inputs", () => {
-  render(<GateCircuitDiagramParamsForm params={{ qubitCount: 1, gates: [] }} onChange={vi.fn()} disabled />);
+  render(
+    <GateCircuitDiagramParamsForm
+      params={{ qubitCount: 1, gates: [] }}
+      onChange={vi.fn()}
+      disabled
+    />
+  );
   expect(screen.getByLabelText("Qubit count")).toBeDisabled();
   expect(screen.getByRole("button", { name: "Add gate" })).toBeDisabled();
 });

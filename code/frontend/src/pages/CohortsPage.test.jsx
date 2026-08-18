@@ -55,7 +55,10 @@ test("creating a cohort navigates straight to its detail page", async () => {
   await user.type(screen.getByLabelText("Cohort name"), "New Cohort");
   await user.click(screen.getByRole("button", { name: "Create cohort" }));
 
-  expect(cohortService.create).toHaveBeenCalledWith({ name: "New Cohort", instructorId: undefined });
+  expect(cohortService.create).toHaveBeenCalledWith({
+    name: "New Cohort",
+    instructorId: undefined,
+  });
   expect(await screen.findByText("Cohort detail page")).toBeInTheDocument();
 });
 

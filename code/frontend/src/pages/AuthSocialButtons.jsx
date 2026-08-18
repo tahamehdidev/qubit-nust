@@ -13,13 +13,28 @@ export function AuthSocialButtons() {
         <span>or continue with</span>
       </div>
       <div className="auth-social__row">
-        <button type="button" className="auth-social__button" disabled aria-label="Continue with Google (not yet available)">
+        <button
+          type="button"
+          className="auth-social__button"
+          disabled
+          aria-label="Continue with Google (not yet available)"
+        >
           <GoogleGlyph />
         </button>
-        <button type="button" className="auth-social__button" disabled aria-label="Continue with GitHub (not yet available)">
+        <button
+          type="button"
+          className="auth-social__button"
+          disabled
+          aria-label="Continue with GitHub (not yet available)"
+        >
           <GitHubGlyph />
         </button>
-        <button type="button" className="auth-social__button" disabled aria-label="Continue with Apple (not yet available)">
+        <button
+          type="button"
+          className="auth-social__button"
+          disabled
+          aria-label="Continue with Apple (not yet available)"
+        >
           <Apple size={18} aria-hidden="true" />
         </button>
       </div>

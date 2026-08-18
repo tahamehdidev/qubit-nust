@@ -5,7 +5,8 @@
 // itself is built around (classical data, quantum processing), matching the prose's own "this
 // course's primary focus" callout.
 export const dataProcessingQuadrantParams = {
-  caption: "Two axes -- what kind of data, and what kind of device processes it -- give four combinations.",
+  caption:
+    "Two axes -- what kind of data, and what kind of device processes it -- give four combinations.",
   xAxisLabel: "Processing device",
   yAxisLabel: "Data",
   xAxisValues: ["Classical", "Quantum"],
@@ -18,8 +19,7 @@ export const dataProcessingQuadrantParams = {
     },
     {
       label: "Classical data, quantum processing",
-      description:
-        "Feeding ordinary data into a quantum model -- this course's primary focus.",
+      description: "Feeding ordinary data into a quantum model -- this course's primary focus.",
       highlighted: true,
     },
     {

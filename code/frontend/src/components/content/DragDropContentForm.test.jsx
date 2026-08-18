@@ -58,7 +58,12 @@ test("removing an item resets correctOrder to identity", async () => {
 test("moving a correct-order row calls onChange with the new permutation of item indices", async () => {
   const user = userEvent.setup();
   const onChange = vi.fn();
-  render(<DragDropContentForm content={{ items: ["A", "B", "C"], correctOrder: [0, 1, 2] }} onChange={onChange} />);
+  render(
+    <DragDropContentForm
+      content={{ items: ["A", "B", "C"], correctOrder: [0, 1, 2] }}
+      onChange={onChange}
+    />
+  );
 
   await user.click(screen.getByRole("button", { name: "Move A down" }));
 

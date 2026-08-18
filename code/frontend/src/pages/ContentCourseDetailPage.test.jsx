@@ -90,7 +90,12 @@ test("saving edits calls update and shows a confirmation", async () => {
 
 test("adding a chapter appends it to the list", async () => {
   const user = userEvent.setup();
-  chapterService.create.mockResolvedValue({ id: 3, course_id: 5, title: "New Chapter", order_index: 3 });
+  chapterService.create.mockResolvedValue({
+    id: 3,
+    course_id: 5,
+    title: "New Chapter",
+    order_index: 3,
+  });
   renderPage();
 
   await screen.findByText("Gates and Circuits");
@@ -108,7 +113,8 @@ test("deleting the course probes for cascade counts, shows them in the confirm m
       data: {
         error: {
           code: "VALIDATION_ERROR",
-          message: "Deleting this course will also delete 1 chapter(s), 0 lesson(s), and 0 screen(s). Pass ?confirm=true to proceed.",
+          message:
+            "Deleting this course will also delete 1 chapter(s), 0 lesson(s), and 0 screen(s). Pass ?confirm=true to proceed.",
         },
       },
     },
@@ -135,7 +141,13 @@ test("a failed confirmed delete closes the modal and shows an error, without nav
   const user = userEvent.setup();
   courseService.remove.mockRejectedValueOnce({
     response: {
-      data: { error: { code: "VALIDATION_ERROR", message: "Deleting this course will also delete 0 chapter(s), 0 lesson(s), and 0 screen(s). Pass ?confirm=true to proceed." } },
+      data: {
+        error: {
+          code: "VALIDATION_ERROR",
+          message:
+            "Deleting this course will also delete 0 chapter(s), 0 lesson(s), and 0 screen(s). Pass ?confirm=true to proceed.",
+        },
+      },
     },
   });
   renderPage();

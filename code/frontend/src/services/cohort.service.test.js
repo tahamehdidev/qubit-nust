@@ -110,7 +110,10 @@ test("leave patches /cohorts/:id/students/me with no body and returns the enroll
 });
 
 test("listAll fetches /cohorts with no params and returns the full body", async () => {
-  const body = { cohorts: [{ id: 1, instructor_name: "Ada" }], pagination: { page: 1, limit: 1, total: 1 } };
+  const body = {
+    cohorts: [{ id: 1, instructor_name: "Ada" }],
+    pagination: { page: 1, limit: 1, total: 1 },
+  };
   apiClient.get.mockResolvedValue({ data: body });
   const result = await cohortService.listAll();
   expect(apiClient.get).toHaveBeenCalledWith("/cohorts");

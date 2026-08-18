@@ -135,12 +135,15 @@ test("explanation is null, not undefined, on an attempt for a question with none
   const { screen } = await buildCourseHierarchy(instructorToken);
   const questionId = await attachMcqToScreen(instructorToken, screen.id);
 
-  const res = await request(app).post("/attempts").set("Authorization", `Bearer ${learnerToken}`).send({
-    questionId,
-    contextType: "screen",
-    contextId: screen.id,
-    answer: { selectedOptionIndex: 1 },
-  });
+  const res = await request(app)
+    .post("/attempts")
+    .set("Authorization", `Bearer ${learnerToken}`)
+    .send({
+      questionId,
+      contextType: "screen",
+      contextId: screen.id,
+      answer: { selectedOptionIndex: 1 },
+    });
   assert.equal(res.body.attempt.explanation, null);
 });
 

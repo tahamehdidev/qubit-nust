@@ -110,9 +110,9 @@ function AdminDashboard() {
             <p className="dashboard__empty-cta-title">Cohort reporting is scoped to instructors</p>
             <p className="dashboard__empty-cta-subtitle">
               Completion and pacing data belongs to whichever instructor owns each cohort, not the
-              admin account &mdash; this isn&rsquo;t a sign anything is broken. Course, chapter,
-              and lesson management happens directly through the API for now; there&rsquo;s no
-              dedicated admin content UI yet.
+              admin account &mdash; this isn&rsquo;t a sign anything is broken. Course, chapter, and
+              lesson management happens directly through the API for now; there&rsquo;s no dedicated
+              admin content UI yet.
             </p>
           </div>
         </div>
@@ -220,7 +220,9 @@ function LearnerDashboard() {
         <div className="dashboard__hero-pattern" aria-hidden="true" />
         <div className="dashboard__hero-content">
           <h1>Dashboard</h1>
-          <p className="dashboard__hero-subtitle">Your progress across every course you&rsquo;ve started.</p>
+          <p className="dashboard__hero-subtitle">
+            Your progress across every course you&rsquo;ve started.
+          </p>
           {entries.length > 0 ? (
             <div className="dashboard__hero-stats">
               <span className="dashboard__hero-stat">
@@ -276,7 +278,9 @@ function LearnerDashboard() {
           <div className="dashboard__empty-cta-text">
             <BookOpen size={20} aria-hidden="true" className="dashboard__empty-cta-icon" />
             <div>
-              <p className="dashboard__empty-cta-title">You haven&rsquo;t started any courses yet</p>
+              <p className="dashboard__empty-cta-title">
+                You haven&rsquo;t started any courses yet
+              </p>
               <p className="dashboard__empty-cta-subtitle">
                 Browse the catalog and pick one to start earning XP.
               </p>
@@ -501,29 +505,33 @@ function InstructorDashboard() {
             {completion.map((course) => {
               const CourseIcon = getCourseIcon(course.courseTitle);
               return (
-              <li key={course.courseId}>
-                <Card className="dashboard__row dashboard__row--plain">
-                  <h3>
-                    <CourseIcon size={18} aria-hidden="true" className="dashboard__row-title-icon" />
-                    {course.courseTitle}
-                  </h3>
-                  {/* The bar reads "engagement" (started + completed), not "% complete" -- a
+                <li key={course.courseId}>
+                  <Card className="dashboard__row dashboard__row--plain">
+                    <h3>
+                      <CourseIcon
+                        size={18}
+                        aria-hidden="true"
+                        className="dashboard__row-title-icon"
+                      />
+                      {course.courseTitle}
+                    </h3>
+                    {/* The bar reads "engagement" (started + completed), not "% complete" -- a
                       full bar can happen the moment every enrolled student has merely started,
                       which would otherwise misread as "done" in a section titled Completion.
                       The aria-label already said this for screen readers; this caption gives
                       sighted users scanning bars quickly the same signal (critique finding). */}
-                  <p className="dashboard__bar-caption">Engagement (started or completed)</p>
-                  <ProgressBar
-                    value={course.completed + course.inProgress}
-                    max={course.totalStudents}
-                    label={`${course.courseTitle} engagement`}
-                  />
-                  <p className="dashboard__stats">
-                    {course.inProgress} in progress · {course.notStarted} not started ·{" "}
-                    {course.completed} completed · {course.averageXp} avg XP
-                  </p>
-                </Card>
-              </li>
+                    <p className="dashboard__bar-caption">Engagement (started or completed)</p>
+                    <ProgressBar
+                      value={course.completed + course.inProgress}
+                      max={course.totalStudents}
+                      label={`${course.courseTitle} engagement`}
+                    />
+                    <p className="dashboard__stats">
+                      {course.inProgress} in progress · {course.notStarted} not started ·{" "}
+                      {course.completed} completed · {course.averageXp} avg XP
+                    </p>
+                  </Card>
+                </li>
               );
             })}
           </ul>

@@ -146,7 +146,10 @@ export function CourseDetailPage() {
 
   const CourseIcon = course ? getCourseIcon(course.title) : null;
   const totalLessons = course
-    ? course.chapters.reduce((sum, chapter) => sum + (lessonsByChapterId[chapter.id]?.length ?? 0), 0)
+    ? course.chapters.reduce(
+        (sum, chapter) => sum + (lessonsByChapterId[chapter.id]?.length ?? 0),
+        0
+      )
     : 0;
 
   return (
@@ -268,14 +271,8 @@ function ChapterAccordionItem({ chapter, index, lessons, isExpanded, onToggle, i
           aria-controls={lessonListId}
           aria-label={`Chapter ${index + 1}: ${chapter.title}, ${lessons.length} ${lessons.length === 1 ? "lesson" : "lessons"}`}
         >
-          <ChevronRight
-            size={18}
-            aria-hidden="true"
-            className="course-detail__chapter-chevron"
-          />
-          <span className="course-detail__chapter-index">
-            {String(index + 1).padStart(2, "0")}
-          </span>
+          <ChevronRight size={18} aria-hidden="true" className="course-detail__chapter-chevron" />
+          <span className="course-detail__chapter-index">{String(index + 1).padStart(2, "0")}</span>
           <span className="course-detail__chapter-title">{chapter.title}</span>
           <span className="course-detail__chapter-count">
             {lessons.length} {lessons.length === 1 ? "lesson" : "lessons"}

@@ -192,10 +192,7 @@ export function ContentChapterDetailPage() {
 
   return (
     <main className="content-chapter-detail">
-      <Link
-        to={`/admin/content/courses/${course.id}`}
-        className="content-chapter-detail__back"
-      >
+      <Link to={`/admin/content/courses/${course.id}`} className="content-chapter-detail__back">
         <ArrowLeft size={16} aria-hidden="true" />
         {course.title}
       </Link>

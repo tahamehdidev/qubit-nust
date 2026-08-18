@@ -28,7 +28,9 @@ test("adding a qubit assigns the next unused id", async () => {
 });
 
 test("the edge add button is disabled with fewer than two qubits", () => {
-  render(<TopologyDiagramParamsForm params={{ qubits: [QUBITS[0]], edges: [] }} onChange={vi.fn()} />);
+  render(
+    <TopologyDiagramParamsForm params={{ qubits: [QUBITS[0]], edges: [] }} onChange={vi.fn()} />
+  );
   expect(screen.getByRole("button", { name: "Add edge" })).toBeDisabled();
 });
 
@@ -43,7 +45,9 @@ test("adding an edge defaults to connecting the first two qubits", async () => {
 });
 
 test("edge selects list each qubit by label", () => {
-  render(<TopologyDiagramParamsForm params={{ qubits: QUBITS, edges: [[0, 1]] }} onChange={vi.fn()} />);
+  render(
+    <TopologyDiagramParamsForm params={{ qubits: QUBITS, edges: [[0, 1]] }} onChange={vi.fn()} />
+  );
   expect(screen.getByLabelText("From qubit")).toHaveValue("0");
   expect(screen.getByLabelText("To qubit")).toHaveValue("1");
 });
@@ -52,7 +56,9 @@ test("removing a qubit does not renumber the remaining qubits' ids", async () =>
   const user = userEvent.setup();
   const onChange = vi.fn();
   const threeQubits = [...QUBITS, { id: 2, x: 0, y: 1, label: "Q2" }];
-  render(<TopologyDiagramParamsForm params={{ qubits: threeQubits, edges: [] }} onChange={onChange} />);
+  render(
+    <TopologyDiagramParamsForm params={{ qubits: threeQubits, edges: [] }} onChange={onChange} />
+  );
 
   await user.click(screen.getByRole("button", { name: "Remove row 1" }));
 

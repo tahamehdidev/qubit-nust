@@ -34,7 +34,9 @@ const LESSONS = [
 
 function renderPage(initialState = { courseId: 5, courseTitle: "Quantum Algorithms" }) {
   return render(
-    <MemoryRouter initialEntries={[{ pathname: "/admin/content/chapters/10", state: initialState }]}>
+    <MemoryRouter
+      initialEntries={[{ pathname: "/admin/content/chapters/10", state: initialState }]}
+    >
       <Routes>
         <Route path="/admin/content/chapters/:chapterId" element={<ContentChapterDetailPage />} />
         <Route path="/admin/content" element={<div>Courses list page</div>} />
@@ -85,7 +87,12 @@ test("a non-owner instructor sees a read-only note and no write affordances", as
 
 test("saving a rename calls update and shows a confirmation", async () => {
   const user = userEvent.setup();
-  chapterService.update.mockResolvedValue({ id: 10, course_id: 5, title: "Renamed", order_index: 1 });
+  chapterService.update.mockResolvedValue({
+    id: 10,
+    course_id: 5,
+    title: "Renamed",
+    order_index: 1,
+  });
   renderPage();
 
   const titleInput = await screen.findByLabelText("Title");
@@ -99,7 +106,12 @@ test("saving a rename calls update and shows a confirmation", async () => {
 
 test("adding a lesson appends it to the list", async () => {
   const user = userEvent.setup();
-  lessonService.create.mockResolvedValue({ id: 102, chapter_id: 10, title: "New Lesson", order_index: 3 });
+  lessonService.create.mockResolvedValue({
+    id: 102,
+    chapter_id: 10,
+    title: "New Lesson",
+    order_index: 3,
+  });
   renderPage();
 
   await screen.findByText("Intro to Gates");
@@ -141,7 +153,8 @@ test("deleting the chapter probes for cascade counts, then deletes and navigates
       data: {
         error: {
           code: "VALIDATION_ERROR",
-          message: "Deleting this chapter will also delete 3 lesson(s) and 9 screen(s). Pass ?confirm=true to proceed.",
+          message:
+            "Deleting this chapter will also delete 3 lesson(s) and 9 screen(s). Pass ?confirm=true to proceed.",
         },
       },
     },

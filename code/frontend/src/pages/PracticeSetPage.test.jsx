@@ -22,7 +22,9 @@ const PRACTICE_SET = {
       id: 3005,
       type: "mcq",
       prompt: "Name the four major physical qubit platforms covered in this lesson.",
-      content: { options: ["superconducting circuits.", "Distractor A", "Distractor B", "Distractor C"] },
+      content: {
+        options: ["superconducting circuits.", "Distractor A", "Distractor B", "Distractor C"],
+      },
     },
     {
       id: 3006,
@@ -52,7 +54,9 @@ test("fetches the practice set and shows the first question", async () => {
   renderPracticeSet();
 
   expect(
-    await screen.findByRole("heading", { name: "Practice: Why Superconducting Circuits Won the Scale Race" })
+    await screen.findByRole("heading", {
+      name: "Practice: Why Superconducting Circuits Won the Scale Race",
+    })
   ).toBeInTheDocument();
   expect(practiceSetService.getById).toHaveBeenCalledWith("300");
   expect(screen.getByText("Question 1 of 2")).toBeInTheDocument();
@@ -220,7 +224,9 @@ test("the completion breakdown marks only the retried question, not the clean on
   const cleanRow = complete
     .getByText("Which platform is known for very long coherence times?")
     .closest("li");
-  expect(cleanRow.querySelector(".practice-set__complete-row-icon--retried")).not.toBeInTheDocument();
+  expect(
+    cleanRow.querySelector(".practice-set__complete-row-icon--retried")
+  ).not.toBeInTheDocument();
 });
 
 test("a nonexistent practice set shows a 'not found' message with a real link back, no retry button", async () => {
@@ -233,20 +239,14 @@ test("a nonexistent practice set shows a 'not found' message with a real link ba
   expect(screen.queryByRole("button", { name: "Try again" })).not.toBeInTheDocument();
   // Nav-flow audit: was a navigate(-1) button (fragile on a direct/shared/refreshed URL with no
   // useful history) -- no practiceSet data ever loaded here, so /courses is the safest destination.
-  expect(screen.getByRole("link", { name: "Back to courses" })).toHaveAttribute(
-    "href",
-    "/courses"
-  );
+  expect(screen.getByRole("link", { name: "Back to courses" })).toHaveAttribute("href", "/courses");
 });
 
 test("Exit practice is a real link to the practice set's own lesson, not history-based", async () => {
   renderPracticeSet();
   await screen.findByText("Question 1 of 2");
 
-  expect(screen.getByRole("link", { name: /Exit practice/ })).toHaveAttribute(
-    "href",
-    "/lessons/7"
-  );
+  expect(screen.getByRole("link", { name: /Exit practice/ })).toHaveAttribute("href", "/lessons/7");
 });
 
 test("a generic fetch failure shows the error banner with a retry action that re-fetches", async () => {
@@ -261,6 +261,8 @@ test("a generic fetch failure shows the error banner with a retry action that re
   await user.click(screen.getByRole("button", { name: "Try again" }));
 
   expect(
-    await screen.findByRole("heading", { name: "Practice: Why Superconducting Circuits Won the Scale Race" })
+    await screen.findByRole("heading", {
+      name: "Practice: Why Superconducting Circuits Won the Scale Race",
+    })
   ).toBeInTheDocument();
 });

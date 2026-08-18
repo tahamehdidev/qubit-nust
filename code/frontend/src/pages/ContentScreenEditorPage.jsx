@@ -175,10 +175,7 @@ export function ContentScreenEditorPage() {
 
   return (
     <main className="content-screen-editor">
-      <Link
-        to={`/admin/content/lessons/${lessonId}`}
-        className="content-screen-editor__back"
-      >
+      <Link to={`/admin/content/lessons/${lessonId}`} className="content-screen-editor__back">
         <ArrowLeft size={16} aria-hidden="true" />
         {lesson.title}
       </Link>
@@ -225,10 +222,7 @@ export function ContentScreenEditorPage() {
       </Card>
 
       {!isNew && isOwner ? (
-        <Card
-          as="section"
-          className="content-screen-editor__section content-screen-editor__danger"
-        >
+        <Card as="section" className="content-screen-editor__section content-screen-editor__danger">
           <h2>Danger zone</h2>
           {deleteError ? (
             <p className="content-screen-editor__banner" role="alert">
@@ -238,22 +232,14 @@ export function ContentScreenEditorPage() {
           <p className="content-screen-editor__danger-copy">
             This removes the screen from the lesson. This can&rsquo;t be undone.
           </p>
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={() => setIsModalOpen(true)}
-          >
+          <Button type="button" variant="destructive" onClick={() => setIsModalOpen(true)}>
             <Trash2 size={16} aria-hidden="true" />
             Delete screen
           </Button>
         </Card>
       ) : null}
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Delete this screen?"
-      >
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Delete this screen?">
         <p>This screen will be permanently removed from the lesson.</p>
         <div className="content-screen-editor__modal-actions">
           <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>

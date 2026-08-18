@@ -147,7 +147,13 @@ test("a question screen in create mode shows a save-first note, not the picker",
 
 test("attaching a question in edit mode calls screenService.attachQuestion and shows the attached prompt", async () => {
   const user = userEvent.setup();
-  const questionScreen = { ...EXPLANATION_SCREEN, id: 1001, type: "question", content: {}, questions: [] };
+  const questionScreen = {
+    ...EXPLANATION_SCREEN,
+    id: 1001,
+    type: "question",
+    content: {},
+    questions: [],
+  };
   screenService.listForLesson.mockResolvedValue({ screens: [questionScreen] });
   questionService.list.mockResolvedValue({
     questions: [{ id: 7, prompt: "What is 2+2?", type: "mcq" }],

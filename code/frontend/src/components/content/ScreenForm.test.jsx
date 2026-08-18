@@ -8,7 +8,11 @@ vi.mock("../../services/screen.service.js", () => ({
   screenService: { attachQuestion: vi.fn(), detachQuestion: vi.fn() },
 }));
 vi.mock("../../services/question.service.js", () => ({
-  questionService: { list: vi.fn().mockResolvedValue({ questions: [], pagination: { page: 1, limit: 10, total: 0 } }) },
+  questionService: {
+    list: vi
+      .fn()
+      .mockResolvedValue({ questions: [], pagination: { page: 1, limit: 10, total: 0 } }),
+  },
 }));
 
 test("renders the explanation sub-form when type is explanation", () => {

@@ -26,7 +26,12 @@ test("shows no basis states message when amplitudes is empty", () => {
 test("adding a basis state appends a zero-amplitude row to both arrays", async () => {
   const user = userEvent.setup();
   const onChange = vi.fn();
-  render(<AmplitudeBarChartParamsForm params={{ amplitudes: [0.5], labels: ["0"] }} onChange={onChange} />);
+  render(
+    <AmplitudeBarChartParamsForm
+      params={{ amplitudes: [0.5], labels: ["0"] }}
+      onChange={onChange}
+    />
+  );
 
   await user.click(screen.getByRole("button", { name: "Add basis state" }));
 
@@ -35,7 +40,12 @@ test("adding a basis state appends a zero-amplitude row to both arrays", async (
 
 test("editing an amplitude keeps both arrays in sync", () => {
   const onChange = vi.fn();
-  render(<AmplitudeBarChartParamsForm params={{ amplitudes: [0.5], labels: ["0"] }} onChange={onChange} />);
+  render(
+    <AmplitudeBarChartParamsForm
+      params={{ amplitudes: [0.5], labels: ["0"] }}
+      onChange={onChange}
+    />
+  );
 
   fireEvent.change(screen.getByLabelText("Amplitude"), { target: { value: "0.9" } });
 

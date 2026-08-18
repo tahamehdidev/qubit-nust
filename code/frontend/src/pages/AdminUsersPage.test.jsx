@@ -33,7 +33,13 @@ beforeEach(() => {
 test("an admin sees the account list", async () => {
   adminService.listUsers.mockResolvedValue({
     users: [
-      { id: "u1", name: "Ada Lovelace", email: "ada@example.com", role: "learner", deactivatedAt: null },
+      {
+        id: "u1",
+        name: "Ada Lovelace",
+        email: "ada@example.com",
+        role: "learner",
+        deactivatedAt: null,
+      },
       {
         id: "u2",
         name: "Grace Hopper",
@@ -88,7 +94,13 @@ test("clicking the role toggle promotes a learner to instructor without a confir
   const user = userEvent.setup();
   adminService.listUsers.mockResolvedValue({
     users: [
-      { id: "u1", name: "Ada Lovelace", email: "ada@example.com", role: "learner", deactivatedAt: null },
+      {
+        id: "u1",
+        name: "Ada Lovelace",
+        email: "ada@example.com",
+        role: "learner",
+        deactivatedAt: null,
+      },
     ],
     pagination: { page: 1, limit: 20, total: 1 },
   });
@@ -112,7 +124,13 @@ test("clicking the role toggle promotes a learner to instructor without a confir
 test("an admin row has no role-change control", async () => {
   adminService.listUsers.mockResolvedValue({
     users: [
-      { id: "a1", name: "Root Admin", email: "root@example.com", role: "admin", deactivatedAt: null },
+      {
+        id: "a1",
+        name: "Root Admin",
+        email: "root@example.com",
+        role: "admin",
+        deactivatedAt: null,
+      },
     ],
     pagination: { page: 1, limit: 20, total: 1 },
   });
@@ -127,7 +145,13 @@ test("a failed role change shows an error banner without changing the row", asyn
   const user = userEvent.setup();
   adminService.listUsers.mockResolvedValue({
     users: [
-      { id: "u1", name: "Ada Lovelace", email: "ada@example.com", role: "learner", deactivatedAt: null },
+      {
+        id: "u1",
+        name: "Ada Lovelace",
+        email: "ada@example.com",
+        role: "learner",
+        deactivatedAt: null,
+      },
     ],
     pagination: { page: 1, limit: 20, total: 1 },
   });
@@ -214,7 +238,13 @@ test("deactivating a user requires confirmation, then updates that row", async (
   const user = userEvent.setup();
   adminService.listUsers.mockResolvedValue({
     users: [
-      { id: "u1", name: "Ada Lovelace", email: "ada@example.com", role: "learner", deactivatedAt: null },
+      {
+        id: "u1",
+        name: "Ada Lovelace",
+        email: "ada@example.com",
+        role: "learner",
+        deactivatedAt: null,
+      },
     ],
     pagination: { page: 1, limit: 20, total: 1 },
   });

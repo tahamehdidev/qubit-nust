@@ -110,16 +110,19 @@ test("non-instructor: renders no Cohorts nav link", () => {
 });
 
 // Phase 9: content authoring, open to both instructor and admin.
-test.each(["instructor", "admin"])("%s: renders a Content nav link pointing at /admin/content", (role) => {
-  useAuth.mockReturnValue({
-    user: { id: "u1", role },
-    logout: vi.fn(),
-    isAuthenticated: true,
-    isLoading: false,
-  });
-  renderAt("/courses");
-  expect(screen.getByRole("link", { name: "Content" })).toHaveAttribute("href", "/admin/content");
-});
+test.each(["instructor", "admin"])(
+  "%s: renders a Content nav link pointing at /admin/content",
+  (role) => {
+    useAuth.mockReturnValue({
+      user: { id: "u1", role },
+      logout: vi.fn(),
+      isAuthenticated: true,
+      isLoading: false,
+    });
+    renderAt("/courses");
+    expect(screen.getByRole("link", { name: "Content" })).toHaveAttribute("href", "/admin/content");
+  }
+);
 
 test("learner: renders no Content nav link", () => {
   useAuth.mockReturnValue({

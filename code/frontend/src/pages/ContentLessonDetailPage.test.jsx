@@ -40,7 +40,14 @@ const LESSON = {
   next_lesson_id: null,
 };
 const SCREENS = [
-  { id: 1000, lesson_id: 100, type: "explanation", content: { text: "Hello world" }, order_index: 1, questions: [] },
+  {
+    id: 1000,
+    lesson_id: 100,
+    type: "explanation",
+    content: { text: "Hello world" },
+    order_index: 1,
+    questions: [],
+  },
   {
     id: 1001,
     lesson_id: 100,
@@ -199,7 +206,8 @@ test("deleting the lesson probes for cascade counts, then deletes and navigates 
       data: {
         error: {
           code: "VALIDATION_ERROR",
-          message: "Deleting this lesson will also delete 2 screen(s). Pass ?confirm=true to proceed.",
+          message:
+            "Deleting this lesson will also delete 2 screen(s). Pass ?confirm=true to proceed.",
         },
       },
     },

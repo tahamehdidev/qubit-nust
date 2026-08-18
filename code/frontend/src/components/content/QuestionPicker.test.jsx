@@ -39,7 +39,10 @@ test("loads and renders results with a type badge and truncated prompt", async (
 });
 
 test("shows a no-results message for an empty result set", async () => {
-  questionService.list.mockResolvedValue({ questions: [], pagination: { page: 1, limit: 10, total: 0 } });
+  questionService.list.mockResolvedValue({
+    questions: [],
+    pagination: { page: 1, limit: 10, total: 0 },
+  });
   renderPicker();
 
   expect(await screen.findByText("No questions found.")).toBeInTheDocument();

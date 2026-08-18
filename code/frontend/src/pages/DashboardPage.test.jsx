@@ -75,10 +75,16 @@ test("a learner sees a cross-course progress summary, not the course catalog's b
   // with no separation, e.g. "Quantum Computing Hardware120 XP3-day streak"), matching Course
   // Catalog's own "title -- status" pattern.
   expect(
-    screen.getByRole("link", { name: "Quantum Computing Hardware — In progress, 120 XP, 3-day streak" })
+    screen.getByRole("link", {
+      name: "Quantum Computing Hardware — In progress, 120 XP, 3-day streak",
+    })
   ).toHaveAttribute("href", "/courses/8");
-  expect(within(screen.getByText("Quantum Computing Hardware").closest("li")).getByText("120 XP")).toBeInTheDocument();
-  expect(within(screen.getByText("Quantum Algorithms").closest("li")).getByText("40 XP")).toBeInTheDocument();
+  expect(
+    within(screen.getByText("Quantum Computing Hardware").closest("li")).getByText("120 XP")
+  ).toBeInTheDocument();
+  expect(
+    within(screen.getByText("Quantum Algorithms").closest("li")).getByText("40 XP")
+  ).toBeInTheDocument();
   // Only courses with a real Progress row appear -- QML (id 9, no progress) is absent.
   expect(screen.queryByText("Quantum Machine Learning")).not.toBeInTheDocument();
   expect(progressService.listForUser).toHaveBeenCalledWith({ userId: "me" });
@@ -215,9 +221,9 @@ test("an instructor with zero cohorts sees an empty state pointing at self-serve
   // treatment as every other loaded state, not the bare heading-plus-paragraph this used to be.
   expect(container.querySelector(".dashboard__hero")).toBeInTheDocument();
   expect(
-    container.querySelector(".dashboard__empty-cta-text")?.contains(
-      container.querySelector(".dashboard__empty-cta-icon")
-    )
+    container
+      .querySelector(".dashboard__empty-cta-text")
+      ?.contains(container.querySelector(".dashboard__empty-cta-icon"))
   ).toBe(true);
 });
 
@@ -260,7 +266,9 @@ test("an instructor with exactly one cohort skips the picker and loads its compl
   // breakdown, instead of diving straight into card 1 of N (critique finding).
   expect(screen.getByText("24 students enrolled")).toBeInTheDocument();
   expect(screen.getByText("1 course")).toBeInTheDocument();
-  expect(screen.getByText("13 in progress · 11 not started · 0 completed · 340 avg XP")).toBeInTheDocument();
+  expect(
+    screen.getByText("13 in progress · 11 not started · 0 completed · 340 avg XP")
+  ).toBeInTheDocument();
   // A full bar here means "everyone started," not "everyone finished" -- this visible caption
   // (not just the ProgressBar's aria-label) is what tells a sighted user that.
   expect(screen.getByText("Engagement (started or completed)")).toBeInTheDocument();

@@ -84,7 +84,13 @@ export function QuestionEditPage() {
     setSaveSuccess(false);
     setIsSaving(true);
     try {
-      const payload = { prompt, type, content, hint: hint || undefined, explanation: explanation || undefined };
+      const payload = {
+        prompt,
+        type,
+        content,
+        hint: hint || undefined,
+        explanation: explanation || undefined,
+      };
       if (isNew) {
         const question = await questionService.create(payload);
         navigate(`/admin/content/questions/${question.id}`);
@@ -190,8 +196,8 @@ export function QuestionEditPage() {
             </p>
           ) : null}
           <p className="question-edit__danger-copy">
-            This will remove the question from every screen and practice set that currently uses
-            it. This can&rsquo;t be undone.
+            This will remove the question from every screen and practice set that currently uses it.
+            This can&rsquo;t be undone.
           </p>
           <Button type="button" variant="destructive" onClick={() => setIsModalOpen(true)}>
             <Trash2 size={16} aria-hidden="true" />
@@ -206,8 +212,8 @@ export function QuestionEditPage() {
         title="Delete this question?"
       >
         <p>
-          This will remove the question from every screen and practice set that currently uses
-          it. This can&rsquo;t be undone.
+          This will remove the question from every screen and practice set that currently uses it.
+          This can&rsquo;t be undone.
         </p>
         <div className="question-edit__modal-actions">
           <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>

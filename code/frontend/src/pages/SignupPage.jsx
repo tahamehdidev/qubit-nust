@@ -129,8 +129,7 @@ export function SignupPage() {
             </Button>
           </form>
           <p className="auth-page__consent">
-            By creating an account, you agree to our{" "}
-            <Link to="/terms">Terms of Service</Link> and{" "}
+            By creating an account, you agree to our <Link to="/terms">Terms of Service</Link> and{" "}
             <Link to="/privacy">Privacy Policy</Link>.
           </p>
           <AuthSocialButtons />

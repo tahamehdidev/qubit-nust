@@ -224,9 +224,10 @@ test("a course card links to its own course detail page once the real ID resolve
   });
   renderLandingPage();
 
-  expect(
-    await screen.findByRole("link", { name: /Quantum Machine Learning/ })
-  ).toHaveAttribute("href", "/courses/9");
+  expect(await screen.findByRole("link", { name: /Quantum Machine Learning/ })).toHaveAttribute(
+    "href",
+    "/courses/9"
+  );
   expect(screen.getByRole("link", { name: /Quantum Algorithms/ })).toHaveAttribute(
     "href",
     "/courses/10"

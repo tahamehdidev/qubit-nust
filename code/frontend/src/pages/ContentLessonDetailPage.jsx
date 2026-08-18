@@ -366,10 +366,7 @@ export function ContentLessonDetailPage() {
       </Card>
 
       {isOwner ? (
-        <Card
-          as="section"
-          className="content-lesson-detail__section content-lesson-detail__danger"
-        >
+        <Card as="section" className="content-lesson-detail__section content-lesson-detail__danger">
           <h2>Danger zone</h2>
           {deleteError ? (
             <p className="content-lesson-detail__banner" role="alert">

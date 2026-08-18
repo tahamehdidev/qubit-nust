@@ -118,10 +118,7 @@ export function QuestionBankPage() {
         <ul className="question-bank__list">
           {result.questions.map((question) => (
             <li key={question.id}>
-              <Link
-                to={`/admin/content/questions/${question.id}`}
-                className="question-bank__item"
-              >
+              <Link to={`/admin/content/questions/${question.id}`} className="question-bank__item">
                 <span className="question-bank__type-badge">{question.type}</span>
                 <span className="question-bank__prompt">{question.prompt}</span>
                 {question.createdById === user.id ? (

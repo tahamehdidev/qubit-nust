@@ -24,7 +24,15 @@ vi.mock("../components/widgets/BlochSphereScene.jsx", () => ({
 }));
 
 test("renders the live 3D scene, draggable, and passes theta/phi through when webglAvailable is true", () => {
-  render(<LandingHeroVisual webglAvailable theta={0.5} phi={1.2} onDrag={() => {}} onDragEnd={() => {}} />);
+  render(
+    <LandingHeroVisual
+      webglAvailable
+      theta={0.5}
+      phi={1.2}
+      onDrag={() => {}}
+      onDragEnd={() => {}}
+    />
+  );
 
   const scene = screen.getByTestId("hero-scene");
   expect(scene).toBeInTheDocument();
@@ -34,7 +42,15 @@ test("renders the live 3D scene, draggable, and passes theta/phi through when we
 });
 
 test("renders the pole labels", () => {
-  render(<LandingHeroVisual webglAvailable theta={0.5} phi={1.2} onDrag={() => {}} onDragEnd={() => {}} />);
+  render(
+    <LandingHeroVisual
+      webglAvailable
+      theta={0.5}
+      phi={1.2}
+      onDrag={() => {}}
+      onDragEnd={() => {}}
+    />
+  );
 
   expect(screen.getByText("|0⟩")).toBeInTheDocument();
   expect(screen.getByText("|1⟩")).toBeInTheDocument();
@@ -43,7 +59,9 @@ test("renders the pole labels", () => {
 test("calls onDrag and onDragEnd when the scene reports a drag", () => {
   const onDrag = vi.fn();
   const onDragEnd = vi.fn();
-  render(<LandingHeroVisual webglAvailable theta={0.5} phi={1.2} onDrag={onDrag} onDragEnd={onDragEnd} />);
+  render(
+    <LandingHeroVisual webglAvailable theta={0.5} phi={1.2} onDrag={onDrag} onDragEnd={onDragEnd} />
+  );
 
   fireEvent.click(screen.getByTestId("hero-scene"));
 
@@ -73,7 +91,13 @@ test("the scene is a focusable, labelled control that forwards key presses (crit
 
 test("falls back to the static SVG illustration when webglAvailable is false, without touching the scene", () => {
   const { container } = render(
-    <LandingHeroVisual webglAvailable={false} theta={0.5} phi={1.2} onDrag={() => {}} onDragEnd={() => {}} />
+    <LandingHeroVisual
+      webglAvailable={false}
+      theta={0.5}
+      phi={1.2}
+      onDrag={() => {}}
+      onDragEnd={() => {}}
+    />
   );
 
   expect(screen.queryByTestId("hero-scene")).not.toBeInTheDocument();

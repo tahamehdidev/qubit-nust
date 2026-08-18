@@ -43,7 +43,13 @@ test("renders a persistent hint, wired via aria-describedby, when there's no err
 });
 
 test("an error replaces the hint rather than showing both at once", () => {
-  render(<Input label="Password" hint="At least 8 characters" error="Password must be at least 8 characters." />);
+  render(
+    <Input
+      label="Password"
+      hint="At least 8 characters"
+      error="Password must be at least 8 characters."
+    />
+  );
 
   expect(screen.getByRole("alert")).toHaveTextContent("Password must be at least 8 characters.");
   expect(screen.queryByText("At least 8 characters")).not.toBeInTheDocument();

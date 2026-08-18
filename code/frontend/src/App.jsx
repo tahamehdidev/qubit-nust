@@ -82,9 +82,18 @@ export function App() {
                 ownership everywhere), so this is the one authoring surface open to both. */}
             <Route element={<RoleGate allow={["instructor", "admin"]} />}>
               <Route path="/admin/content" element={<ContentCoursesPage />} />
-              <Route path="/admin/content/courses/:courseId" element={<ContentCourseDetailPage />} />
-              <Route path="/admin/content/chapters/:chapterId" element={<ContentChapterDetailPage />} />
-              <Route path="/admin/content/lessons/:lessonId" element={<ContentLessonDetailPage />} />
+              <Route
+                path="/admin/content/courses/:courseId"
+                element={<ContentCourseDetailPage />}
+              />
+              <Route
+                path="/admin/content/chapters/:chapterId"
+                element={<ContentChapterDetailPage />}
+              />
+              <Route
+                path="/admin/content/lessons/:lessonId"
+                element={<ContentLessonDetailPage />}
+              />
               <Route
                 path="/admin/content/lessons/:lessonId/screens/:screenId"
                 element={<ContentScreenEditorPage />}

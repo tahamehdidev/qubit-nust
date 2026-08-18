@@ -57,9 +57,30 @@ const MCQ_QUESTION = {
 };
 
 const SCREENS = [
-  { id: 900, lesson_id: 7, type: "explanation", content: { text: "A qubit has two states." }, order_index: 1, questions: [] },
-  { id: 901, lesson_id: 7, type: "question", content: {}, order_index: 2, questions: [MCQ_QUESTION] },
-  { id: 902, lesson_id: 7, type: "explanation", content: { text: "That's the basics." }, order_index: 3, questions: [] },
+  {
+    id: 900,
+    lesson_id: 7,
+    type: "explanation",
+    content: { text: "A qubit has two states." },
+    order_index: 1,
+    questions: [],
+  },
+  {
+    id: 901,
+    lesson_id: 7,
+    type: "question",
+    content: {},
+    order_index: 2,
+    questions: [MCQ_QUESTION],
+  },
+  {
+    id: 902,
+    lesson_id: 7,
+    type: "explanation",
+    content: { text: "That's the basics." },
+    order_index: 3,
+    questions: [],
+  },
 ];
 
 function renderPlayer(lessonId = "7") {
@@ -261,10 +282,7 @@ test("a nonexistent lesson shows a 'not found' message with a real link back, no
   expect(screen.queryByRole("button", { name: "Try again" })).not.toBeInTheDocument();
   // Nav-flow audit: was a navigate(-1) button (fragile on a direct/shared/refreshed URL with no
   // useful history) -- no lesson data ever loaded here, so /courses is the safest destination.
-  expect(screen.getByRole("link", { name: "Back to courses" })).toHaveAttribute(
-    "href",
-    "/courses"
-  );
+  expect(screen.getByRole("link", { name: "Back to courses" })).toHaveAttribute("href", "/courses");
 });
 
 test("Exit lesson is a real link to the lesson's own course, not history-based", async () => {
@@ -287,10 +305,7 @@ test("a lesson with a next lesson in sequence shows a 'Next lesson' link once co
   await user.click(screen.getByRole("button", { name: "Next" }));
   await user.click(screen.getByRole("button", { name: "Finish lesson" }));
 
-  expect(screen.getByRole("link", { name: "Next lesson" })).toHaveAttribute(
-    "href",
-    "/lessons/8"
-  );
+  expect(screen.getByRole("link", { name: "Next lesson" })).toHaveAttribute("href", "/lessons/8");
 });
 
 test("shows real chapter/course orientation once the secondary context fetch resolves", async () => {

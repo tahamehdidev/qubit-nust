@@ -33,7 +33,8 @@ export function LoginPage() {
     setIsSubmitting(true);
     try {
       const loggedInUser = await login({ email, password });
-      const redirectTo = redirectFrom ?? (loggedInUser.role === "learner" ? "/dashboard" : "/courses");
+      const redirectTo =
+        redirectFrom ?? (loggedInUser.role === "learner" ? "/dashboard" : "/courses");
       navigate(redirectTo, { replace: true });
     } catch (err) {
       // Wrong password and a nonexistent email both arrive here as the same INVALID_CREDENTIALS
@@ -63,8 +64,8 @@ export function LoginPage() {
           ) : null}
           {justChangedPassword ? (
             <p className="auth-page__banner auth-page__banner--success">
-              Password changed. You&rsquo;ve been logged out everywhere &mdash; log in with your
-              new password.
+              Password changed. You&rsquo;ve been logged out everywhere &mdash; log in with your new
+              password.
             </p>
           ) : null}
           {error ? (

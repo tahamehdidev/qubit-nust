@@ -79,7 +79,10 @@ test("selecting custom amplitudes reveals real/imaginary part inputs", async () 
 
 test("a tuple startState renders the custom amplitude inputs with their values", () => {
   render(
-    <BlochSphereParamsForm params={{ mode: "free_placement", startState: [0.5, -0.5] }} onChange={vi.fn()} />
+    <BlochSphereParamsForm
+      params={{ mode: "free_placement", startState: [0.5, -0.5] }}
+      onChange={vi.fn()}
+    />
   );
   expect(screen.getByLabelText("Real part")).toHaveValue(0.5);
   expect(screen.getByLabelText("Imaginary part")).toHaveValue(-0.5);

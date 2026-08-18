@@ -55,9 +55,7 @@ export function QuestionScreenForm({
 
   if (!screenId) {
     return (
-      <p className="question-screen-form__note">
-        Save this screen first, then attach a question.
-      </p>
+      <p className="question-screen-form__note">Save this screen first, then attach a question.</p>
     );
   }
 

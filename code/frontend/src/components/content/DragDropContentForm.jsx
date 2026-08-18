@@ -34,7 +34,10 @@ export function DragDropContentForm({ content, onChange, disabled = false }) {
     updateContent({ correctOrder: nextOrderedIds });
   }
 
-  const orderRows = correctOrder.map((itemIndex) => ({ id: itemIndex, label: items[itemIndex] ?? "" }));
+  const orderRows = correctOrder.map((itemIndex) => ({
+    id: itemIndex,
+    label: items[itemIndex] ?? "",
+  }));
 
   return (
     <div className="drag-drop-content-form">

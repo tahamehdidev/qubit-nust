@@ -170,7 +170,9 @@ test("PATCH /users/me/password changes the password and revokes the current sess
   assert.equal(newPasswordLoginRes.status, 200);
 
   // The session active when the password changed is revoked, same as passwordReset's confirm.
-  const refreshRes = await request(app).post("/auth/refresh").set("Cookie", loginRes.headers["set-cookie"]);
+  const refreshRes = await request(app)
+    .post("/auth/refresh")
+    .set("Cookie", loginRes.headers["set-cookie"]);
   assert.equal(refreshRes.status, 401);
 });
 

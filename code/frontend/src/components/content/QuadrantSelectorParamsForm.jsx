@@ -97,8 +97,7 @@ export function QuadrantSelectorParamsForm({ params, onChange, disabled = false 
         {quadrants.map((quadrant, index) => (
           <div key={index} className="quadrant-selector-params-form__quadrant-row">
             <span className="quadrant-selector-params-form__quadrant-combo">
-              {yAxisValues[Math.floor(index / 2)] || "—"} &times;{" "}
-              {xAxisValues[index % 2] || "—"}
+              {yAxisValues[Math.floor(index / 2)] || "—"} &times; {xAxisValues[index % 2] || "—"}
             </span>
             <Input
               label="Label"

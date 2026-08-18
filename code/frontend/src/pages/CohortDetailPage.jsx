@@ -262,8 +262,8 @@ export function CohortDetailPage() {
           Invite students
         </h2>
         <p className="cohort-detail__invite-intro">
-          Share this link so students can join {cohort.name} themselves &mdash; no need to add
-          them one by one.
+          Share this link so students can join {cohort.name} themselves &mdash; no need to add them
+          one by one.
         </p>
 
         {inviteError ? (

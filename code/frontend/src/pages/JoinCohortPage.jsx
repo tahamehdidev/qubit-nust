@@ -62,7 +62,10 @@ export function JoinCohortPage() {
           </>
         ) : status === "joined" || status === "already" ? (
           <>
-            <CheckCircle2 className="join-cohort__icon join-cohort__icon--success" aria-hidden="true" />
+            <CheckCircle2
+              className="join-cohort__icon join-cohort__icon--success"
+              aria-hidden="true"
+            />
             <h1>{status === "joined" ? "You're in" : "Already joined"}</h1>
             <p className="join-cohort__body">
               {status === "joined"

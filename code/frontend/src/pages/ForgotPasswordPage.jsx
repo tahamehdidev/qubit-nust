@@ -42,8 +42,8 @@ export function ForgotPasswordPage() {
           {isSubmitted ? (
             <>
               <p className="auth-page__banner auth-page__banner--success" role="status">
-                If an account exists for {email}, we&rsquo;ve sent a link to reset your password.
-                It expires in 30 minutes.
+                If an account exists for {email}, we&rsquo;ve sent a link to reset your password. It
+                expires in 30 minutes.
               </p>
               <p className="auth-page__switch">
                 <Link to="/login">Back to log in</Link>

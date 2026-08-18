@@ -179,7 +179,10 @@ export function ContentPracticeSetDetailPage() {
 
   return (
     <main className="content-practice-set-detail">
-      <Link to={`/admin/content/lessons/${lesson.id}`} className="content-practice-set-detail__back">
+      <Link
+        to={`/admin/content/lessons/${lesson.id}`}
+        className="content-practice-set-detail__back"
+      >
         <ArrowLeft size={16} aria-hidden="true" />
         {lesson.title}
       </Link>
@@ -291,8 +294,7 @@ export function ContentPracticeSetDetailPage() {
             </p>
           ) : null}
           <p className="content-practice-set-detail__danger-copy">
-            This removes the practice set and its question attachments. This can&rsquo;t be
-            undone.
+            This removes the practice set and its question attachments. This can&rsquo;t be undone.
           </p>
           <Button type="button" variant="destructive" onClick={() => setIsModalOpen(true)}>
             <Trash2 size={16} aria-hidden="true" />

@@ -5,7 +5,14 @@
 // calm-accent "restrained" strategy rather than inventing a per-course color palette.
 export function NeuralNetIcon({ className }) {
   return (
-    <svg className={className} width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      width="28"
+      height="28"
+      viewBox="0 0 28 28"
+      fill="none"
+      aria-hidden="true"
+    >
       <circle cx="5" cy="8" r="2.25" stroke="currentColor" strokeWidth="1.5" />
       <circle cx="5" cy="20" r="2.25" stroke="currentColor" strokeWidth="1.5" />
       <circle cx="14" cy="14" r="2.25" stroke="currentColor" strokeWidth="1.5" />
@@ -22,18 +29,36 @@ export function NeuralNetIcon({ className }) {
 
 export function AlgorithmIcon({ className }) {
   return (
-    <svg className={className} width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      width="28"
+      height="28"
+      viewBox="0 0 28 28"
+      fill="none"
+      aria-hidden="true"
+    >
       <circle cx="5" cy="14" r="2.25" stroke="currentColor" strokeWidth="1.5" />
       <circle cx="23" cy="6" r="2.25" stroke="currentColor" strokeWidth="1.5" />
       <circle cx="23" cy="22" r="2.25" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M7.2 13 15 7 M15 7h6 M7.2 15 15 21 M15 21h6" stroke="currentColor" strokeWidth="1.5" />
+      <path
+        d="M7.2 13 15 7 M15 7h6 M7.2 15 15 21 M15 21h6"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
     </svg>
   );
 }
 
 export function QubitChipIcon({ className }) {
   return (
-    <svg className={className} width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      width="28"
+      height="28"
+      viewBox="0 0 28 28"
+      fill="none"
+      aria-hidden="true"
+    >
       <rect x="9" y="9" width="10" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" />
       <circle cx="14" cy="14" r="2" stroke="currentColor" strokeWidth="1.5" />
       <path

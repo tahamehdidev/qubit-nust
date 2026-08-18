@@ -63,11 +63,7 @@ export function LandingNavbar() {
   }
 
   return (
-    <header
-      className={
-        "landing-navbar" + (isScrolled ? " landing-navbar--scrolled" : "")
-      }
-    >
+    <header className={"landing-navbar" + (isScrolled ? " landing-navbar--scrolled" : "")}>
       <div className="landing-navbar__bar">
         <Link to="/" className="landing-navbar__wordmark" onClick={closeMenu}>
           <LandingWordmark />
@@ -108,7 +104,11 @@ export function LandingNavbar() {
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             onClick={() => setIsMenuOpen((open) => !open)}
           >
-            {isMenuOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
+            {isMenuOpen ? (
+              <X size={22} aria-hidden="true" />
+            ) : (
+              <Menu size={22} aria-hidden="true" />
+            )}
           </button>
         </div>
       </div>

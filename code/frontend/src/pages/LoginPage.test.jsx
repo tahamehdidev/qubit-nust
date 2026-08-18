@@ -106,7 +106,9 @@ test("redirects back to the page ProtectedRoute bounced the visitor from", async
 test("wrong password and a nonexistent email render the exact same message", async () => {
   const user = userEvent.setup();
   const invalidCredentialsError = {
-    response: { data: { error: { code: "INVALID_CREDENTIALS", message: "Invalid email or password." } } },
+    response: {
+      data: { error: { code: "INVALID_CREDENTIALS", message: "Invalid email or password." } },
+    },
   };
   authService.login.mockRejectedValue(invalidCredentialsError);
   renderLoginPage();

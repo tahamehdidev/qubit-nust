@@ -16,7 +16,11 @@ const VALIDATORS_BY_WIDGET_TYPE = {
     if (!Array.isArray(params.amplitudes) || params.amplitudes.length === 0) {
       return "Add at least one basis state.";
     }
-    if (params.amplitudes.some((amplitude) => typeof amplitude !== "number" || Number.isNaN(amplitude))) {
+    if (
+      params.amplitudes.some(
+        (amplitude) => typeof amplitude !== "number" || Number.isNaN(amplitude)
+      )
+    ) {
       return "Every amplitude must be a number.";
     }
     if (params.labels && params.labels.length !== params.amplitudes.length) {
@@ -52,10 +56,18 @@ const VALIDATORS_BY_WIDGET_TYPE = {
     if (!params.xAxisLabel || !params.yAxisLabel) {
       return "Both axis labels are required.";
     }
-    if (!Array.isArray(params.xAxisValues) || params.xAxisValues.length !== 2 || params.xAxisValues.some((v) => !v)) {
+    if (
+      !Array.isArray(params.xAxisValues) ||
+      params.xAxisValues.length !== 2 ||
+      params.xAxisValues.some((v) => !v)
+    ) {
       return "X axis needs exactly two non-empty values.";
     }
-    if (!Array.isArray(params.yAxisValues) || params.yAxisValues.length !== 2 || params.yAxisValues.some((v) => !v)) {
+    if (
+      !Array.isArray(params.yAxisValues) ||
+      params.yAxisValues.length !== 2 ||
+      params.yAxisValues.some((v) => !v)
+    ) {
       return "Y axis needs exactly two non-empty values.";
     }
     if (!Array.isArray(params.quadrants) || params.quadrants.length !== 4) {

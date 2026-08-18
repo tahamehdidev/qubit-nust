@@ -49,7 +49,10 @@ function renderSignupPage() {
   );
 }
 
-async function fillAndSubmit(user, { name = "Ada Lovelace", email = "ada@example.com", password = "password123" } = {}) {
+async function fillAndSubmit(
+  user,
+  { name = "Ada Lovelace", email = "ada@example.com", password = "password123" } = {}
+) {
   await user.type(screen.getByLabelText("Your name"), name);
   await user.type(screen.getByLabelText("Your email"), email);
   await user.type(screen.getByLabelText("Create password"), password);
@@ -80,7 +83,12 @@ test("links to the Terms of Service and Privacy Policy (Phase 7D)", () => {
 
 test("a successful signup logs the new learner in and redirects to /courses", async () => {
   const user = userEvent.setup();
-  authService.signup.mockResolvedValue({ id: "u1", email: "ada@example.com", name: "Ada Lovelace", role: "learner" });
+  authService.signup.mockResolvedValue({
+    id: "u1",
+    email: "ada@example.com",
+    name: "Ada Lovelace",
+    role: "learner",
+  });
   authService.login.mockResolvedValue({
     user: { id: "u1", name: "Ada Lovelace", role: "learner" },
     accessToken: "token",
@@ -95,7 +103,10 @@ test("a successful signup logs the new learner in and redirects to /courses", as
     email: "ada@example.com",
     password: "password123",
   });
-  expect(authService.login).toHaveBeenCalledWith({ email: "ada@example.com", password: "password123" });
+  expect(authService.login).toHaveBeenCalledWith({
+    email: "ada@example.com",
+    password: "password123",
+  });
   expect(screen.getByText("welcomeName: Ada Lovelace")).toBeInTheDocument();
 });
 
@@ -154,7 +165,12 @@ test("a non-field signup error (e.g. network) shows the page-level banner, not a
 
 test("if signup succeeds but the follow-up login fails, sends the learner to log in instead of showing an error", async () => {
   const user = userEvent.setup();
-  authService.signup.mockResolvedValue({ id: "u1", email: "ada@example.com", name: "Ada Lovelace", role: "learner" });
+  authService.signup.mockResolvedValue({
+    id: "u1",
+    email: "ada@example.com",
+    name: "Ada Lovelace",
+    role: "learner",
+  });
   authService.login.mockRejectedValue(new Error("transient network hiccup"));
   renderSignupPage();
 
@@ -178,7 +194,10 @@ test("disables the form while submitting", async () => {
   expect(screen.getByLabelText("Your name")).toBeDisabled();
   expect(screen.getByLabelText("Your email")).toBeDisabled();
   expect(screen.getByLabelText("Create password")).toBeDisabled();
-  expect(screen.getByRole("button", { name: "Create account" })).toHaveAttribute("aria-busy", "true");
+  expect(screen.getByRole("button", { name: "Create account" })).toHaveAttribute(
+    "aria-busy",
+    "true"
+  );
 
   resolveSignup({ id: "u1", email: "ada@example.com", name: "Ada Lovelace", role: "learner" });
   await waitFor(() => expect(authService.login).toHaveBeenCalled());

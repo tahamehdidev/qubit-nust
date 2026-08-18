@@ -212,7 +212,10 @@ export function BlochSphere({ params }) {
         };
         break;
       case "ArrowRight":
-        next = { theta: angles.theta, phi: (angles.phi + FREE_PLACEMENT_KEYBOARD_STEP) % (2 * Math.PI) };
+        next = {
+          theta: angles.theta,
+          phi: (angles.phi + FREE_PLACEMENT_KEYBOARD_STEP) % (2 * Math.PI),
+        };
         break;
       default:
         return;

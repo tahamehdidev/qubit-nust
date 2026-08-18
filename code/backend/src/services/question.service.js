@@ -69,7 +69,13 @@ async function create({ prompt, type, content, createdById, hint, explanation })
 }
 
 async function update(id, { prompt, type, content, hint, explanation }) {
-  const question = await questionRepository.update(id, { prompt, type, content, hint, explanation });
+  const question = await questionRepository.update(id, {
+    prompt,
+    type,
+    content,
+    hint,
+    explanation,
+  });
   if (!question) throw new NotFoundError("Question not found.");
   return toPublicQuestion(question, "instructor");
 }

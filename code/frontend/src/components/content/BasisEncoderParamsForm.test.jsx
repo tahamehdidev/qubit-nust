@@ -9,7 +9,12 @@ test("defaults qubit count to 1 and default number to 0", () => {
 });
 
 test("renders the current params", () => {
-  render(<BasisEncoderParamsForm params={{ qubitCount: 3, defaultNumber: 6, caption: "Try it" }} onChange={vi.fn()} />);
+  render(
+    <BasisEncoderParamsForm
+      params={{ qubitCount: 3, defaultNumber: 6, caption: "Try it" }}
+      onChange={vi.fn()}
+    />
+  );
   expect(screen.getByLabelText("Qubit count")).toHaveValue(3);
   expect(screen.getByLabelText("Default number")).toHaveValue(6);
   expect(screen.getByLabelText("Caption (optional)")).toHaveValue("Try it");
@@ -17,7 +22,9 @@ test("renders the current params", () => {
 
 test("changing qubit count calls onChange with the updated count", () => {
   const onChange = vi.fn();
-  render(<BasisEncoderParamsForm params={{ qubitCount: 3, defaultNumber: 6 }} onChange={onChange} />);
+  render(
+    <BasisEncoderParamsForm params={{ qubitCount: 3, defaultNumber: 6 }} onChange={onChange} />
+  );
 
   fireEvent.change(screen.getByLabelText("Qubit count"), { target: { value: "4" } });
 

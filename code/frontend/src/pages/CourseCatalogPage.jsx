@@ -106,8 +106,8 @@ export function CourseCatalogPage() {
         <div className="course-catalog__hero-content">
           <h1>Course Catalog</h1>
           <p className="course-catalog__intro">
-            Three courses, each built around one real question in quantum computing — pick where
-            you want to start.
+            Three courses, each built around one real question in quantum computing — pick where you
+            want to start.
           </p>
           {courses !== null ? (
             <div className="course-catalog__hero-stats">
@@ -151,9 +151,7 @@ export function CourseCatalogPage() {
 
       <div className="course-catalog__grid">
         {courses === null
-          ? Array.from({ length: SKELETON_COUNT }, (_, index) => (
-              <CourseCardSkeleton key={index} />
-            ))
+          ? Array.from({ length: SKELETON_COUNT }, (_, index) => <CourseCardSkeleton key={index} />)
           : courses.map((course, index) => (
               <CourseCard
                 key={course.id}

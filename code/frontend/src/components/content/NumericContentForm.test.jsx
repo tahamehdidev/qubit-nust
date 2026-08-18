@@ -25,7 +25,9 @@ test("changing correct value calls onChange with the updated number", () => {
 
 test("clearing tolerance sets it to undefined rather than NaN", () => {
   const onChange = vi.fn();
-  render(<NumericContentForm content={{ correctValue: 3.5, tolerance: 0.1 }} onChange={onChange} />);
+  render(
+    <NumericContentForm content={{ correctValue: 3.5, tolerance: 0.1 }} onChange={onChange} />
+  );
 
   fireEvent.change(screen.getByLabelText("Tolerance (optional)"), { target: { value: "" } });
 

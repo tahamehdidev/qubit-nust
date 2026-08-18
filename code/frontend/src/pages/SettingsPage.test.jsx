@@ -107,7 +107,9 @@ test("a wrong current password shows the backend's error without navigating away
     clearSession: vi.fn(),
   });
   userService.changePassword.mockRejectedValue({
-    response: { data: { error: { code: "INVALID_CREDENTIALS", message: "Invalid email or password." } } },
+    response: {
+      data: { error: { code: "INVALID_CREDENTIALS", message: "Invalid email or password." } },
+    },
   });
   renderPage();
 
